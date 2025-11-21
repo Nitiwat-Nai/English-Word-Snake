@@ -29,9 +29,9 @@
             --grid-size: 15;
             --cell-size: 25px; 
             
-            /* Control Button Styling (Requirement 1: Increase 20%) */
+            /* Control Button Styling (V2.0: Increase 20%) */
             --control-new-size: 84px; /* 70px * 1.2 = 84px */
-            --control-btn-font: 2.5rem; /* Increased font size */
+            --control-btn-font: 2.5rem; 
         }
 
         /* --- CONTAINER & BASE STYLES --- */
@@ -83,47 +83,43 @@
             box-sizing: border-box;
             display: none; 
         }
+        
+        /* V2.1: Main Screen Layout for Sub-Level Buttons */
+        .sub-level-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 Columns (5 rows) */
+            gap: 10px; 
+            padding: 0 15px;
+        }
+        .sub-level-container .sub-level-btn {
+             width: auto; /* Ensures button takes space in the grid cell */
+        }
+        
 
-        /* --- Game Screen Layout (V2.0 Layout Adjustment: Tighter Fit) --- */
+        /* --- Game Screen Layout --- */
         #game-screen {
              justify-content: flex-start; 
-             padding-top: 0; /* Reduced from 5px to 0 */
+             padding-top: 0; 
         }
         
-        #game-screen h1 { 
-            margin-bottom: 0; /* Reduced from 0.2rem to 0 */
-            font-size: 1.5rem;
-        }
-        
-        #game-info {
-            line-height: 1.2; 
-            margin-bottom: 0.2rem; /* Reduced from 0.5rem to 0.2rem */
-            font-size: 1.1rem; 
-        }
-        
-        #game-info span {
-             font-size: 1.2rem; 
-             font-weight: bold;
-             color: var(--color-snake-head);
-        }
-        
-        #collected-word {
-            font-size: 1.3rem !important;
-            color: var(--color-letter) !important;
-        }
+        #game-screen h1 { margin-bottom: 0; font-size: 1.5rem; }
+        #game-info { line-height: 1.2; margin-bottom: 0.2rem; font-size: 1.1rem; }
         
         .game-container {
-            margin-top: 2px; /* Reduced from 5px to 2px */
+            margin-top: 2px; 
             order: 1; 
         }
         
-        /* V2.0 Layout Adjustment: Move controls up by 1/2 of button height (~42px) */
+        /* V2.1 Adjustment: Move controls up 10px and left 10px */
         #controls-wrapper {
             order: 2; 
-            margin-top: 10px; /* Control spacing better than 'auto' */
-            padding-top: 10px; /* Reduced from 15px to 10px */
-            padding-bottom: 10px; /* Reduced from 15px to 10px */
-            margin-bottom: -42px; /* Shift up by half button size (84/2) */
+            margin-top: 10px; 
+            padding-top: 10px; 
+            padding-bottom: 10px; 
+            /* Up 10px more: -42px - 10px = -52px (Original -42px was 1/2 of button height) */
+            margin-bottom: -52px; 
+            /* Left 10px */
+            margin-left: -10px; 
         }
         
         /* --- Game Board --- */
@@ -164,7 +160,7 @@
             border: none;
             padding: 0.5rem; 
             border-radius: 10px; 
-            font-size: var(--control-btn-font); /* Increased font size */
+            font-size: var(--control-btn-font); 
             font-weight: bold;
             cursor: pointer;
             transition: all 0.1s;
@@ -253,28 +249,28 @@
         #overlay-return-btn {
             background-color: #F44336; 
             box-shadow: 0 4px 0 #D32F2F;
-            margin-top: 15px; /* Explicit space from button above */
+            margin-top: 15px; 
         }
         
         /* --- Summary Screen Button Styles (V2.0: Bigger Font, No TTS Readout) --- */
         #level-summary-screen li {
-            font-size: 1.15rem; /* Increased font size */
+            font-size: 1.15rem; 
             margin-bottom: 8px;
             padding: 5px 0;
             text-align: left; 
             padding-left: 20px;
         }
         #level-summary-screen li strong {
-            font-size: 1.4rem; /* Increased font size */
+            font-size: 1.4rem; 
             color: var(--color-primary);
         }
         
         #level-next-btn {
-            background-color: #66BB6A; /* Light Green for Next Level */
+            background-color: #66BB6A; 
             box-shadow: 0 4px 0 #388E3C; 
         }
         #level-return-btn {
-            background-color: #EF5350; /* Red for Return to Main */
+            background-color: #EF5350; 
             box-shadow: 0 4px 0 #D32F2F;
             margin-top: 10px; 
         }
@@ -379,7 +375,7 @@
         const GRID_SIZE = 15;
         const GAME_SPEED = 250; 
         const START_DELAY = 500; 
-        const END_LEVEL_DELAY = 500; // Reduced delay since TTS reading is removed
+        const END_LEVEL_DELAY = 500; 
         const LEVEL_WORD_COUNT = 5;
         
         const DIFFICULTY_COLORS = {
@@ -448,7 +444,6 @@
         let gameInterval;
         let isGameRunning = false;
 
-        // V2.0: Only read English word
         function readWordAndTranslation(word, translation, delay = 100) { 
             if (!synth) return;
             if (synth.speaking) {
@@ -459,12 +454,9 @@
             engUtterance.lang = 'en-US';
             engUtterance.rate = 0.8; 
 
-            // Only speak the English word
             synth.speak(engUtterance);
         }
         
-        // V2.0: Removed old TTS Summary function (readLevelSummary)
-
         function generateSubLevelButtons() {
             const mainLevels = ['easy', 'medium', 'hard'];
             mainLevels.forEach(mainLevel => {
@@ -572,16 +564,13 @@
             
             completedWordsInLevel.forEach(item => {
                 const li = document.createElement('li');
-                // Font size set via CSS
                 li.innerHTML = `<strong>${item.word}</strong> / ${item.translation}`;
                 levelSummaryList.appendChild(li);
             });
 
-            // V2.0: Unlock buttons immediately
             levelNextBtn.disabled = false; 
             levelReturnBtn.disabled = false;
             
-            // Set status text immediately (no TTS reading)
             ttsStatus.textContent = "รายการคำศัพท์ทั้งหมดในเลเวลนี้:";
         }
 
@@ -657,7 +646,6 @@
                 clearInterval(gameInterval);
                 isGameRunning = false; 
                 
-                // V2.0: Read English word only
                 readWordAndTranslation(wordToSpell, currentWordObj.translation);
                 
                 completedWordsInLevel.push(currentWordObj);
@@ -665,7 +653,7 @@
                 
                 setTimeout(() => {
                     startNextWord(); 
-                }, END_LEVEL_DELAY); // Uses reduced delay (500ms)
+                }, END_LEVEL_DELAY); 
                 
                 return;
             }
