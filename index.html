@@ -20,19 +20,17 @@
             --color-snake-body: #4DB6AC; /* Light Teal Green */
             --color-letter: #FF9800; /* Orange/Letter Accent */
             
-            /* Difficulty Colors */
-            --color-easy: #FFC107;
-            --color-medium: #4CAF50;
-            --color-hard: #2196F3;
+            /* Difficulty Colors (Requirement 2 Confirmed) */
+            --color-easy: #FFC107;      /* Yellow */
+            --color-medium: #4CAF50;    /* Green */
+            --color-hard: #2196F3;      /* Blue */
             
             /* Grid Size */
             --grid-size: 15;
             --cell-size: 25px; 
             
             /* Control Button Styling */
-            --control-btn-padding: 1rem; 
-            --control-btn-font: 2.25rem; 
-            --control-btn-base-size: 200px;
+            --control-btn-font: 2rem; 
         }
 
         /* --- CONTAINER & BASE STYLES --- */
@@ -85,25 +83,25 @@
             display: none; 
         }
 
-        /* --- Game Screen Layout (Requirement 3: Tighten Spacing & Move Up) --- */
+        /* --- Game Screen Layout --- */
         #game-screen {
-             justify-content: flex-start; /* Start from the top */
-             padding-top: 5px; /* Reduce top padding */
+             justify-content: flex-start; 
+             padding-top: 5px; 
         }
         
         #game-screen h1 { 
-            margin-bottom: 0.2rem; /* Move "Word Snake" up */
+            margin-bottom: 0.2rem; 
             font-size: 1.5rem;
         }
         
         #game-info {
-            line-height: 1.2; /* Tighten line spacing */
+            line-height: 1.2; 
             margin-bottom: 0.5rem; 
-            font-size: 1.1rem; /* Base font size */
+            font-size: 1.1rem; 
         }
         
         #game-info span {
-             font-size: 1.2rem; /* Make the variable content slightly larger */
+             font-size: 1.2rem; 
              font-weight: bold;
              color: var(--color-snake-head);
         }
@@ -114,13 +112,13 @@
         }
         
         .game-container {
-            margin-top: 5px; /* Keep board close to info */
-            order: 1; /* Board remains the first major content block */
+            margin-top: 5px; 
+            order: 1; 
         }
         
         #controls-wrapper {
             order: 2; 
-            margin-top: auto; /* Push controls to the bottom */
+            margin-top: auto; 
             padding-top: 15px; 
             padding-bottom: 15px;
         }
@@ -129,13 +127,14 @@
         .game-container {
             width: calc(var(--grid-size) * var(--cell-size)); 
             height: calc(var(--grid-size) * var(--cell-size));
-            display: grid;
-            grid-template-columns: repeat(var(--grid-size), 1fr);
-            grid-template-rows: repeat(var(--grid-size), 1fr);
+            /* ... (omitted grid display properties for brevity, they are set later in the block) */
             border: 5px solid var(--color-primary);
             background-color: #CFD8DC; 
             margin-left: auto;
             margin-right: auto;
+            display: grid;
+            grid-template-columns: repeat(var(--grid-size), 1fr);
+            grid-template-rows: repeat(var(--grid-size), 1fr);
         }
 
         .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
@@ -147,44 +146,82 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- Controls (Requirement 2: New 2-Row Arrangement) --- */
+        /* --- Controls (Requirement 1: Larger, Square Buttons) --- */
         .controls {
             display: grid;
-            /* New Grid Area: UP / LEFT | DOWN | RIGHT */
             grid-template-areas: ". up ." "left down right";
-            grid-template-columns: 1fr 1fr 1fr; /* 3 columns for the bottom row */
+            grid-template-columns: 1fr 1fr 1fr; 
             grid-gap: 10px; 
             width: 90%; 
-            max-width: 300px; /* Limit total size */
+            max-width: 350px; 
             margin: 15px auto 0; 
         }
 
         .control-btn {
             color: var(--color-text-light);
             border: none;
-            padding: 0.8rem 0; /* Adjusted padding for better fit */
-            border-radius: 10px; /* Square up buttons slightly */
-            font-size: 2rem; 
+            padding: 1.2rem; /* Increased padding */
+            border-radius: 10px; 
+            font-size: var(--control-btn-font); 
             font-weight: bold;
             cursor: pointer;
             transition: all 0.1s;
             background-color: var(--color-secondary); 
             box-shadow: 0 5px 0 var(--color-snake-head); 
+            
+            /* **NEW: Enforce square shape and minimum size** */
+            min-width: 70px; 
+            min-height: 70px;
+            aspect-ratio: 1/1; /* Ensure squareness (width = height) */
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
         .control-btn:active {
             transform: translateY(3px);
             box-shadow: 0 2px 0 var(--color-snake-head); 
         }
-        /* Grid assignment based on new layout */
-        #control-up { 
-            grid-area: up; 
-            width: 100%; /* Ensure it spans the middle column */
-        }
+        
+        #control-up { grid-area: up; }
         #control-left { grid-area: left; }
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
 
-        /* --- Modal Overlay (Game Start/Game Over) --- */
+        /* --- Level Select Screen (Requirement 2: Confirmed Colors) --- */
+        .main-levels-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column; 
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .main-difficulty-btn { width: 80%; margin: 0 auto; }
+
+        .main-difficulty-btn[data-level="easy"] {
+            background-color: var(--color-easy); /* Yellow */
+            box-shadow: 0 4px 0 #FF9800; 
+        }
+        .main-difficulty-btn[data-level="medium"] {
+            background-color: var(--color-medium); /* Green */
+            box-shadow: 0 4px 0 #388E3C; 
+        }
+        .main-difficulty-btn[data-level="hard"] {
+            background-color: var(--color-hard); /* Blue */
+            box-shadow: 0 4px 0 #1565C0; 
+        }
+        
+        /* Sub-Level Button Grid */
+        .sub-level-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            grid-template-rows: repeat(5, 1fr); 
+            max-width: 300px; 
+            margin: 0 auto;
+            gap: 10px;
+        }
+
+        /* --- Modal Overlay & Shared Buttons --- */
         #game-overlay {
             position: absolute; 
             top: 0; 
@@ -199,37 +236,7 @@
             justify-content: center; 
             align-items: center;
         }
-        .overlay-content {
-            background-color: var(--color-text-light);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-            width: 80%;
-            max-width: 350px;
-            text-align: center;
-        }
-        .overlay-content h2 {
-            margin-top: 0;
-            color: var(--color-primary);
-        }
         
-        /* --- Other shared styles (Level Select/Summary) --- */
-        .main-levels-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column; 
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .main-difficulty-btn { width: 80%; margin: 0 auto; }
-        .sub-level-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); 
-            grid-template-rows: repeat(5, 1fr); 
-            max-width: 300px; 
-            margin: 0 auto;
-            gap: 10px;
-        }
         .modal-btn, .main-difficulty-btn, .sub-level-btn, #start-game-btn-overlay {
             color: var(--color-text-light);
             border: none;
@@ -241,7 +248,10 @@
             font-weight: bold;
             background-color: var(--color-primary);
             box-shadow: 0 4px 0 #1B5E20; 
+            width: 100%; /* Ensure full width in overlay/summary */
+            box-sizing: border-box;
         }
+        
         #start-game-btn-overlay {
             background-color: var(--color-snake-head);
             box-shadow: 0 4px 0 #00251A;
@@ -251,6 +261,18 @@
             background-color: #F44336; 
             box-shadow: 0 4px 0 #D32F2F;
         }
+        
+        /* **NEW: Summary Screen Button Styles (Requirement 3)** */
+        #level-next-btn {
+            background-color: #66BB6A; /* Light Green for Next Level */
+            box-shadow: 0 4px 0 #388E3C; 
+        }
+        #level-return-btn {
+            background-color: #EF5350; /* Red for Return to Main */
+            box-shadow: 0 4px 0 #D32F2F;
+            margin-top: 10px; /* Separate the buttons */
+        }
+
 
         .hidden {
             display: none !important;
@@ -321,7 +343,7 @@
             <ul id="level-summary-list" style="list-style-type: none; padding: 0;">
             </ul>
             <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">กำลังอ่านสรุปคำศัพท์...</p>
-            <div style="width: 100%; max-width: 300px;">
+            <div style="width: 100%; max-width: 300px; display: flex; flex-direction: column; align-items: center; gap: 0;">
                 <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
                 <button id="level-return-btn" class="modal-btn" disabled>กลับหน้าหลัก</button>
             </div>
@@ -571,7 +593,7 @@
             const levelTextMap = { 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
             const progress = currentWordIndexInLevel + 1;
             
-            // Show start overlay (Requirement 1 fixed)
+            // Show start overlay
             overlayTitle.textContent = "พร้อมเริ่มเกมหรือไม่?";
             overlayMessage.innerHTML = `ระดับ${levelTextMap[currentMainLevel]} เลเวล ${currentSubLevel} (${progress}/${LEVEL_WORD_COUNT}): คำศัพท์ที่ต้องสะกด: <strong id="overlay-word">${wordToSpell}</strong>`;
             startGameButtonOverlay.textContent = `เริ่มเกม`;
@@ -739,7 +761,6 @@
             document.getElementById(id).style.display = 'flex'; 
         }
         
-        // Overlay control functions
         function showOverlay() {
             gameOverlay.classList.remove('hidden');
             gameOverlay.style.display = 'flex';
