@@ -20,7 +20,7 @@
             --color-snake-body: #4DB6AC; /* Light Teal Green */
             --color-letter: #FF9800; /* Orange/Letter Accent */
             
-            /* Difficulty Colors (Requirement 2 Confirmed) */
+            /* Difficulty Colors */
             --color-easy: #FFC107;      /* Yellow */
             --color-medium: #4CAF50;    /* Green */
             --color-hard: #2196F3;      /* Blue */
@@ -29,8 +29,9 @@
             --grid-size: 15;
             --cell-size: 25px; 
             
-            /* Control Button Styling */
-            --control-btn-font: 2rem; 
+            /* Control Button Styling (Requirement 1: Increase 20%) */
+            --control-new-size: 84px; /* 70px * 1.2 = 84px */
+            --control-btn-font: 2.5rem; /* Increase font size */
         }
 
         /* --- CONTAINER & BASE STYLES --- */
@@ -116,25 +117,26 @@
             order: 1; 
         }
         
+        /* Requirement 1: Move controls up by 1/2 of button height (~42px) */
         #controls-wrapper {
             order: 2; 
             margin-top: auto; 
-            padding-top: 15px; 
-            padding-bottom: 15px;
+            padding-top: 5px; 
+            padding-bottom: 5px;
+            margin-bottom: -42px; 
         }
         
         /* --- Game Board --- */
         .game-container {
             width: calc(var(--grid-size) * var(--cell-size)); 
             height: calc(var(--grid-size) * var(--cell-size));
-            /* ... (omitted grid display properties for brevity, they are set later in the block) */
+            display: grid;
+            grid-template-columns: repeat(var(--grid-size), 1fr);
+            grid-template-rows: repeat(var(--grid-size), 1fr);
             border: 5px solid var(--color-primary);
             background-color: #CFD8DC; 
             margin-left: auto;
             margin-right: auto;
-            display: grid;
-            grid-template-columns: repeat(var(--grid-size), 1fr);
-            grid-template-rows: repeat(var(--grid-size), 1fr);
         }
 
         .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
@@ -160,7 +162,7 @@
         .control-btn {
             color: var(--color-text-light);
             border: none;
-            padding: 1.2rem; /* Increased padding */
+            padding: 0.5rem; /* Adjusted padding */
             border-radius: 10px; 
             font-size: var(--control-btn-font); 
             font-weight: bold;
@@ -169,10 +171,10 @@
             background-color: var(--color-secondary); 
             box-shadow: 0 5px 0 var(--color-snake-head); 
             
-            /* **NEW: Enforce square shape and minimum size** */
-            min-width: 70px; 
-            min-height: 70px;
-            aspect-ratio: 1/1; /* Ensure squareness (width = height) */
+            /* Enforce larger square shape */
+            min-width: var(--control-new-size); 
+            min-height: var(--control-new-size);
+            aspect-ratio: 1/1; 
             display: flex; 
             align-items: center;
             justify-content: center;
@@ -188,39 +190,20 @@
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
 
-        /* --- Level Select Screen (Requirement 2: Confirmed Colors) --- */
-        .main-levels-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column; 
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .main-difficulty-btn { width: 80%; margin: 0 auto; }
-
+        /* --- Level Select Screen Colors --- */
         .main-difficulty-btn[data-level="easy"] {
-            background-color: var(--color-easy); /* Yellow */
+            background-color: var(--color-easy); 
             box-shadow: 0 4px 0 #FF9800; 
         }
         .main-difficulty-btn[data-level="medium"] {
-            background-color: var(--color-medium); /* Green */
+            background-color: var(--color-medium); 
             box-shadow: 0 4px 0 #388E3C; 
         }
         .main-difficulty-btn[data-level="hard"] {
-            background-color: var(--color-hard); /* Blue */
+            background-color: var(--color-hard); 
             box-shadow: 0 4px 0 #1565C0; 
         }
         
-        /* Sub-Level Button Grid */
-        .sub-level-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); 
-            grid-template-rows: repeat(5, 1fr); 
-            max-width: 300px; 
-            margin: 0 auto;
-            gap: 10px;
-        }
-
         /* --- Modal Overlay & Shared Buttons --- */
         #game-overlay {
             position: absolute; 
@@ -236,20 +219,14 @@
             justify-content: center; 
             align-items: center;
         }
-        
-        .modal-btn, .main-difficulty-btn, .sub-level-btn, #start-game-btn-overlay {
-            color: var(--color-text-light);
-            border: none;
-            cursor: pointer;
-            transition: all 0.1s;
-            font-size: 1.2rem;
-            padding: 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-            background-color: var(--color-primary);
-            box-shadow: 0 4px 0 #1B5E20; 
-            width: 100%; /* Ensure full width in overlay/summary */
-            box-sizing: border-box;
+        .overlay-content {
+            background-color: var(--color-text-light);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            width: 80%;
+            max-width: 350px;
+            text-align: center;
         }
         
         #start-game-btn-overlay {
@@ -257,12 +234,27 @@
             box-shadow: 0 4px 0 #00251A;
             margin-top: 15px; 
         }
+        /* Requirement 2: Increase spacing for Return button */
         #overlay-return-btn {
             background-color: #F44336; 
             box-shadow: 0 4px 0 #D32F2F;
+            margin-top: 15px; /* Explicit space from button above */
         }
         
-        /* **NEW: Summary Screen Button Styles (Requirement 3)** */
+        /* --- Summary Screen Button Styles --- */
+        #level-summary-screen li {
+            /* Requirement 4: Bigger Font */
+            font-size: 1.15rem; 
+            margin-bottom: 8px;
+            padding: 5px 0;
+            text-align: left; 
+            padding-left: 20px;
+        }
+        #level-summary-screen li strong {
+            font-size: 1.4rem; 
+            color: var(--color-primary);
+        }
+        
         #level-next-btn {
             background-color: #66BB6A; /* Light Green for Next Level */
             box-shadow: 0 4px 0 #388E3C; 
@@ -270,9 +262,8 @@
         #level-return-btn {
             background-color: #EF5350; /* Red for Return to Main */
             box-shadow: 0 4px 0 #D32F2F;
-            margin-top: 10px; /* Separate the buttons */
+            margin-top: 10px; 
         }
-
 
         .hidden {
             display: none !important;
@@ -342,7 +333,7 @@
             <h2>🎉 จบเลเวล! คำศัพท์ที่ค้นพบ</h2>
             <ul id="level-summary-list" style="list-style-type: none; padding: 0;">
             </ul>
-            <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">กำลังอ่านสรุปคำศัพท์...</p>
+            <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">รายการคำศัพท์ทั้งหมดในเลเวลนี้:</p>
             <div style="width: 100%; max-width: 300px; display: flex; flex-direction: column; align-items: center; gap: 0;">
                 <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
                 <button id="level-return-btn" class="modal-btn" disabled>กลับหน้าหลัก</button>
@@ -374,7 +365,7 @@
         const GRID_SIZE = 15;
         const GAME_SPEED = 250; 
         const START_DELAY = 500; 
-        const END_LEVEL_DELAY = 500;
+        const END_LEVEL_DELAY = 500; // Reduced delay after successful word collection
         const LEVEL_WORD_COUNT = 5;
         
         const DIFFICULTY_COLORS = {
@@ -443,7 +434,8 @@
         let gameInterval;
         let isGameRunning = false;
 
-        function readWordAndTranslation(word, translation, delay = 1500) {
+        // Requirement 3: Only read English word, removed Thai translation
+        function readWordAndTranslation(word, translation, delay = 100) { 
             if (!synth) return;
             if (synth.speaking) {
                 synth.cancel();
@@ -453,62 +445,28 @@
             engUtterance.lang = 'en-US';
             engUtterance.rate = 0.8; 
 
-            const thaiUtterance = new SpeechSynthesisUtterance(translation);
-            thaiUtterance.lang = 'th-TH';
-            thaiUtterance.rate = 0.9;
-            
-            engUtterance.onend = () => {
-                setTimeout(() => {
-                    synth.speak(thaiUtterance);
-                }, delay); 
-            };
-
+            // Only speak the English word
             synth.speak(engUtterance);
         }
         
-        function readLevelSummary(index, wordsList, nextBtn, returnBtn) {
-            if (index >= wordsList.length) {
-                nextBtn.disabled = false;
-                returnBtn.disabled = false;
-                ttsStatus.textContent = "✅ การอ่านจบแล้ว คุณสามารถกดปุ่มเพื่อไปเลเวลต่อไปได้";
-                return;
-            }
-
-            const wordObj = wordsList[index];
+        // Requirement 4: Simplified/removed TTS from summary
+        function showLevelSummaryScreen() {
+            showScreen('level-summary-screen');
+            levelSummaryList.innerHTML = '';
             
-            const listItems = levelSummaryList.querySelectorAll('li');
-            listItems.forEach((li, i) => {
-                li.style.backgroundColor = (i === index) ? '#E0F2F1' : 'transparent';
+            completedWordsInLevel.forEach(item => {
+                const li = document.createElement('li');
+                // Font size set via CSS now
+                li.innerHTML = `<strong>${item.word}</strong> / ${item.translation}`;
+                levelSummaryList.appendChild(li);
             });
 
-            if (!synth) {
-                readLevelSummary(wordsList.length, wordsList, nextBtn, returnBtn);
-                return;
-            }
+            // Requirement 4: Unlock buttons immediately
+            levelNextBtn.disabled = false; 
+            levelReturnBtn.disabled = false;
             
-            if (synth.speaking) {
-                synth.cancel();
-            }
-            
-            ttsStatus.textContent = `(${index + 1}/${wordsList.length}) กำลังอ่าน: ${wordObj.word} (${wordObj.translation})`;
-            const engUtterance = new SpeechSynthesisUtterance(wordObj.word);
-            engUtterance.lang = 'en-US';
-            engUtterance.rate = 0.8; 
-
-            engUtterance.onend = () => {
-                setTimeout(() => { 
-                    const thaiUtterance = new SpeechSynthesisUtterance(wordObj.translation);
-                    thaiUtterance.lang = 'th-TH';
-                    thaiUtterance.rate = 0.9;
-                    
-                    thaiUtterance.onend = () => {
-                        readLevelSummary(index + 1, wordsList, nextBtn, returnBtn);
-                    }
-                    synth.speak(thaiUtterance);
-                }, 500); 
-            };
-
-            synth.speak(engUtterance);
+            // Set status text immediately
+            ttsStatus.textContent = "รายการคำศัพท์ทั้งหมดในเลเวลนี้:";
         }
 
         function generateSubLevelButtons() {
@@ -612,22 +570,6 @@
             }, START_DELAY); 
         }
         
-        function showLevelSummaryScreen() {
-            showScreen('level-summary-screen');
-            levelSummaryList.innerHTML = '';
-            
-            completedWordsInLevel.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${item.word}</strong> / ${item.translation}`;
-                levelSummaryList.appendChild(li);
-            });
-
-            levelNextBtn.disabled = true;
-            levelReturnBtn.disabled = true;
-
-            readLevelSummary(0, completedWordsInLevel, levelNextBtn, levelReturnBtn);
-        }
-
         function showGameOver(title, message) {
             isGameRunning = false;
             clearInterval(gameInterval);
@@ -705,9 +647,10 @@
                 completedWordsInLevel.push(currentWordObj);
                 currentWordIndexInLevel++; 
                 
+                // Use the simplified delay since Thai reading is removed
                 setTimeout(() => {
                     startNextWord(); 
-                }, END_LEVEL_DELAY + 1500); 
+                }, END_LEVEL_DELAY); 
                 
                 return;
             }
