@@ -3,74 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Word Snake Game (V1.4 Fixed Alignment)</title>
+    <title>English Word Snake Game 🐍</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- THEME & GLOBAL STYLES --- */
+        /* --- THEME & GLOBAL STYLES (Adapted from Word Icons Match) --- */
         :root {
-            --color-primary: #4E342E; 
-            --color-secondary: #BCAAA4; 
-            --color-bg: #F5F5DC; 
-            --color-snake-head: #388E3C; 
-            --color-snake-body: #81C784; 
-            --color-letter: #FFB300; 
-            --color-text-dark: #2C3E50;
+            /* New Snake Theme Colors based on Word Match structure */
+            --color-primary: #388E3C; /* Dark Green - Header/Main */
+            --color-secondary: #66BB6A; /* Light Green/Accent */
+            --color-bg: #E8F5E9; /* Very Light Green Background */
+            --color-text-dark: #2C3E50; /* Dark Text */
             --color-text-light: #FFFFFF;
-
+            
+            /* Snake Specific Colors */
+            --color-snake-head: #004D40; /* Darker Teal Green */
+            --color-snake-body: #4DB6AC; /* Light Teal Green */
+            --color-letter: #FF9800; /* Orange/Letter Accent */
+            
+            /* Grid Size remains 15x15 (375px) */
             --grid-size: 15;
-            --cell-size: 25px;
-            --control-btn-padding: 22px; 
-            --control-btn-font: 34px; 
+            --cell-size: 25px; 
+            
+            /* Control Button Styling from Word Match */
+            --control-btn-padding: 1rem; 
+            --control-btn-font: 1.2rem; 
         }
 
+        /* --- CONTAINER & BASE STYLES (From Word Icons Match) --- */
         body {
             font-family: 'Sarabun', sans-serif;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center; 
-            min-height: 100vh;
             background-color: var(--color-bg);
+            color: var(--color-text-dark);
             margin: 0;
-            padding-top: 20px;
-            flex-direction: column;
-            touch-action: manipulation;
-        }
-
-        /* Screen Management (Main Screens) */
-        .screen {
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Start from top of the screen */
+            min-height: 100vh;
             text-align: center;
-            background-color: var(--color-text-light);
-            border-radius: 10px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-            display: none;
-            margin: 10px auto; 
+            overflow-x: hidden;
+            padding-top: 0; /* Remove top padding */
         }
 
-        #game-screen {
+        .container {
+            width: 100%;
+            max-width: 500px; /* **Max width 500px** */
+            box-sizing: border-box;
+            background-color: var(--color-text-light);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center; /* จัดกึ่งกลางองค์ประกอบย่อยในแนวนอน */
-            padding: 10px;
-        }
-        
-        #game-screen h1 {
-            color: var(--color-primary);
-            margin-bottom: 5px;
+            justify-content: flex-start;
+            padding: 0;
         }
 
-        /* Game Board */
+        header {
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+            padding: 1rem 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        header h1 { font-size: 1.8rem; margin: 0; } 
+
+        .screen {
+            padding: 1rem;
+            display: none; 
+            flex-grow: 1;
+            flex-direction: column;
+            justify-content: flex-start; 
+            gap: 15px;
+            align-items: center; /* Center children within screen */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .screen.active { display: flex; }
+
+        /* --- Game Board (Centering it within the container) --- */
         .game-container {
-            /* ความกว้างภายใน 375px */
-            width: calc(var(--grid-size) * var(--cell-size)); 
+            width: calc(var(--grid-size) * var(--cell-size)); /* 375px */
             height: calc(var(--grid-size) * var(--cell-size));
             display: grid;
             grid-template-columns: repeat(var(--grid-size), 1fr);
             grid-template-rows: repeat(var(--grid-size), 1fr);
             border: 5px solid var(--color-primary);
-            background-color: #D7CCC8; 
+            background-color: #CFD8DC; /* Light Grey background for board */
+            margin-top: 15px; 
+            margin-left: auto; /* Ensure centering */
+            margin-right: auto;
         }
 
         .cell {
@@ -81,7 +101,7 @@
             justify-content: center;
             font-weight: 700;
             font-size: calc(var(--cell-size) * 0.7);
-            color: var(--color-text-dark);
+            color: var(--color-text-light); 
         }
 
         .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
@@ -93,9 +113,8 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        /* Controls Alignment Fix (FINAL FIX) */
+        /* --- Controls (Using Word Match Button Style and Centering) --- */
         #controls-wrapper {
-            /* ลบ width และ Flexbox ออกไป ให้เป็น block ธรรมดา */
             margin-top: 20px; 
             box-sizing: border-box;
             width: 100%; 
@@ -105,154 +124,184 @@
             display: grid;
             grid-template-areas: ". up ." "left down right";
             grid-gap: 10px;
-            width: 200px; /* ความกว้างคงที่ของกลุ่มปุ่ม */
-            margin: 0 auto; /* **FIX: จัดกึ่งกลางองค์ประกอบ 200px ด้วย margin auto** */
+            width: 200px; 
+            margin: 0 auto; /* **FIXED ALIGNMENT** */
         }
-        
+
+        /* Standard Button Style (from Word Match .control-btn) */
         .control-btn {
-            padding: var(--control-btn-padding); 
-            font-size: var(--control-btn-font); 
-            background-color: var(--color-snake-head);
             color: var(--color-text-light);
             border: none;
-            border-radius: 8px;
+            padding: 1rem; 
+            border-radius: 50px;
+            font-size: 1.5rem; /* Larger font for d-pad icons */
+            font-weight: bold;
             cursor: pointer;
-            font-weight: 900;
-            box-shadow: 0 3px #1B5E20; 
             transition: all 0.1s;
+            background-color: var(--color-secondary); 
+            box-shadow: 0 4px 0 var(--color-snake-head); 
+            width: 100%;
         }
         .control-btn:active {
-            box-shadow: 0 1px #1B5E20;
             transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--color-snake-head); 
         }
+
         #control-up { grid-area: up; }
         #control-left { grid-area: left; }
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
-        
-        /* Level Description */
-        .sub-level-header {
-             color: var(--color-primary);
-             font-size: 1.1rem;
-             margin-top: 15px;
-             margin-bottom: 5px;
-             font-weight: bold;
-             text-align: left;
-             width: 100%;
-             max-width: 350px;
-             padding: 0 5px;
-             box-sizing: border-box;
-        }
 
-        /* --- Existing Styles (Unchanged) --- */
+        /* --- Other Buttons (Apply Word Match style) --- */
+        .modal-btn, .main-difficulty-btn, .sub-level-btn, #start-game-btn {
+            background-color: var(--color-primary); 
+            box-shadow: 0 4px 0 #1B5E20; 
+            font-size: 1.2rem;
+            padding: 1rem;
+            border-radius: 50px;
+            width: 100%;
+            margin: 8px 0;
+            font-weight: bold;
+            color: var(--color-text-light);
+            border: none;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .modal-btn:active, .main-difficulty-btn:active, .sub-level-btn:active, #start-game-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1B5E20; 
+        }
+        
+        #start-game-btn {
+            background-color: var(--color-snake-head);
+            box-shadow: 0 4px 0 #00251A; 
+        }
+        #level-next-btn {
+            background-color: var(--color-secondary); 
+            box-shadow: 0 4px 0 #2E7D32; 
+        }
+        
         .sub-level-container {
-            margin-top: 15px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
-            max-width: 350px;
+            /* เปลี่ยนเป็น 3 คอลัมน์เหมือน Word Match */
+            grid-template-columns: repeat(3, 1fr); 
+            max-width: 100%;
+            gap: 10px;
+        }
+        .sub-level-btn {
+            font-size: 0.9rem;
+            padding: 0.7rem;
+        }
+        
+        .main-difficulty-btn {
+            width: 80%; 
             margin-left: auto;
             margin-right: auto;
         }
+        .sub-level-header {
+            width: 100%;
+            max-width: 100%;
+            text-align: center;
+        }
+        #game-info {
+            font-size: 1.1rem;
+            font-weight: normal;
+            color: var(--color-text-dark);
+            margin-top: 10px;
+        }
         
-        .hidden {
-            display: none !important;
+        /* Modal Content Styling */
+        .modal-content {
+            background-color: var(--color-text-light);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 80%;
+            max-width: 350px;
+            text-align: center;
         }
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(255, 255, 255, 0.4); 
+            background-color: rgba(0, 0, 0, 0.4); /* Darker overlay */
             backdrop-filter: blur(5px); z-index: 1000; display: none; 
             justify-content: center; align-items: center;
-        }
-        .main-difficulty-btn, .sub-level-btn, #start-game-btn, .modal-btn {
-            display: block; width: 100%; margin: 10px auto; padding: 15px;
-            border: none; border-radius: 8px; background-color: var(--color-primary);
-            color: var(--color-text-light); font-size: 18px; cursor: pointer;
-            box-shadow: 0 3px #3E2723; 
-        }
-        #start-game-btn {
-            background-color: var(--color-snake-head);
-            box-shadow: 0 3px #1B5E20; font-size: 20px;
-        }
-        .modal-btn:disabled {
-            background-color: #90A4AE; cursor: not-allowed; box-shadow: 0 3px #607D8B;
-        }
-        #game-info {
-            margin-top: 10px; font-size: 18px; font-weight: bold; color: var(--color-text-dark);
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>English Word Snake 🐍</h1>
+        </header>
 
-    <div id="start-screen" class="screen">
-        <h1>🐍 English Word Snake</h1>
-        <p>เลือกความยากหลัก:</p>
-        <div class="main-levels">
-            <button class="main-difficulty-btn" data-level="easy">ระดับ ง่าย</button>
-            <button class="main-difficulty-btn" data-level="medium">ระดับ ปานกลาง</button>
-            <button class="main-difficulty-btn" data-level="hard">ระดับ ยาก</button>
-        </div>
-        
-        <div id="sub-level-description" class="sub-level-header hidden">
+        <div id="start-screen" class="screen active">
+            <h2>เลือกความยากหลัก:</h2>
+            <div class="main-levels">
+                <button class="main-difficulty-btn" data-level="easy">ระดับ ง่าย</button>
+                <button class="main-difficulty-btn" data-level="medium">ระดับ ปานกลาง</button>
+                <button class="main-difficulty-btn" data-level="hard">ระดับ ยาก</button>
             </div>
+            
+            <div id="sub-level-description" class="sub-level-header hidden">
+                </div>
 
-        <div id="sub-levels-container">
-            <div id="sub-levels-easy" class="sub-level-container hidden">
-                </div>
-            <div id="sub-levels-medium" class="sub-level-container hidden">
-                </div>
-            <div id="sub-levels-hard" class="sub-level-container hidden">
-                </div>
-        </div>
-    </div>
-    
-    <div id="game-screen" class="screen">
-        <h1>🐍 English Word Snake 🐍</h1>
-        <div id="game-info">
-            โจทย์: <span id="full-word-display"></span>
-            <br>
-            เป้าหมายถัดไป: <span id="next-letter">?</span>
-        </div>
-        
-        <div id="game-board" class="game-container">
-            </div>
-
-        <div id="controls-wrapper">
-            <div class="controls">
-                <button id="control-up" class="control-btn" data-direction="UP">⬆️</button>
-                <button id="control-left" class="control-btn" data-direction="LEFT">⬅️</button>
-                <button id="control-down" class="control-btn" data-direction="DOWN">⬇️</button>
-                <button id="control-right" class="control-btn" data-direction="RIGHT">➡️</button>
+            <div id="sub-levels-container" style="width: 100%;">
+                <div id="sub-levels-easy" class="sub-level-container hidden">
+                    </div>
+                <div id="sub-levels-medium" class="sub-level-container hidden">
+                    </div>
+                <div id="sub-levels-hard" class="sub-level-container hidden">
+                    </div>
             </div>
         </div>
         
-        <p>คำศัพท์ที่สะสม: <span id="collected-word"></span></p>
-    </div>
+        <div id="game-screen" class="screen">
+            <h1>Word Snake</h1>
+            <div id="game-info">
+                โจทย์: <span id="full-word-display"></span>
+                <br>
+                เป้าหมายถัดไป: <span id="next-letter">?</span>
+            </div>
+            
+            <div id="game-board" class="game-container">
+                </div>
 
-    <div id="level-summary-screen" class="screen">
-        <h2>🎉 จบเลเวล! คำศัพท์ที่ค้นพบ</h2>
-        <ul id="level-summary-list">
-            </ul>
-        <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">กำลังอ่านสรุปคำศัพท์...</p>
-        <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
-        <button id="level-return-btn" class="modal-btn" disabled>กลับหน้าหลัก</button>
-    </div>
-    
-    <div id="pre-game-modal" class="modal-overlay">
-        <div class="modal-content">
-            <button id="start-game-btn">เริ่มเกม</button> 
+            <div id="controls-wrapper">
+                <div class="controls">
+                    <button id="control-up" class="control-btn" data-direction="UP">⬆️</button>
+                    <button id="control-left" class="control-btn" data-direction="LEFT">⬅️</button>
+                    <button id="control-down" class="control-btn" data-direction="DOWN">⬇️</button>
+                    <button id="control-right" class="control-btn" data-direction="RIGHT">➡️</button>
+                </div>
+            </div>
+            
+            <p>คำศัพท์ที่สะสม: <span id="collected-word"></span></p>
         </div>
-    </div>
-    
-    <div id="game-over-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 id="game-over-title">Game Over!</h2>
-            <p id="game-over-message"></p>
-            <button id="game-over-retry-btn" class="modal-btn">กลับหน้าเริ่มต้น</button>
-        </div>
-    </div>
 
-    <script>
+        <div id="level-summary-screen" class="screen">
+            <h2>🎉 จบเลเวล! คำศัพท์ที่ค้นพบ</h2>
+            <ul id="level-summary-list" style="list-style-type: none; padding: 0;">
+                </ul>
+            <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">กำลังอ่านสรุปคำศัพท์...</p>
+            <div style="width: 100%; max-width: 300px;">
+                <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
+                <button id="level-return-btn" class="modal-btn" disabled>กลับหน้าหลัก</button>
+            </div>
+        </div>
+        
+        <div id="pre-game-modal" class="modal-overlay">
+            <div class="modal-content">
+                <button id="start-game-btn">เริ่มเกม</button> 
+            </div>
+        </div>
+        
+        <div id="game-over-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h2 id="game-over-title">Game Over!</h2>
+                <p id="game-over-message"></p>
+                <button id="game-over-retry-btn" class="modal-btn">กลับหน้าเริ่มต้น</button>
+            </div>
+        </div>
+    </div> <script>
         const synth = window.speechSynthesis;
         const gameBoard = document.getElementById('game-board');
         const collectedWordDisplay = document.getElementById('collected-word');
@@ -346,7 +395,7 @@
             
             const listItems = levelSummaryList.querySelectorAll('li');
             listItems.forEach((li, i) => {
-                li.style.backgroundColor = (i === index) ? '#FFF9C4' : 'transparent';
+                li.style.backgroundColor = (i === index) ? '#E0F2F1' : 'transparent';
             });
 
 
@@ -604,7 +653,7 @@
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = (id === 'game-screen' || id === 'level-summary-screen') ? 'flex' : 'block';
+            document.getElementById(id).classList.add('active');
         }
         
         function showModal(id) {
