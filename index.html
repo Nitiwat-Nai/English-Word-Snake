@@ -12,7 +12,7 @@
             --color-primary: #1B5E20; /* Deep Green (Header/Main) */
             --color-secondary: #388E3C; /* Darker Green/Accent (for Controls) */
             
-            /* V2.7: Background to Light Brown/Tan */
+            /* Background to Light Brown/Tan */
             --color-bg: #D7CCC8; /* Light Brown/Tan Body Background */
             --color-card-bg: #FBE9E7; /* Lighter Background for container/card */
             --color-text-dark: #3E2723; /* Dark Brown Text */
@@ -22,15 +22,15 @@
             --color-snake-head: #004D40; /* Dark Teal Green */
             --color-snake-body: #4DB6AC; /* Light Teal Green */
             
-            /* V2.8: Letter Colors (Request 4) */
+            /* Letter Colors */
             --color-letter-target: #E53935; /* Red for the next target letter */
             --color-letter-non-target: #FFC107; /* Yellow for other letters */
             
-            /* V2.7: Red for return buttons */
+            /* Red for return buttons */
             --color-return-btn: #E53935; 
             --color-return-btn-shadow: #C62828; 
             
-            /* Difficulty Colors (Request 1 from V2.7) */
+            /* Difficulty Colors */
             --color-easy: #FFC107;      /* Yellow */
             --color-medium: #4CAF50;    /* Green */
             --color-hard: #2196F3;      /* Blue */
@@ -196,31 +196,44 @@
         
         /* --- Snake & Letter Styles --- */
         
-        /* V2.8: Head (Effect) */
+        /* Head: Eating zoom effect */
         .snake-head { 
             background-color: var(--color-snake-head); 
             border-radius: 50%;
             transition: transform 0.1s ease-out; 
-            z-index: 30; /* ให้อยู่ด้านบนสุด */
+            z-index: 30; 
         }
-        /* V2.8: Eating zoom effect (Request 3) */
         .snake-head.eaten {
             transform: scale(1.3); 
         }
+        /* --- New: Whole Snake Flash Effect (Request 2) --- */
+        .snake-head.zoom-flash, 
+        .snake-body.zoom-flash,
+        .snake-tail.zoom-flash {
+            /* Increase size of all parts */
+            transform: scale(1.15) !important; 
+            /* Add a glowing effect */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 10px var(--color-snake-head);
+            transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        /* Make sure the normal head/body/tail transitions work when not flashing */
+        .snake-head, .snake-body, .snake-tail {
+             transition: transform 0.15s ease-in-out, border-radius 0.2s;
+        }
+
 
         .snake-body { 
             background-color: var(--color-snake-body); 
             border-radius: 20%; 
-            transition: transform 0.2s;
         }
         
-        /* V2.8: Snake Tail Appearance (Request 2) */
+        /* Snake Tail Appearance (Request 1 Fix) */
         .snake-tail {
             background-color: var(--color-snake-body);
             position: relative;
             /* Make the last segment visually part of the tail */
             border-radius: 20%; 
-            transform: scale(0.9); /* ทำให้ส่วนท้ายดูเล็กลงหน่อย */
+            /* Do not scale the segment itself */
             transition: transform 0.2s;
         }
 
@@ -231,34 +244,33 @@
             
             background-color: var(--color-snake-body);
             
-            /* ใช้ clip-path สำหรับรูปสามเหลี่ยมคม/แหลม */
+            /* Polygon for a right-pointing triangle, point at 100% 50% */
             clip-path: polygon(100% 50%, 0% 0%, 0% 100%); 
-            border-radius: 15%; /* มุมมนเล็กน้อย */
+            border-radius: 15%; 
             
-            /* Initial transformation to make it look like a tail tip */
-            transform: scale(0.8) translateX(25%); 
-            transform-origin: center;
+            transform-origin: 50% 50%; /* Ensure rotation is around center */
+            transform: scale(0.8); /* Base scale */
             transition: transform 0.1s;
-            z-index: -1; /* ให้อยู่ด้านล่าง cell */
+            z-index: -1; 
         }
 
-        /* Rotation and translation for the triangle tip based on direction */
-        .snake-tail[data-dir="UP"]::after { 
-            transform: scale(0.8) rotate(-90deg) translateX(25%); 
+        /* Rotation based on tail direction (Direction the tail segment is pointing) */
+        .snake-tail[data-dir="RIGHT"]::after { 
+            transform: scale(0.8) rotate(0deg); 
         }
-        .snake-tail[data-dir="DOWN"]::after { 
-            transform: scale(0.8) rotate(90deg) translateX(25%); 
+        .snake-tail[data-dir="UP"]::after { 
+            transform: scale(0.8) rotate(-90deg); 
         }
         .snake-tail[data-dir="LEFT"]::after { 
-            transform: scale(0.8) rotate(180deg) translateX(25%); 
+            transform: scale(0.8) rotate(180deg); 
         }
-        .snake-tail[data-dir="RIGHT"]::after { 
-            transform: scale(0.8) rotate(0deg) translateX(25%); 
+        .snake-tail[data-dir="DOWN"]::after { 
+            transform: scale(0.8) rotate(90deg); 
         }
         
-        /* V2.8: Letter Piece Styles (Request 4) */
+        /* Letter Piece Styles */
         .letter-piece { 
-            color: var(--color-text-dark); /* ใช้สีเข้มเพื่อให้เห็นตัวอักษรบนสีเหลือง/แดง */
+            color: var(--color-text-dark); 
             border-radius: 50%;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             display: flex;
@@ -270,13 +282,13 @@
         .letter-piece.target {
             /* เป้าหมายถัดไป: สีแดง */
             background-color: var(--color-letter-target);
-            color: var(--color-text-light); /* ตัวอักษรสีขาวบนสีแดง */
+            color: var(--color-text-light); 
         }
         
         .letter-piece:not(.target) {
             /* ตัวอักษรอื่นๆ: สีเหลือง */
             background-color: var(--color-letter-non-target); 
-            color: var(--color-text-dark); /* ตัวอักษรสีดำบนสีเหลือง */
+            color: var(--color-text-dark); 
         }
         
         /* --- Game Text Styles --- */
@@ -347,7 +359,7 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            gap: 15px; /* เว้นระยะห่าง 15px */
+            gap: 15px; 
         }
 
         /* เพิ่มขนาด คำศัพท์ คำแปลในหน้าสรุป */
@@ -530,7 +542,7 @@
         let isGameRunning = false;
         let isHeadEaten = false; 
 
-        function readWordAndTranslation(word, translation, delay = 100) { 
+        function readWordAndTranslation(word) { 
             if (!synth) return;
             if (synth.speaking) {
                 synth.cancel();
@@ -607,10 +619,10 @@
 
             const wordLetters = wordToSpell.split('');
             
-            // V2.8: Initialize occupied positions including the snake's body
+            // Initialize occupied positions including the snake's body
             const occupiedPositions = new Set(['5,5', '4,5']); 
             
-            // V2.8: Add cell directly in front of the head to occupied list (Request 1 fix)
+            // Add cell directly in front of the head to occupied list (Request 1 fix from previous step)
             const head = snake[0];
             let nextX = head.x, nextY = head.y;
             switch(direction) {
@@ -619,7 +631,7 @@
                 case 'LEFT': nextX--; break;
                 case 'RIGHT': nextX++; break;
             }
-            // Check boundaries before adding (prevents initial crash if starting near edge)
+            // Check boundaries before adding 
             if (nextX >= 0 && nextX < GRID_SIZE && nextY >= 0 && nextY < GRID_SIZE) {
                 occupiedPositions.add(`${nextX},${nextY}`); 
             }
@@ -702,10 +714,41 @@
             nextLetterDisplay.textContent = nextLetter;
         }
 
+        // --- New Function: Word Complete Flash (Request 2) ---
+        function startWordCompleteFlash(callback) {
+            const flashDuration = 150; 
+            const cycles = 4; // 2 zoom in, 2 zoom out (total 2 full cycles)
+            let count = 0;
+            // Select all snake parts currently on the board
+            const allSnakeCells = gameBoard.querySelectorAll('.snake-head, .snake-body, .snake-tail');
+
+            function toggleFlash() {
+                if (count >= cycles) {
+                    allSnakeCells.forEach(cell => cell.classList.remove('zoom-flash'));
+                    callback();
+                    return;
+                }
+
+                if (count % 2 === 0) {
+                    // Flash ON (Zoom In)
+                    allSnakeCells.forEach(cell => cell.classList.add('zoom-flash'));
+                } else {
+                    // Flash OFF (Zoom Out/Normal)
+                    allSnakeCells.forEach(cell => cell.classList.remove('zoom-flash'));
+                }
+
+                count++;
+                setTimeout(toggleFlash, flashDuration);
+            }
+            
+            // Initial call to start the sequence
+            toggleFlash();
+        }
+
+
         function updateGame() {
             if (!isGameRunning) return;
             
-            // Reset eating effect flag before processing the move
             isHeadEaten = false; 
 
             const head = { x: snake[0].x, y: snake[0].y };
@@ -747,26 +790,39 @@
                 }
             }
 
-            if (!letterCollected) {
-                snake.pop();
-            }
-            
+            // --- Word Completion Logic (Request 2 Fix) ---
             if (currentWordIndex === wordToSpell.length) {
+                // If the word is complete, the snake *must* consume the last letter and grow.
+                // letterCollected is guaranteed to be true here, so snake.pop() must be skipped.
+                // The head is now *on* the last letter.
+
                 clearInterval(gameInterval);
                 isGameRunning = false; 
                 
-                readWordAndTranslation(wordToSpell, currentWordObj.translation);
+                drawBoard(); // Draw the snake's final position with the last letter eaten
                 
-                completedWordsInLevel.push(currentWordObj);
-                currentWordIndexInLevel++; 
-                
+                // Start flash effect after a very short delay to ensure final position is drawn
                 setTimeout(() => {
-                    startNextWord(); 
-                }, END_LEVEL_DELAY); 
-                
+                    startWordCompleteFlash(() => {
+                        // After flash completes:
+                        readWordAndTranslation(wordToSpell); // Restore speech (Request 3)
+                        completedWordsInLevel.push(currentWordObj);
+                        currentWordIndexInLevel++; 
+                        
+                        setTimeout(() => {
+                            startNextWord(); 
+                        }, END_LEVEL_DELAY); 
+                    });
+                }, 10); // Minimal delay
+
                 return;
             }
 
+
+            if (!letterCollected) {
+                snake.pop(); // Normal move: move forward, pop tail
+            }
+            
             drawBoard();
             updateDisplays();
         }
@@ -781,18 +837,18 @@
             }).join('');
             gameBoard.innerHTML = cellsHTML;
 
-            // V2.8: Apply head/body/tail classes (Request 2)
+            // Apply snake classes
             snake.forEach((segment, index) => {
                 const cell = gameBoard.querySelector(`.cell[data-x="${segment.x}"][data-y="${segment.y}"]`);
                 if (cell) {
-                    cell.removeAttribute('data-dir'); // Clear previous direction
+                    cell.removeAttribute('data-dir'); 
                     
                     if (index === 0) {
-                        // Head: Apply eating effect class if needed
+                        // Head
                         const headClass = `snake-head${isHeadEaten ? ' eaten' : ''}`;
                         cell.className = `cell ${headClass}`;
                     } else if (index === snake.length - 1) {
-                        // Tail: Apply snake-tail class and direction
+                        // Tail (Request 1 Fix)
                         cell.className = 'cell snake-tail';
                         
                         // Determine tail direction (segment before the tail)
@@ -813,12 +869,11 @@
                 }
             });
 
-            // V2.8: Apply letter colors (Request 4)
+            // Apply letter colors
             const currentTargetLetter = wordToSpell[currentWordIndex];
             letterPositions.forEach(p => {
                 const cell = gameBoard.querySelector(`.cell[data-x="${p.x}"][data-y="${p.y}"]`);
                 if (cell) {
-                    // Check if this letter is the current target
                     const isTarget = p.letter === currentTargetLetter;
                     cell.className = `cell letter-piece${isTarget ? ' target' : ''}`;
                     cell.textContent = p.letter;
