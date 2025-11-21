@@ -69,8 +69,8 @@
             width: 100%; 
             display: flex; 
             flex-direction: column; 
-            gap: 15px; /* เพิ่มระยะห่างระหว่างปุ่มเท่ากับ 15px */
-            padding: 0 15px; /* เพิ่ม padding ด้านข้างเพื่อให้ปุ่มไม่ชิดขอบ */
+            gap: 15px; 
+            padding: 0 15px; 
             box-sizing: border-box;
         }
 
@@ -109,8 +109,7 @@
             order: 2; 
             margin-top: 10px; 
             padding-top: 10px; 
-            padding-bottom: 25px; /* เพิ่ม Padding ด้านล่างตามที่ขอ */
-            /* ยกเลิก margin-left และปรับ margin-bottom ให้ดึงส่วนควบคุมขึ้นมากพอ */
+            padding-bottom: 25px; 
             margin-bottom: -75px; 
             margin-left: auto; 
             margin-right: auto;
@@ -137,7 +136,7 @@
             grid-gap: 10px; 
             width: 90%; 
             max-width: 350px; 
-            margin: 15px auto 0; /* 'auto' จัดให้อยู่กึ่งกลางแนวนอน */
+            margin: 15px auto 0; 
         }
         
         .control-btn {
@@ -165,8 +164,6 @@
             box-shadow: 0 2px 0 var(--color-snake-head); 
         }
         
-        /* --- Other shared styles (omitted for brevity, assume unchanged) --- */
-        /* ... */
         .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
         .snake-body { background-color: var(--color-snake-body); border-radius: 20%; }
         .letter-piece { 
@@ -250,14 +247,27 @@
         </div>
         
         <div id="game-overlay" class="hidden">
+             <div class="overlay-content">
+                <h2 id="overlay-title">พร้อมเริ่มเกมหรือไม่?</h2>
+                <p id="overlay-message">คำศัพท์ที่ต้องสะกด: <strong id="overlay-word">CAT</strong></p>
+                <button id="start-game-btn-overlay" class="modal-btn">เริ่มเกม</button> 
+                <button id="overlay-return-btn" class="modal-btn hidden">กลับหน้าเริ่มต้น</button>
              </div>
+        </div>
 
         <div id="level-summary-screen" class="screen">
+            <h2>🎉 จบเลเวล! คำศัพท์ที่ค้นพบ</h2>
+            <ul id="level-summary-list" style="list-style-type: none; padding: 0;">
+            </ul>
+            <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">รายการคำศัพท์ทั้งหมดในเลเวลนี้:</p>
+            <div style="width: 100%; max-width: 300px; display: flex; flex-direction: column; align-items: center; gap: 0;">
+                <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
+                <button id="level-return-btn" class="modal-btn" disabled>กลับหน้าหลัก</button>
             </div>
+        </div>
     </div> 
 
     <script>
-        // *** JavaScript Code (Unchanged from V2.1) ***
         const synth = window.speechSynthesis;
         const gameBoard = document.getElementById('game-board');
         const collectedWordDisplay = document.getElementById('collected-word');
@@ -645,6 +655,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // *** ลบ setupSpeech() ที่เป็นสาเหตุให้หน้าจอขาวออกไป ***
+            
             generateSubLevelButtons(); 
 
             document.querySelectorAll('.main-difficulty-btn').forEach(btn => {
