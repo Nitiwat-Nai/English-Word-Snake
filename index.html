@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Word Snake Game (V1.1)</title>
+    <title>English Word Snake Game (V1.2)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         /* --- THEME & GLOBAL STYLES (ธีมป่า/พื้นดิน) --- */
@@ -24,11 +24,13 @@
         body {
             font-family: 'Sarabun', sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            /* 1. ปรับการแสดงผลให้ไปชิดด้านบนเป็นหลัก */
+            justify-content: flex-start;
+            align-items: center; 
+            min-height: 100vh; /* 1. ปรับพื้นที่ให้แสดงเต็มจอในแนวตั้ง */
             background-color: var(--color-bg);
             margin: 0;
+            padding-top: 20px; /* เพิ่มระยะห่างจากขอบด้านบน */
             flex-direction: column;
         }
 
@@ -42,7 +44,7 @@
             border-radius: 10px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
             display: none;
-            margin: 10px;
+            margin: 10px auto; /* จัดให้อยู่ตรงกลางแนวนอน */
         }
 
         #game-screen {
@@ -55,6 +57,7 @@
         #game-screen h1 {
             color: var(--color-primary);
             margin-bottom: 5px;
+            /* 4. ใส่ไอคอน งู ที่ไเติ้ล */
         }
 
         /* Game Board */
@@ -65,11 +68,10 @@
             grid-template-columns: repeat(var(--grid-size), 1fr);
             grid-template-rows: repeat(var(--grid-size), 1fr);
             border: 5px solid var(--color-primary);
-            background-color: #A5D6A7; /* Pale Green (Jungle Floor) */
+            background-color: #A5D6A7; 
         }
 
         .cell {
-            /* 1. เอาเส้นตารางออก */
             border: none; 
             box-sizing: border-box;
             display: flex;
@@ -85,7 +87,7 @@
         .letter-piece { 
             background-color: var(--color-letter); 
             color: var(--color-text-light); 
-            border-radius: 50%; /* เปลี่ยนเป็นวงกลมเพื่อให้ดูน่าเก็บ */
+            border-radius: 50%;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
@@ -167,14 +169,12 @@
     
     <div id="pre-game-screen" class="screen">
         <h2>โจทย์คำศัพท์ของคุณ</h2>
-        <p style="font-size: 36px; font-weight: 900; color: var(--color-snake-head);" id="pre-game-word"></p>
-        <p>คำแปล: <span id="pre-game-translation"></span></p>
-        <p>ระดับ: <span id="pre-game-level"></span></p>
-        <button id="start-game-btn">กดเพื่อเริ่มเกม!</button>
+        <p style="margin-bottom: 20px;">คุณพร้อมจะสะกดคำศัพท์ในระดับ <span id="pre-game-level-text" style="font-weight: 900;"></span> หรือไม่?</p>
+        <button id="start-game-btn">เริ่มเกม</button>
     </div>
 
     <div id="game-screen" class="screen">
-        <h1>English Word Snake</h1>
+        <h1>🐍 English Word Snake 🐍</h1>
         <div id="game-info">
             โจทย์: <span id="full-word-display"></span>
             <br>
@@ -211,9 +211,9 @@
         const ttsStatus = document.getElementById('tts-status');
 
         const GRID_SIZE = 15;
-        // 3. ลดความเร็วลง 100ms และใช้ความเร็วนี้คงที่
-        const GAME_SPEED = 250; // หน่วงเวลาระหว่างการเคลื่อนที่ของงู (ms)
+        const GAME_SPEED = 250; // ความเร็วคงที่ (250ms/100ms = 4 ช่อง/วินาที)
         const START_DELAY = 500; // หน่วงเวลาก่อนงูเริ่มเดิน (0.5 วินาที)
+        const END_LEVEL_DELAY = 500; // 3. หน่วงเวลาเมื่อเก็บตัวสุดท้าย (0.5 วินาที)
 
         // โครงสร้างคำศัพท์
         const WORDS = {
@@ -247,6 +247,7 @@
         let letterPositions = []; 
         let direction = 'RIGHT'; 
         let gameInterval;
+        let isGameRunning = false;
 
         function getRandomWord(level) {
             const list = WORDS[level];
@@ -259,7 +260,6 @@
                 ttsStatus.textContent = "⚠ เบราว์เซอร์ไม่รองรับ Text-to-Speech";
                 return;
             }
-            // ยกเลิกเสียงที่กำลังพูดอยู่ก่อน
             if (synth.speaking) {
                 synth.cancel();
             }
@@ -279,6 +279,7 @@
                 
                 thaiUtterance.onend = () => {
                     ttsStatus.textContent = "การอ่านจบแล้ว";
+                    // 3. เมื่ออ่านจบแล้วจึงไปคำต่อไป (ซ่อนปุ่มไว้ก่อนจนกว่าจะอ่านจบ)
                 }
                 synth.speak(thaiUtterance);
             };
@@ -288,17 +289,16 @@
 
         function setupGame(level) {
             currentLevel = level;
-            // 1. เลือกคำศัพท์
             currentWordObj = getRandomWord(level);
             wordToSpell = currentWordObj.word;
             currentWordIndex = 0;
             
-            // 2. ตั้งค่างูเริ่มต้น
             snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }]; 
             direction = 'RIGHT';
             letterPositions = [];
+            isGameRunning = false; // หยุดเกมไว้ก่อน
 
-            // 3. วางตัวอักษร
+            // วางตัวอักษร
             const wordLetters = wordToSpell.split('');
             const occupiedPositions = new Set(['5,5', '4,5']); 
 
@@ -314,31 +314,38 @@
                 occupiedPositions.add(posKey);
             });
             
-            // 4. แสดงหน้าจอก่อนเริ่มเกม
-            document.getElementById('pre-game-word').textContent = wordToSpell;
-            document.getElementById('pre-game-translation').textContent = currentWordObj.translation;
-            document.getElementById('pre-game-level').textContent = level.charAt(0).toUpperCase() + level.slice(1);
+            // แสดงหน้าจอก่อนเริ่มเกม
+            const levelTextMap = { 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
+            document.getElementById('pre-game-level-text').textContent = levelTextMap[currentLevel];
+            
             showScreen('pre-game-screen');
             
-            drawBoard(); // วาดบอร์ดครั้งแรกเพื่อให้ตัวอักษรปรากฏใน background
+            drawBoard(); // วาดบอร์ดครั้งแรก
+            updateDisplays(); // อัปเดตคำศัพท์ที่แสดงใน Game Screen ก่อนเริ่มเกม
         }
         
-        // 4. ฟังก์ชันเริ่มเกมจริงพร้อมหน่วงเวลา
         function runGame() {
             showScreen('game-screen');
             clearInterval(gameInterval);
             
-            // หน่วงเวลา 0.5 วินาที ก่อนงูจะเริ่มเคลื่อนที่
+            // 4. หน่วงเวลา 0.5 วินาที ก่อนงูจะเริ่มเคลื่อนที่
             setTimeout(() => {
+                isGameRunning = true;
                 gameInterval = setInterval(updateGame, GAME_SPEED);
             }, START_DELAY); 
+        }
+        
+        function showSummaryScreen() {
+            document.getElementById('final-word').textContent = wordToSpell;
+            document.getElementById('final-translation').textContent = currentWordObj.translation;
+            showScreen('summary-screen');
+            speakWord(wordToSpell, currentWordObj.translation); 
         }
 
         function updateDisplays() {
             const collected = wordToSpell.substring(0, currentWordIndex);
             const nextLetter = wordToSpell[currentWordIndex] || '✅';
             
-            // 2. แสดงโจทย์คำศัพท์ด้านบน
             fullWordDisplay.textContent = wordToSpell; 
             
             collectedWordDisplay.textContent = collected;
@@ -346,6 +353,8 @@
         }
 
         function updateGame() {
+            if (!isGameRunning) return;
+
             const head = { x: snake[0].x, y: snake[0].y };
             switch(direction) {
                 case 'UP': head.y--; break;
@@ -358,6 +367,7 @@
             if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE ||
                 snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
                 clearInterval(gameInterval);
+                isGameRunning = false;
                 alert(`Game Over! 😭 คุณชนกำแพงหรือตัวคุณเอง (คำศัพท์: ${wordToSpell})`);
                 showScreen('start-screen');
                 return;
@@ -380,6 +390,7 @@
                     letterCollected = true;
                 } else {
                     clearInterval(gameInterval);
+                    isGameRunning = false;
                     alert(`Game Over! ❌ คุณเก็บตัวอักษรผิดตัว: ${piece.letter} แทนที่จะเป็น ${currentTargetLetter}`);
                     showScreen('start-screen');
                     return;
@@ -391,13 +402,16 @@
                 snake.pop();
             }
             
-            // ตรวจสอบการสะกดคำครบ
+            // 6. ตรวจสอบการสะกดคำครบ
             if (currentWordIndex === wordToSpell.length) {
                 clearInterval(gameInterval);
-                document.getElementById('final-word').textContent = wordToSpell;
-                document.getElementById('final-translation').textContent = currentWordObj.translation;
-                showScreen('summary-screen');
-                speakWord(wordToSpell, currentWordObj.translation); 
+                isGameRunning = false; // หยุดงูทันที
+                
+                // 3. หน่วงเวลา 0.5 วินาที แล้วเฉลย
+                setTimeout(() => {
+                    showSummaryScreen();
+                }, END_LEVEL_DELAY); 
+                
                 return;
             }
 
@@ -441,7 +455,8 @@
                                (direction === 'LEFT' && newDirection === 'RIGHT') ||
                                (direction === 'RIGHT' && newDirection === 'LEFT');
             
-            if (!isOpposite) {
+            // สามารถเปลี่ยนทิศทางได้เฉพาะเมื่อเกมกำลังรันอยู่
+            if (!isOpposite && isGameRunning) {
                 direction = newDirection;
             }
         }
@@ -459,7 +474,7 @@
                 btn.addEventListener('click', (e) => setupGame(e.target.dataset.level));
             });
             
-            // 4. ปุ่มเริ่มเกมจริง
+            // ปุ่มเริ่มเกมจริง
             document.getElementById('start-game-btn').addEventListener('click', runGame);
 
             // ปุ่มควบคุมทิศทาง
@@ -477,8 +492,8 @@
 
             // การควบคุมด้วยปุ่มลูกศรบนคีย์บอร์ด
             document.addEventListener('keydown', (e) => {
-                // อนุญาตให้ควบคุมเฉพาะเมื่ออยู่ใน game-screen และ gameInterval เริ่มทำงานแล้ว
-                if (document.getElementById('game-screen').style.display === 'flex' && gameInterval) {
+                // อนุญาตให้ควบคุมเฉพาะเมื่อเกมกำลังรันอยู่
+                if (isGameRunning) {
                     switch(e.key) {
                         case 'ArrowUp': handleControls('UP'); break;
                         case 'ArrowDown': handleControls('DOWN'); break;
