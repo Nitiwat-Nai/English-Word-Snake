@@ -18,7 +18,7 @@
             /* Snake Specific Colors */
             --color-snake-head: #004D40; 
             --color-snake-body: #4DB6AC; 
-            --color-letter: #FF9800; 
+            --color-letter: #FF9800; /* Orange/Letter Accent */
             
             /* Difficulty Colors */
             --color-easy: #FFC107;      
@@ -30,8 +30,8 @@
             --cell-size: 25px; 
             
             /* Control Button Styling */
-            --control-new-size: 84px; 
-            --control-btn-font: 2.5rem; 
+            --control-new-size: 70px; 
+            --control-btn-font: 2.0rem; 
         }
 
         /* --- CONTAINER & BASE STYLES --- */
@@ -61,7 +61,7 @@
             flex-direction: column;
             justify-content: flex-start;
             padding: 0;
-            position: relative; /* สำคัญ: ทำให้ Overlay จัดตำแหน่งได้ถูกต้อง */
+            position: relative; 
         }
         
         .main-levels-wrapper {
@@ -104,12 +104,14 @@
         
         #controls-wrapper {
             order: 2; 
-            margin-top: 10px; 
+            /* V2.6: เลื่อนกลุ่มปุ่มควบคุมขึ้น 40px (10px - 40px = -30px) */
+            margin-top: -30px; 
             padding-top: 10px; 
-            padding-bottom: 25px; 
-            margin-bottom: -75px; 
+            padding-bottom: 15px; 
             margin-left: auto; 
             margin-right: auto;
+            /* ทำให้ซ้อนทับถ้าจำเป็น */
+            z-index: 5;
         }
         
         /* --- Game Board --- */
@@ -123,12 +125,16 @@
             background-color: #CFD8DC; 
             margin-left: auto;
             margin-right: auto;
+            z-index: 10; /* ให้กระดานอยู่ด้านบนกว่า Controls (ถ้าเกิดการซ้อนทับ) */
         }
         
         /* --- Controls --- */
         .controls {
             display: grid;
-            grid-template-areas: ". up ." "left down right";
+            /* V2.6: กำหนดพื้นที่ให้เป็น 2 แถว: แถวบนมีปุ่มเดียว (ตรงกลาง), แถวล่างมีสามปุ่ม */
+            grid-template-areas: 
+                ". up ." 
+                "left down right";
             grid-template-columns: 1fr 1fr 1fr; 
             grid-gap: 10px; 
             width: 90%; 
@@ -136,9 +142,41 @@
             margin: 15px auto 0; 
         }
         
-        /* --- Modal/Overlay Fix V2.4 --- */
+        /* V2.6: กำหนดตำแหน่งของแต่ละปุ่มให้ตรงกับ Grid Area */
+        #control-up { grid-area: up; }
+        #control-left { grid-area: left; }
+        #control-down { grid-area: down; }
+        #control-right { grid-area: right; }
+
+        .control-btn {
+            color: var(--color-text-light);
+            border: none;
+            padding: 0.5rem; 
+            border-radius: 10px; 
+            font-size: var(--control-btn-font); 
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+            /* สีส้ม */
+            background-color: var(--color-letter); 
+            box-shadow: 0 5px 0 #F57C00; /* ส้มเข้ม */
+            
+            min-width: var(--control-new-size); 
+            min-height: var(--control-new-size);
+            aspect-ratio: 1/1; 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .control-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #F57C00; 
+        }
+        
+        /* --- Modal/Overlay (V2.4 Fix) --- */
         #game-overlay {
-            position: absolute; /* แก้ไขการจัดวางให้ซ้อนทับ */
+            position: absolute; 
             top: 0;
             left: 0;
             width: 100%;
@@ -147,7 +185,7 @@
             justify-content: center;
             align-items: center;
             background-color: rgba(255, 255, 255, 0.9); 
-            z-index: 100; /* ให้อยู่ด้านหน้า */
+            z-index: 100; /* สูงสุด */
         }
         
         .overlay-content {
@@ -160,35 +198,10 @@
         }
         
         #game-overlay .modal-btn {
-            margin: 10px 0; /* เพิ่มระยะห่างระหว่างปุ่มใน Overlay */
+            margin: 10px 0; 
         }
 
         /* --- Other Styles (Unchanged) --- */
-        .control-btn {
-            color: var(--color-text-light);
-            border: none;
-            padding: 0.5rem; 
-            border-radius: 10px; 
-            font-size: var(--control-btn-font); 
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.1s;
-            background-color: var(--color-secondary); 
-            box-shadow: 0 5px 0 var(--color-snake-head); 
-            
-            min-width: var(--control-new-size); 
-            min-height: var(--control-new-size);
-            aspect-ratio: 1/1; 
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-        }
-        .control-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 var(--color-snake-head); 
-        }
-        
         .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
         .snake-body { background-color: var(--color-snake-body); border-radius: 20%; }
         .letter-piece { 
