@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Word Snake Game (V1.4 Final Fix)</title>
+    <title>English Word Snake Game (V1.4 Alignment Guarantee)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         /* --- THEME & GLOBAL STYLES --- */
         :root {
-            --color-primary: #4E342E; /* Dark Brown (Earth/Trunk) */
-            --color-secondary: #BCAAA4; /* Light Brown/Beige */
-            --color-bg: #F5F5DC; /* Beige/Creamy Background (Sand) */
+            --color-primary: #4E342E; 
+            --color-secondary: #BCAAA4; 
+            --color-bg: #F5F5DC; 
             --color-snake-head: #388E3C; 
             --color-snake-body: #81C784; 
             --color-letter: #FFB300; 
@@ -19,7 +19,6 @@
 
             --grid-size: 15;
             --cell-size: 25px;
-            /* ปุ่มกดบังคับทิศทาง (V1.4 size) */
             --control-btn-padding: 22px; 
             --control-btn-font: 34px; 
         }
@@ -53,7 +52,7 @@
         #game-screen {
             display: flex;
             flex-direction: column;
-            align-items: center; /* จัดกึ่งกลางองค์ประกอบย่อยในแนวนอน */
+            align-items: center; 
             padding: 10px;
         }
         
@@ -64,46 +63,35 @@
 
         /* Game Board */
         .game-container {
-            width: calc(var(--grid-size) * var(--cell-size)); /* 375px */
+            /* ความกว้างภายใน 375px */
+            width: calc(var(--grid-size) * var(--cell-size)); 
             height: calc(var(--grid-size) * var(--cell-size));
             display: grid;
             grid-template-columns: repeat(var(--grid-size), 1fr);
             grid-template-rows: repeat(var(--grid-size), 1fr);
             border: 5px solid var(--color-primary);
-            background-color: #D7CCC8; /* สีน้ำตาลอ่อน (ตาม V1.4) */
+            background-color: #D7CCC8; 
         }
 
-        .cell {
-            border: none; 
+        /* 1. กรอบควบคุมใหม่ที่ความกว้างเท่าสนามเกม */
+        #controls-wrapper {
+            /* กำหนดความกว้างให้เท่ากับความกว้างภายในของ game-container (375px) */
+            width: calc(var(--grid-size) * var(--cell-size)); 
+            margin-top: 20px; 
+            display: flex; /* ใช้ Flexbox เพื่อจัดกึ่งกลางกลุ่มปุ่ม */
+            justify-content: center; /* จัดกึ่งกลางปุ่มภายในกรอบ */
             box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: calc(var(--cell-size) * 0.7);
-            color: var(--color-text-dark);
         }
-
-        .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
-        .snake-body { background-color: var(--color-snake-body); border-radius: 20%; }
-        .letter-piece { 
-            background-color: var(--color-letter); 
-            color: var(--color-text-light); 
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Controls & Buttons (แก้ไขให้จัดกึ่งกลาง) */
+        
+        /* 2. กลุ่มปุ่มควบคุม (ย้ายออกจาก margin:auto) */
         .controls {
-            margin-top: 20px;
             display: grid;
             grid-template-areas: ". up ." "left down right";
             grid-gap: 10px;
-            width: 200px;
-            /* การแก้ไข: เพิ่ม margin auto เพื่อให้ปุ่มควบคุมจัดกึ่งกลางสนามเกม */
-            margin-left: auto; 
-            margin-right: auto;
+            width: 200px; /* ความกว้างคงที่ของกลุ่มปุ่ม */
+            margin: 0; /* รีเซ็ต margin */
         }
+        
         .control-btn {
             padding: var(--control-btn-padding); 
             font-size: var(--control-btn-font); 
@@ -125,32 +113,7 @@
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
         
-        /* Level Summary Screen (CSS จาก V1.4) */
-        #level-summary-screen ul {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-        }
-        #level-summary-screen li {
-            font-size: 16px;
-            margin-bottom: 5px;
-            color: var(--color-text-dark);
-            border-bottom: 1px dashed var(--color-secondary);
-            padding-bottom: 3px;
-        }
-        /* --- Existing Styles (Unchanged) --- */
-        .sub-level-container {
-            margin-top: 15px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
-            max-width: 350px;
-            margin-left: auto;
-            margin-right: auto;
-            /* แก้ไข: ซ่อนส่วนหัว h2 ไปยัง JS เพื่อย้ายไปแสดงบน Start Screen แทน */
-        }
-        
-        /* การจัดรูปแบบสำหรับคำอธิบายเลเวลย่อย (เพิ่มใหม่) */
+        /* Level Description (การแก้ไขจากคำขอก่อนหน้า) */
         .sub-level-header {
              color: var(--color-primary);
              font-size: 1.1rem;
@@ -163,10 +126,29 @@
              padding: 0 5px;
              box-sizing: border-box;
         }
-
+        
+        /* --- Existing Styles (Unchanged) --- */
+        .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
+        .snake-body { background-color: var(--color-snake-body); border-radius: 20%; }
+        .letter-piece { 
+            background-color: var(--color-letter); 
+            color: var(--color-text-light); 
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .sub-level-container {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
         .hidden {
             display: none !important;
         }
+        /* ... other modal/button styles ... */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(255, 255, 255, 0.4); 
@@ -226,12 +208,15 @@
         <div id="game-board" class="game-container">
             </div>
 
-        <div class="controls">
-            <button id="control-up" class="control-btn" data-direction="UP">⬆️</button>
-            <button id="control-left" class="control-btn" data-direction="LEFT">⬅️</button>
-            <button id="control-down" class="control-btn" data-direction="DOWN">⬇️</button>
-            <button id="control-right" class="control-btn" data-direction="RIGHT">➡️</button>
+        <div id="controls-wrapper">
+            <div class="controls">
+                <button id="control-up" class="control-btn" data-direction="UP">⬆️</button>
+                <button id="control-left" class="control-btn" data-direction="LEFT">⬅️</button>
+                <button id="control-down" class="control-btn" data-direction="DOWN">⬇️</button>
+                <button id="control-right" class="control-btn" data-direction="RIGHT">➡️</button>
+            </div>
         </div>
+        
         <p>คำศัพท์ที่สะสม: <span id="collected-word"></span></p>
     </div>
 
@@ -275,7 +260,9 @@
         const GAME_SPEED = 250; 
         const START_DELAY = 500; 
         const END_LEVEL_DELAY = 500;
+        const LEVEL_WORD_COUNT = 5;
 
+        // โครงสร้างคำศัพท์และคำอธิบาย (เหมือนเดิม)
         const WORDS = {
             'easy': [
                 [{ word: 'CAT', translation: 'แมว' }, { word: 'DOG', translation: 'สุนัข' }, { word: 'SUN', translation: 'อาทิตย์' }, { word: 'MAP', translation: 'แผนที่' }, { word: 'ZOO', translation: 'สวนสัตว์' }],
@@ -335,8 +322,6 @@
         let direction = 'RIGHT'; 
         let gameInterval;
         let isGameRunning = false;
-        
-        const LEVEL_WORD_COUNT = 5;
 
         function readLevelSummary(index, wordsList, nextBtn, returnBtn) {
             if (index >= wordsList.length) {
@@ -409,7 +394,6 @@
             });
             document.getElementById(`sub-levels-${mainLevel}`).classList.remove('hidden');
             
-            // *** การแก้ไขที่ 1: แสดงคำอธิบายเลเวลย่อยที่ด้านบน ***
             subLevelDescriptionEl.textContent = LEVEL_DESCRIPTIONS[mainLevel];
             subLevelDescriptionEl.classList.remove('hidden');
         }
@@ -611,7 +595,6 @@
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            // Logic V1.4: ใช้ 'flex' สำหรับ game-screen และ level-summary-screen
             document.getElementById(id).style.display = (id === 'game-screen' || id === 'level-summary-screen') ? 'flex' : 'block';
         }
         
