@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Word Snake Game (V1.3)</title>
+    <title>English Word Snake Game (V1.4)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- THEME & GLOBAL STYLES (ธีมป่า/พื้นดิน) --- */
+        /* --- THEME & GLOBAL STYLES --- */
         :root {
-            --color-primary: #4E342E; /* Dark Brown (Earth/Trunk) */
-            --color-secondary: #BCAAA4; /* Light Brown/Beige */
-            --color-bg: #F5F5DC; /* Beige/Creamy Background (Sand) */
-            --color-snake-head: #388E3C; /* Medium Green (Head) */
-            --color-snake-body: #81C784; /* Light Green (Body) */
-            --color-letter: #FFB300; /* Amber/Gold (Collectable items) */
+            --color-primary: #4E342E; 
+            --color-secondary: #BCAAA4; 
+            --color-bg: #F5F5DC; 
+            --color-snake-head: #388E3C; 
+            --color-snake-body: #81C784; 
+            --color-letter: #FFB300; 
             --color-text-dark: #2C3E50;
             --color-text-light: #FFFFFF;
 
             --grid-size: 15;
             --cell-size: 25px;
-            --control-btn-padding: 18px; /* 3. เพิ่มขนาดปุ่ม (20% จาก 15px) */
-            --control-btn-font: 28px; /* 3. เพิ่มขนาดปุ่ม (20% จาก 24px) */
+            --control-btn-padding: 18px; 
+            --control-btn-font: 28px; 
         }
 
         body {
@@ -33,7 +33,6 @@
             margin: 0;
             padding-top: 20px;
             flex-direction: column;
-            /* ป้องกันการ Scroll บน Mobile */
             touch-action: manipulation;
         }
 
@@ -93,17 +92,46 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- MODAL & OVERLAY STYLES (สำหรับข้อ 1 และ 2) --- */
+        /* Sub-Level Selection */
+        .main-levels button {
+            margin: 5px;
+        }
+
+        .sub-level-container {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .sub-level-container h2 {
+            grid-column: 1 / -1;
+            margin-top: 0;
+            font-size: 1.2em;
+            color: var(--color-primary);
+        }
+        
+        .sub-level-btn {
+            padding: 8px 5px !important;
+            font-size: 14px !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* MODAL & OVERLAY STYLES */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.4); /* Light transparent background */
-            /* 1. เบลอพื้นหลัง */
+            background-color: rgba(255, 255, 255, 0.4); 
             backdrop-filter: blur(5px); 
-            z-index: 1000; /* อยู่ด้านบนสุด */
+            z-index: 1000; 
             display: none; 
             justify-content: center;
             align-items: center;
@@ -118,7 +146,7 @@
             text-align: center;
         }
         #pre-game-modal .modal-content {
-            padding: 50px 30px; /* เพิ่มพื้นที่สำหรับปุ่มเริ่มเกมอย่างเดียว */
+            padding: 50px 30px; 
         }
         
         /* Controls & Buttons */
@@ -130,10 +158,8 @@
             width: 200px;
         }
         .control-btn {
-            /* 3. ปรับขนาดปุ่มควบคุมให้ใหญ่ขึ้น 20% */
             padding: var(--control-btn-padding); 
             font-size: var(--control-btn-font); 
-            
             background-color: var(--color-snake-head);
             color: var(--color-text-light);
             border: none;
@@ -152,9 +178,9 @@
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
         
-        .difficulty-btn, #start-game-btn, .modal-btn {
+        .main-difficulty-btn, .sub-level-btn, #start-game-btn, .modal-btn {
             display: block;
-            width: 80%;
+            width: 100%;
             margin: 10px auto;
             padding: 15px;
             border: none;
@@ -168,24 +194,7 @@
         #start-game-btn {
             background-color: var(--color-snake-head);
             box-shadow: 0 3px #1B5E20; 
-        }
-        #start-game-btn:hover, .modal-btn:hover {
-            opacity: 0.9;
-        }
-
-        #game-info {
-            margin-top: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--color-text-dark);
-        }
-        
-        #full-word-display {
-            font-size: 24px;
-            font-weight: 900;
-            margin: 10px 0;
-            color: var(--color-primary);
-            letter-spacing: 2px;
+            font-size: 20px;
         }
     </style>
 </head>
@@ -193,10 +202,24 @@
 
     <div id="start-screen" class="screen">
         <h1>🐍 English Word Snake</h1>
-        <p>เลือกความยาวคำศัพท์เพื่อเริ่มเกม</p>
-        <button class="difficulty-btn" data-level="easy">ระดับ 1: ง่าย (3-5 ตัวอักษร)</button>
-        <button class="difficulty-btn" data-level="medium">ระดับ 2: ปานกลาง (6-8 ตัวอักษร)</button>
-        <button class="difficulty-btn" data-level="hard">ระดับ 3: ยาก (9-12 ตัวอักษร)</button>
+        <p>เลือกความยากหลัก:</p>
+        <div class="main-levels">
+            <button class="main-difficulty-btn" data-level="easy">ระดับ ง่าย</button>
+            <button class="main-difficulty-btn" data-level="medium">ระดับ ปานกลาง</button>
+            <button class="main-difficulty-btn" data-level="hard">ระดับ ยาก</button>
+        </div>
+        
+        <div id="sub-levels-container">
+            <div id="sub-levels-easy" class="sub-level-container hidden">
+                <h2>ง่าย: เลือกเลเวลย่อย (3-5 อักษร)</h2>
+                </div>
+            <div id="sub-levels-medium" class="sub-level-container hidden">
+                <h2>ปานกลาง: เลือกเลเวลย่อย (6-8 อักษร)</h2>
+            </div>
+            <div id="sub-levels-hard" class="sub-level-container hidden">
+                <h2>ยาก: เลือกเลเวลย่อย (9-12 อักษร)</h2>
+            </div>
+        </div>
     </div>
     
     <div id="game-screen" class="screen">
@@ -230,7 +253,7 @@
     
     <div id="pre-game-modal" class="modal-overlay">
         <div class="modal-content">
-            <button id="start-game-btn">เริ่มเกม</button>
+            <button id="start-game-btn">เริ่มเกม</button> 
         </div>
     </div>
     
@@ -251,53 +274,77 @@
         const ttsStatus = document.getElementById('tts-status');
         const gameOverModal = document.getElementById('game-over-modal');
         const preGameModal = document.getElementById('pre-game-modal');
+        const startGameButton = document.getElementById('start-game-btn');
 
         const GRID_SIZE = 15;
         const GAME_SPEED = 250; 
         const START_DELAY = 500; 
         const END_LEVEL_DELAY = 500;
 
-        // โครงสร้างคำศัพท์ (เหมือนเดิม)
+        // 2. โครงสร้างคำศัพท์ 3 ระดับหลัก x 10 เลเวลย่อย x 5 คำศัพท์
         const WORDS = {
             'easy': [
-                { word: 'CAT', translation: 'แมว' }, 
-                { word: 'DOG', translation: 'สุนัข' },
-                { word: 'SUN', translation: 'ดวงอาทิตย์' },
-                { word: 'BALL', translation: 'ลูกบอล' },
-                { word: 'BOOK', translation: 'หนังสือ' }
+                // Level 1-10, 5 words each (3-5 letters)
+                [{ word: 'CAT', translation: 'แมว' }, { word: 'DOG', translation: 'สุนัข' }, { word: 'SUN', translation: 'อาทิตย์' }, { word: 'MAP', translation: 'แผนที่' }, { word: 'ZOO', translation: 'สวนสัตว์' }],
+                [{ word: 'FISH', translation: 'ปลา' }, { word: 'BIRD', translation: 'นก' }, { word: 'RAIN', translation: 'ฝน' }, { word: 'FIRE', translation: 'ไฟ' }, { word: 'TREE', translation: 'ต้นไม้' }],
+                [{ word: 'BALL', translation: 'ลูกบอล' }, { word: 'BOOK', translation: 'หนังสือ' }, { word: 'GAME', translation: 'เกม' }, { word: 'ROAD', translation: 'ถนน' }, { word: 'MOON', translation: 'ดวงจันทร์' }],
+                [{ word: 'FOUR', translation: 'สี่' }, { word: 'FIVE', translation: 'ห้า' }, { word: 'ZERO', translation: 'ศูนย์' }, { word: 'FAST', translation: 'เร็ว' }, { word: 'SLOW', translation: 'ช้า' }],
+                [{ word: 'GIRL', translation: 'เด็กหญิง' }, { word: 'BOY', translation: 'เด็กชาย' }, { word: 'KING', translation: 'พระราชา' }, { word: 'QUEEN', translation: 'พระราชินี' }, { word: 'WALL', translation: 'กำแพง' }],
+                [{ word: 'RICE', translation: 'ข้าว' }, { word: 'MEAT', translation: 'เนื้อ' }, { word: 'SOUP', translation: 'ซุป' }, { word: 'SALT', translation: 'เกลือ' }, { word: 'SUGAR', translation: 'น้ำตาล' }],
+                [{ word: 'HAND', translation: 'มือ' }, { word: 'FOOT', translation: 'เท้า' }, { word: 'EYE', translation: 'ตา' }, { word: 'NOSE', translation: 'จมูก' }, { word: 'EAR', translation: 'หู' }],
+                [{ word: 'COLD', translation: 'หนาว' }, { word: 'HOT', translation: 'ร้อน' }, { word: 'WET', translation: 'เปียก' }, { word: 'DRY', translation: 'แห้ง' }, { word: 'WIND', translation: 'ลม' }],
+                [{ word: 'FROG', translation: 'กบ' }, { word: 'SHIP', translation: 'เรือ' }, { word: 'BLUE', translation: 'สีน้ำเงิน' }, { word: 'PINK', translation: 'สีชมพู' }, { word: 'STAR', translation: 'ดาว' }],
+                [{ word: 'SMILE', translation: 'ยิ้ม' }, { word: 'LAUGH', translation: 'หัวเราะ' }, { word: 'SLEEP', translation: 'นอน' }, { word: 'DREAM', translation: 'ฝัน' }, { word: 'WAKE', translation: 'ตื่น' }],
             ],
             'medium': [
-                { word: 'APPLE', translation: 'แอปเปิล' }, 
-                { word: 'GRAPE', translation: 'องุ่น' },
-                { word: 'TIGER', translation: 'เสือ' },
-                { word: 'SCHOOL', translation: 'โรงเรียน' },
-                { word: 'TRAVEL', translation: 'เดินทาง' }
+                // Level 1-10, 5 words each (6-8 letters)
+                [{ word: 'ORANGE', translation: 'ส้ม' }, { word: 'TICKET', translation: 'ตั๋ว' }, { word: 'PURPLE', translation: 'สีม่วง' }, { word: 'FATHER', translation: 'พ่อ' }, { word: 'MOTHER', translation: 'แม่' }],
+                [{ word: 'SCHOOL', translation: 'โรงเรียน' }, { word: 'TRAVEL', translation: 'เดินทาง' }, { word: 'VACATION', translation: 'วันหยุด' }, { word: 'FRIEND', translation: 'เพื่อน' }, { word: 'FAMILY', translation: 'ครอบครัว' }],
+                [{ word: 'MORNING', translation: 'เช้า' }, { word: 'EVENING', translation: 'เย็น' }, { word: 'WEEKEND', translation: 'วันหยุดสุดสัปดาห์' }, { word: 'HISTORY', translation: 'ประวัติศาสตร์' }, { word: 'SCIENCE', translation: 'วิทยาศาสตร์' }],
+                [{ word: 'GARDEN', translation: 'สวน' }, { word: 'KITCHEN', translation: 'ห้องครัว' }, { word: 'WINDOW', translation: 'หน้าต่าง' }, { word: 'DOORWAY', translation: 'ทางเข้าประตู' }, { word: 'BUILDING', translation: 'ตึก' }],
+                [{ word: 'PICTURE', translation: 'รูปภาพ' }, { word: 'CAMERA', translation: 'กล้อง' }, { word: 'JOURNAL', translation: 'วารสาร' }, { word: 'PROJECT', translation: 'โครงการ' }, { word: 'SUCCESS', translation: 'ความสำเร็จ' }],
+                [{ word: 'HAPPEN', translation: 'เกิดขึ้น' }, { word: 'FINISH', translation: 'เสร็จสิ้น' }, { word: 'ACCEPT', translation: 'ยอมรับ' }, { word: 'BELIEVE', translation: 'เชื่อ' }, { word: 'DECIDE', translation: 'ตัดสินใจ' }],
+                [{ word: 'WEATHER', translation: 'อากาศ' }, { word: 'CLOUDY', translation: 'มีเมฆมาก' }, { word: 'SUNNY', translation: 'มีแดด' }, { word: 'STORMY', translation: 'มีพายุ' }, { word: 'FROZEN', translation: 'เยือกแข็ง' }],
+                [{ word: 'MONSTER', translation: 'สัตว์ประหลาด' }, { word: 'SECRET', translation: 'ความลับ' }, { word: 'PUZZLE', translation: 'ปริศนา' }, { word: 'GHOSTLY', translation: 'เหมือนผี' }, { word: 'MYSTERY', translation: 'ลึกลับ' }],
+                [{ word: 'BROTHER', translation: 'พี่/น้องชาย' }, { word: 'SISTER', translation: 'พี่/น้องสาว' }, { word: 'UNCLE', translation: 'ลุง/น้า/อา' }, { word: 'AUNT', translation: 'ป้า/น้า/อา' }, { word: 'COUSIN', translation: 'ลูกพี่ลูกน้อง' }],
+                [{ word: 'MOUNTAIN', translation: 'ภูเขา' }, { word: 'FOREST', translation: 'ป่า' }, { word: 'PLANET', translation: 'ดาวเคราะห์' }, { word: 'CASTLE', translation: 'ปราสาท' }, { word: 'ADVENT', translation: 'การมาถึง' }],
             ],
             'hard': [
-                { word: 'ELEPHANT', translation: 'ช้าง' },
-                { word: 'KNOWLEDGE', translation: 'ความรู้' },
-                { word: 'COMPUTER', translation: 'คอมพิวเตอร์' },
-                { word: 'DICTATION', translation: 'การเขียนตามคำบอก' }
+                // Level 1-10, 5 words each (9-12 letters)
+                [{ word: 'DICTATION', translation: 'การเขียนตามคำบอก' }, { word: 'AMAZEMENT', translation: 'ความประหลาดใจ' }, { word: 'ADVENTURE', translation: 'การผจญภัย' }, { word: 'TECHNOLOGY', translation: 'เทคโนโลยี' }, { word: 'RESTAURANT', translation: 'ร้านอาหาร' }],
+                [{ word: 'COMPUTER', translation: 'คอมพิวเตอร์' }, { word: 'TELEVISION', translation: 'โทรทัศน์' }, { word: 'KNOWLEDGE', translation: 'ความรู้' }, { word: 'DIFFICULT', translation: 'ยาก' }, { word: 'EXCELLENT', translation: 'ยอดเยี่ยม' }],
+                [{ word: 'COMMUNITY', translation: 'ชุมชน' }, { word: 'ECOLOGY', translation: 'นิเวศวิทยา' }, { word: 'EDUCATION', translation: 'การศึกษา' }, { word: 'IMAGINE', translation: 'จินตนาการ' }, { word: 'LANGUAGE', translation: 'ภาษา' }],
+                [{ word: 'IMPORTANT', translation: 'สำคัญ' }, { word: 'DIFFERENT', translation: 'แตกต่าง' }, { word: 'INTEREST', translation: 'ความสนใจ' }, { word: 'SUGGESTION', translation: 'ข้อเสนอแนะ' }, { word: 'GENERALLY', translation: 'โดยทั่วไป' }],
+                [{ word: 'CHOCOLATE', translation: 'ช็อกโกแลต' }, { word: 'CALCULATE', translation: 'คำนวณ' }, { word: 'DISCOVER', translation: 'ค้นพบ' }, { word: 'EXPLORER', translation: 'นักสำรวจ' }, { word: 'INNOVATE', translation: 'คิดค้น' }],
+                [{ word: 'ATTENTION', translation: 'ความสนใจ' }, { word: 'CAPABILITY', translation: 'ความสามารถ' }, { word: 'DEFINITION', translation: 'คำจำกัดความ' }, { word: 'EXPERIENCE', translation: 'ประสบการณ์' }, { word: 'GUARANTEE', translation: 'รับประกัน' }],
+                [{ word: 'PROFESSION', translation: 'อาชีพ' }, { word: 'VOLUNTEER', translation: 'อาสาสมัคร' }, { word: 'UNIVERSITY', translation: 'มหาวิทยาลัย' }, { word: 'APPRECIATE', translation: 'ซาบซึ้ง' }, { word: 'CEREMONY', translation: 'พิธี' }],
+                [{ word: 'CHAMPION', translation: 'แชมป์เปี้ยน' }, { word: 'DYNAMITE', translation: 'ระเบิดไดนาไมต์' }, { word: 'FANTASTIC', translation: 'มหัศจรรย์' }, { word: 'INVISIBLE', translation: 'ที่มองไม่เห็น' }, { word: 'MAGNITUDE', translation: 'ขนาด' }],
+                [{ word: 'TRANSPORT', translation: 'ขนส่ง' }, { word: 'COMPLEXITY', translation: 'ความซับซ้อน' }, { word: 'CHALLENGES', translation: 'ความท้าทาย' }, { word: 'DISCOVERY', translation: 'การค้นพบ' }, { word: 'STRUCTURE', translation: 'โครงสร้าง' }],
+                [{ word: 'UNBELIEVABLE', translation: 'ไม่น่าเชื่อ' }, { word: 'INFORMATION', translation: 'ข้อมูล' }, { word: 'CONGRATULATIONS', translation: 'ยินดีด้วย' }, { word: 'ENVIRONMENT', translation: 'สิ่งแวดล้อม' }, { word: 'OPPORTUNITY', translation: 'โอกาส' }],
             ],
         };
 
         let snake = [];
         let currentWordObj = {};
         let wordToSpell = '';
-        let currentLevel = 'easy';
+        let currentMainLevel = 'easy'; // ระดับหลักที่เลือก
+        let currentSubLevel = 1; // เลเวลย่อยที่เลือก
         let currentWordIndex = 0;
         let letterPositions = []; 
         let direction = 'RIGHT'; 
         let gameInterval;
         let isGameRunning = false;
 
-        function getRandomWord(level) {
-            const list = WORDS[level];
+        function getRandomWord(mainLevel, subLevel) {
+            // ดึงรายการคำศัพท์ของเลเวลย่อยนั้นๆ (subLevel 1 ใช้อินเด็กซ์ 0)
+            const list = WORDS[mainLevel][subLevel - 1];
+            // สุ่มเลือก 1 คำศัพท์จาก 5 คำ
             const randomIndex = Math.floor(Math.random() * list.length);
             return list[randomIndex];
         }
 
         function speakWord(word, translation) {
+            // ... (Speech Synthesis function remains the same)
             if (!synth) {
                 ttsStatus.textContent = "⚠ เบราว์เซอร์ไม่รองรับ Text-to-Speech";
                 return;
@@ -325,10 +372,42 @@
 
             synth.speak(engUtterance);
         }
+        
+        // 4. ฟังก์ชันแสดง/ซ่อนเลเวลย่อย
+        function showSubLevels(mainLevel) {
+            document.querySelectorAll('.sub-level-container').forEach(container => {
+                container.classList.add('hidden');
+            });
+            document.getElementById(`sub-levels-${mainLevel}`).classList.remove('hidden');
+        }
 
-        function setupGame(level) {
-            currentLevel = level;
-            currentWordObj = getRandomWord(level);
+        // 4. ฟังก์ชันสร้างปุ่มเลเวลย่อย
+        function generateSubLevelButtons() {
+            const mainLevels = ['easy', 'medium', 'hard'];
+            mainLevels.forEach(mainLevel => {
+                const container = document.getElementById(`sub-levels-${mainLevel}`);
+                // ล้างปุ่มเก่าออกก่อน (ป้องกันการสร้างซ้ำ)
+                container.querySelectorAll('.sub-level-btn').forEach(btn => btn.remove());
+
+                for (let i = 1; i <= 10; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'sub-level-btn modal-btn';
+                    btn.dataset.mainLevel = mainLevel;
+                    btn.dataset.subLevel = i;
+                    btn.textContent = `เลเวล ${i}`;
+                    btn.addEventListener('click', () => setupGame(mainLevel, i));
+                    container.appendChild(btn);
+                }
+            });
+        }
+
+        function setupGame(mainLevel, subLevel) {
+            // ตั้งค่าระดับที่เลือก
+            currentMainLevel = mainLevel;
+            currentSubLevel = subLevel;
+
+            // 1. เลือกคำศัพท์ตาม MainLevel และ SubLevel
+            currentWordObj = getRandomWord(currentMainLevel, currentSubLevel);
             wordToSpell = currentWordObj.word;
             currentWordIndex = 0;
             
@@ -353,25 +432,27 @@
                 occupiedPositions.add(posKey);
             });
             
-            showScreen('game-screen'); // โชว์ Game Screen ก่อน
-            drawBoard(); // วาดบอร์ดพร้อมงูและตัวอักษร
-            updateDisplays(); // อัปเดตคำศัพท์ที่แสดงใน Game Screen
+            showScreen('game-screen'); 
+            drawBoard(); 
+            updateDisplays(); 
             
-            showModal('pre-game-modal'); // 1. แสดง Modal เริ่มเกมทับหน้าจอ
+            // 3. แสดงข้อความระดับความยากในปุ่ม
+            const levelTextMap = { 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
+            startGameButton.textContent = `เริ่มเกม: ระดับ${levelTextMap[currentMainLevel]} เลเวล ${currentSubLevel}`;
+            
+            showModal('pre-game-modal'); // แสดง Modal เริ่มเกมทับหน้าจอ
         }
         
         function runGame() {
             hideModal('pre-game-modal');
             clearInterval(gameInterval);
             
-            // หน่วงเวลา 0.5 วินาที ก่อนงูจะเริ่มเคลื่อนที่
             setTimeout(() => {
                 isGameRunning = true;
                 gameInterval = setInterval(updateGame, GAME_SPEED);
             }, START_DELAY); 
         }
         
-        // 2. ฟังก์ชันแสดง Game Over/ข้อผิดพลาดใน Modal
         function showGameOverModal(message) {
             isGameRunning = false;
             clearInterval(gameInterval);
@@ -400,8 +481,8 @@
             if (!isGameRunning) return;
 
             const head = { x: snake[0].x, y: snake[0].y };
-            let oldDirection = direction; // เก็บเพื่อใช้ป้องกันการกลับทิศทางในรอบเดียวกัน
             
+            // ... (Movement Logic)
             switch(direction) {
                 case 'UP': head.y--; break;
                 case 'DOWN': head.y++; break;
@@ -409,12 +490,11 @@
                 case 'RIGHT': head.x++; break;
             }
 
-            // ตรวจสอบการชนขอบ
+            // ตรวจสอบการชน (Game Over)
             if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
                 showGameOverModal(`คุณชนกำแพง! 😭 (คำศัพท์: <strong>${wordToSpell}</strong>)`);
                 return;
             }
-            // ตรวจสอบการชนตัวเอง
             if (snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
                  showGameOverModal(`คุณชนตัวเอง! 😥 (คำศัพท์: <strong>${wordToSpell}</strong>)`);
                 return;
@@ -435,7 +515,6 @@
                     letterPositions.splice(collectedLetterPieceIndex, 1);
                     letterCollected = true;
                 } else {
-                    // 2. งูเก็บอักษรผิดตัว
                     showGameOverModal(`คุณเก็บตัวอักษรผิดตัว! ❌<br>เก็บ <strong>${piece.letter}</strong> แทนที่จะเป็น <strong>${currentTargetLetter}</strong>`);
                     return;
                 }
@@ -450,7 +529,6 @@
                 clearInterval(gameInterval);
                 isGameRunning = false; 
                 
-                // 3. หน่วงเวลา 0.5 วินาที แล้วเฉลย
                 setTimeout(() => {
                     showSummaryScreen();
                 }, END_LEVEL_DELAY); 
@@ -465,7 +543,6 @@
         function drawBoard() {
             gameBoard.innerHTML = '';
             
-            // 1. สร้างตารางว่าง (HTML Grid)
             let cellsHTML = Array(GRID_SIZE * GRID_SIZE).fill().map((_, i) => {
                 const x = i % GRID_SIZE;
                 const y = Math.floor(i / GRID_SIZE);
@@ -473,7 +550,6 @@
             }).join('');
             gameBoard.innerHTML = cellsHTML;
 
-            // 2. วาดงู
             snake.forEach((segment, index) => {
                 const cell = gameBoard.querySelector(`.cell[data-x="${segment.x}"][data-y="${segment.y}"]`);
                 if (cell) {
@@ -481,7 +557,6 @@
                 }
             });
 
-            // 3. วาดตัวอักษรที่เหลือ
             letterPositions.forEach(p => {
                 const cell = gameBoard.querySelector(`.cell[data-x="${p.x}"][data-y="${p.y}"]`);
                 if (cell) {
@@ -492,7 +567,6 @@
         }
 
         function handleControls(newDirection) {
-            // ป้องกันการกลับทิศทางทันที
             const isOpposite = (direction === 'UP' && newDirection === 'DOWN') ||
                                (direction === 'DOWN' && newDirection === 'UP') ||
                                (direction === 'LEFT' && newDirection === 'RIGHT') ||
@@ -517,39 +591,40 @@
         }
 
 
-        // --- Event Listeners ---
+        // --- Event Listeners & Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            // ปุ่มเลือกความยาก
-            document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => setupGame(e.target.dataset.level));
+            generateSubLevelButtons(); // สร้างปุ่มเลเวลย่อยทั้งหมด
+
+            // 4. ปุ่มเลือกความยากหลัก: แสดง/ซ่อนเลเวลย่อย
+            document.querySelectorAll('.main-difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => showSubLevels(e.target.dataset.level));
             });
             
-            // 1. ปุ่มเริ่มเกมจริง (อยู่ใน Modal)
-            document.getElementById('start-game-btn').addEventListener('click', runGame);
+            // ปุ่มเริ่มเกมจริง (อยู่ใน Modal)
+            startGameButton.addEventListener('click', runGame);
             
-            // 2. ปุ่มกลับหน้าเริ่มต้นจาก Game Over Modal
+            // ปุ่มกลับหน้าเริ่มต้นจาก Game Over Modal
             document.getElementById('game-over-retry-btn').addEventListener('click', () => {
                 hideModal('game-over-modal');
                 showScreen('start-screen');
+                showSubLevels('easy'); // ตั้งค่าเริ่มต้นให้แสดงเลเวลย่อยของ Easy
             });
 
-            // ปุ่มควบคุมทิศทาง
-            document.querySelectorAll('.control-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => handleControls(e.target.dataset.direction));
-            });
-            
             // ปุ่มบนหน้าจอสรุป
             document.getElementById('next-word-btn').addEventListener('click', () => {
-                showScreen('start-screen'); // กลับไปหน้าเลือกความยากเพื่อเลือกคำศัพท์ใหม่ (ตาม flow V1)
-                // ถ้าต้องการให้เริ่มเกมเดิมทันที: setupGame(currentLevel);
+                // เล่นคำศัพท์ต่อไปในระดับเดิมและเลเวลย่อยเดิม (สุ่มคำศัพท์ใหม่)
+                setupGame(currentMainLevel, currentSubLevel); 
             });
             document.getElementById('return-start-btn').addEventListener('click', () => {
                 showScreen('start-screen');
+                showSubLevels('easy');
             });
 
-            // การควบคุมด้วยปุ่มลูกศรบนคีย์บอร์ด
+            // ปุ่มควบคุมทิศทาง & Keyboard (เหมือนเดิม)
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => handleControls(e.target.dataset.direction));
+            });
             document.addEventListener('keydown', (e) => {
-                // อนุญาตให้ควบคุมเฉพาะเมื่อเกมกำลังรันอยู่
                 if (isGameRunning) {
                     switch(e.key) {
                         case 'ArrowUp': handleControls('UP'); break;
@@ -560,7 +635,8 @@
                 }
             });
 
-            showScreen('start-screen'); // แสดงหน้าจอเริ่มต้น
+            showScreen('start-screen'); 
+            showSubLevels('easy'); // ตั้งค่าเริ่มต้นให้แสดงเลเวลย่อยของ Easy
         });
     </script>
 </body>
