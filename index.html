@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Word Snake Game (V1.2)</title>
+    <title>English Word Snake Game (V1.3)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         /* --- THEME & GLOBAL STYLES (ธีมป่า/พื้นดิน) --- */
@@ -19,22 +19,25 @@
 
             --grid-size: 15;
             --cell-size: 25px;
+            --control-btn-padding: 18px; /* 3. เพิ่มขนาดปุ่ม (20% จาก 15px) */
+            --control-btn-font: 28px; /* 3. เพิ่มขนาดปุ่ม (20% จาก 24px) */
         }
 
         body {
             font-family: 'Sarabun', sans-serif;
             display: flex;
-            /* 1. ปรับการแสดงผลให้ไปชิดด้านบนเป็นหลัก */
             justify-content: flex-start;
             align-items: center; 
-            min-height: 100vh; /* 1. ปรับพื้นที่ให้แสดงเต็มจอในแนวตั้ง */
+            min-height: 100vh;
             background-color: var(--color-bg);
             margin: 0;
-            padding-top: 20px; /* เพิ่มระยะห่างจากขอบด้านบน */
+            padding-top: 20px;
             flex-direction: column;
+            /* ป้องกันการ Scroll บน Mobile */
+            touch-action: manipulation;
         }
 
-        /* Screen Management */
+        /* Screen Management (Main Screens) */
         .screen {
             width: 100%;
             max-width: 400px;
@@ -44,7 +47,7 @@
             border-radius: 10px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
             display: none;
-            margin: 10px auto; /* จัดให้อยู่ตรงกลางแนวนอน */
+            margin: 10px auto; 
         }
 
         #game-screen {
@@ -57,7 +60,6 @@
         #game-screen h1 {
             color: var(--color-primary);
             margin-bottom: 5px;
-            /* 4. ใส่ไอคอน งู ที่ไเติ้ล */
         }
 
         /* Game Board */
@@ -91,6 +93,34 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
+        /* --- MODAL & OVERLAY STYLES (สำหรับข้อ 1 และ 2) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.4); /* Light transparent background */
+            /* 1. เบลอพื้นหลัง */
+            backdrop-filter: blur(5px); 
+            z-index: 1000; /* อยู่ด้านบนสุด */
+            display: none; 
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: var(--color-text-light);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            max-width: 300px;
+            width: 80%;
+            text-align: center;
+        }
+        #pre-game-modal .modal-content {
+            padding: 50px 30px; /* เพิ่มพื้นที่สำหรับปุ่มเริ่มเกมอย่างเดียว */
+        }
+        
         /* Controls & Buttons */
         .controls {
             margin-top: 20px;
@@ -100,13 +130,15 @@
             width: 200px;
         }
         .control-btn {
-            padding: 15px;
+            /* 3. ปรับขนาดปุ่มควบคุมให้ใหญ่ขึ้น 20% */
+            padding: var(--control-btn-padding); 
+            font-size: var(--control-btn-font); 
+            
             background-color: var(--color-snake-head);
             color: var(--color-text-light);
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 24px;
             font-weight: 900;
             box-shadow: 0 3px #1B5E20; 
             transition: all 0.1s;
@@ -120,7 +152,7 @@
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
         
-        .difficulty-btn, #start-game-btn, #next-word-btn, #return-start-btn {
+        .difficulty-btn, #start-game-btn, .modal-btn {
             display: block;
             width: 80%;
             margin: 10px auto;
@@ -137,7 +169,7 @@
             background-color: var(--color-snake-head);
             box-shadow: 0 3px #1B5E20; 
         }
-        .difficulty-btn:hover, #next-word-btn:hover, #return-start-btn:hover, #start-game-btn:hover {
+        #start-game-btn:hover, .modal-btn:hover {
             opacity: 0.9;
         }
 
@@ -167,12 +199,6 @@
         <button class="difficulty-btn" data-level="hard">ระดับ 3: ยาก (9-12 ตัวอักษร)</button>
     </div>
     
-    <div id="pre-game-screen" class="screen">
-        <h2>โจทย์คำศัพท์ของคุณ</h2>
-        <p style="margin-bottom: 20px;">คุณพร้อมจะสะกดคำศัพท์ในระดับ <span id="pre-game-level-text" style="font-weight: 900;"></span> หรือไม่?</p>
-        <button id="start-game-btn">เริ่มเกม</button>
-    </div>
-
     <div id="game-screen" class="screen">
         <h1>🐍 English Word Snake 🐍</h1>
         <div id="game-info">
@@ -198,8 +224,22 @@
         <p>คำศัพท์: <strong id="final-word" style="font-size: 28px; color: var(--color-snake-head);"></strong></p>
         <p>คำแปล: <span id="final-translation" style="font-size: 20px;"></span></p>
         <p id="tts-status" style="color: var(--color-primary);">รอการอ่านออกเสียง...</p>
-        <button id="next-word-btn">คำต่อไป (ระดับเดิม)</button>
-        <button id="return-start-btn">กลับหน้าเริ่มต้น</button>
+        <button id="next-word-btn" class="modal-btn">คำต่อไป (ระดับเดิม)</button>
+        <button id="return-start-btn" class="modal-btn">กลับหน้าเริ่มต้น</button>
+    </div>
+    
+    <div id="pre-game-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="start-game-btn">เริ่มเกม</button>
+        </div>
+    </div>
+    
+    <div id="game-over-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="game-over-title">Game Over!</h2>
+            <p id="game-over-message"></p>
+            <button id="game-over-retry-btn" class="modal-btn">กลับหน้าเริ่มต้น</button>
+        </div>
     </div>
 
     <script>
@@ -209,13 +249,15 @@
         const nextLetterDisplay = document.getElementById('next-letter');
         const fullWordDisplay = document.getElementById('full-word-display');
         const ttsStatus = document.getElementById('tts-status');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const preGameModal = document.getElementById('pre-game-modal');
 
         const GRID_SIZE = 15;
-        const GAME_SPEED = 250; // ความเร็วคงที่ (250ms/100ms = 4 ช่อง/วินาที)
-        const START_DELAY = 500; // หน่วงเวลาก่อนงูเริ่มเดิน (0.5 วินาที)
-        const END_LEVEL_DELAY = 500; // 3. หน่วงเวลาเมื่อเก็บตัวสุดท้าย (0.5 วินาที)
+        const GAME_SPEED = 250; 
+        const START_DELAY = 500; 
+        const END_LEVEL_DELAY = 500;
 
-        // โครงสร้างคำศัพท์
+        // โครงสร้างคำศัพท์ (เหมือนเดิม)
         const WORDS = {
             'easy': [
                 { word: 'CAT', translation: 'แมว' }, 
@@ -264,13 +306,11 @@
                 synth.cancel();
             }
 
-            // 1. Speak English Word
             ttsStatus.textContent = "กำลังอ่านออกเสียงคำศัพท์ (อังกฤษ): " + word;
             const engUtterance = new SpeechSynthesisUtterance(word);
             engUtterance.lang = 'en-US';
             engUtterance.rate = 0.8; 
             
-            // 2. Speak Thai Translation after English finishes
             engUtterance.onend = () => {
                 ttsStatus.textContent = "กำลังอ่านคำแปล (ไทย): " + translation;
                 const thaiUtterance = new SpeechSynthesisUtterance(translation);
@@ -279,7 +319,6 @@
                 
                 thaiUtterance.onend = () => {
                     ttsStatus.textContent = "การอ่านจบแล้ว";
-                    // 3. เมื่ออ่านจบแล้วจึงไปคำต่อไป (ซ่อนปุ่มไว้ก่อนจนกว่าจะอ่านจบ)
                 }
                 synth.speak(thaiUtterance);
             };
@@ -296,7 +335,7 @@
             snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }]; 
             direction = 'RIGHT';
             letterPositions = [];
-            isGameRunning = false; // หยุดเกมไว้ก่อน
+            isGameRunning = false;
 
             // วางตัวอักษร
             const wordLetters = wordToSpell.split('');
@@ -314,27 +353,32 @@
                 occupiedPositions.add(posKey);
             });
             
-            // แสดงหน้าจอก่อนเริ่มเกม
-            const levelTextMap = { 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
-            document.getElementById('pre-game-level-text').textContent = levelTextMap[currentLevel];
+            showScreen('game-screen'); // โชว์ Game Screen ก่อน
+            drawBoard(); // วาดบอร์ดพร้อมงูและตัวอักษร
+            updateDisplays(); // อัปเดตคำศัพท์ที่แสดงใน Game Screen
             
-            showScreen('pre-game-screen');
-            
-            drawBoard(); // วาดบอร์ดครั้งแรก
-            updateDisplays(); // อัปเดตคำศัพท์ที่แสดงใน Game Screen ก่อนเริ่มเกม
+            showModal('pre-game-modal'); // 1. แสดง Modal เริ่มเกมทับหน้าจอ
         }
         
         function runGame() {
-            showScreen('game-screen');
+            hideModal('pre-game-modal');
             clearInterval(gameInterval);
             
-            // 4. หน่วงเวลา 0.5 วินาที ก่อนงูจะเริ่มเคลื่อนที่
+            // หน่วงเวลา 0.5 วินาที ก่อนงูจะเริ่มเคลื่อนที่
             setTimeout(() => {
                 isGameRunning = true;
                 gameInterval = setInterval(updateGame, GAME_SPEED);
             }, START_DELAY); 
         }
         
+        // 2. ฟังก์ชันแสดง Game Over/ข้อผิดพลาดใน Modal
+        function showGameOverModal(message) {
+            isGameRunning = false;
+            clearInterval(gameInterval);
+            document.getElementById('game-over-message').innerHTML = message;
+            showModal('game-over-modal');
+        }
+
         function showSummaryScreen() {
             document.getElementById('final-word').textContent = wordToSpell;
             document.getElementById('final-translation').textContent = currentWordObj.translation;
@@ -356,6 +400,8 @@
             if (!isGameRunning) return;
 
             const head = { x: snake[0].x, y: snake[0].y };
+            let oldDirection = direction; // เก็บเพื่อใช้ป้องกันการกลับทิศทางในรอบเดียวกัน
+            
             switch(direction) {
                 case 'UP': head.y--; break;
                 case 'DOWN': head.y++; break;
@@ -363,19 +409,19 @@
                 case 'RIGHT': head.x++; break;
             }
 
-            // ตรวจสอบการชน
-            if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE ||
-                snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
-                clearInterval(gameInterval);
-                isGameRunning = false;
-                alert(`Game Over! 😭 คุณชนกำแพงหรือตัวคุณเอง (คำศัพท์: ${wordToSpell})`);
-                showScreen('start-screen');
+            // ตรวจสอบการชนขอบ
+            if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+                showGameOverModal(`คุณชนกำแพง! 😭 (คำศัพท์: <strong>${wordToSpell}</strong>)`);
+                return;
+            }
+            // ตรวจสอบการชนตัวเอง
+            if (snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
+                 showGameOverModal(`คุณชนตัวเอง! 😥 (คำศัพท์: <strong>${wordToSpell}</strong>)`);
                 return;
             }
             
             snake.unshift(head);
             
-            // ตรวจสอบการเก็บตัวอักษร
             let letterCollected = false;
             const currentTargetLetter = wordToSpell[currentWordIndex];
 
@@ -389,23 +435,20 @@
                     letterPositions.splice(collectedLetterPieceIndex, 1);
                     letterCollected = true;
                 } else {
-                    clearInterval(gameInterval);
-                    isGameRunning = false;
-                    alert(`Game Over! ❌ คุณเก็บตัวอักษรผิดตัว: ${piece.letter} แทนที่จะเป็น ${currentTargetLetter}`);
-                    showScreen('start-screen');
+                    // 2. งูเก็บอักษรผิดตัว
+                    showGameOverModal(`คุณเก็บตัวอักษรผิดตัว! ❌<br>เก็บ <strong>${piece.letter}</strong> แทนที่จะเป็น <strong>${currentTargetLetter}</strong>`);
                     return;
                 }
             }
 
-            // ตัดหางงู ถ้าไม่ได้เก็บตัวอักษรที่ถูกต้อง
             if (!letterCollected) {
                 snake.pop();
             }
             
-            // 6. ตรวจสอบการสะกดคำครบ
+            // ตรวจสอบการสะกดคำครบ
             if (currentWordIndex === wordToSpell.length) {
                 clearInterval(gameInterval);
-                isGameRunning = false; // หยุดงูทันที
+                isGameRunning = false; 
                 
                 // 3. หน่วงเวลา 0.5 วินาที แล้วเฉลย
                 setTimeout(() => {
@@ -455,7 +498,6 @@
                                (direction === 'LEFT' && newDirection === 'RIGHT') ||
                                (direction === 'RIGHT' && newDirection === 'LEFT');
             
-            // สามารถเปลี่ยนทิศทางได้เฉพาะเมื่อเกมกำลังรันอยู่
             if (!isOpposite && isGameRunning) {
                 direction = newDirection;
             }
@@ -463,7 +505,15 @@
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = (id === 'game-screen' || id === 'pre-game-screen') ? 'flex' : 'block';
+            document.getElementById(id).style.display = (id === 'game-screen') ? 'flex' : 'block';
+        }
+        
+        function showModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function hideModal(id) {
+            document.getElementById(id).style.display = 'none';
         }
 
 
@@ -474,8 +524,14 @@
                 btn.addEventListener('click', (e) => setupGame(e.target.dataset.level));
             });
             
-            // ปุ่มเริ่มเกมจริง
+            // 1. ปุ่มเริ่มเกมจริง (อยู่ใน Modal)
             document.getElementById('start-game-btn').addEventListener('click', runGame);
+            
+            // 2. ปุ่มกลับหน้าเริ่มต้นจาก Game Over Modal
+            document.getElementById('game-over-retry-btn').addEventListener('click', () => {
+                hideModal('game-over-modal');
+                showScreen('start-screen');
+            });
 
             // ปุ่มควบคุมทิศทาง
             document.querySelectorAll('.control-btn').forEach(btn => {
@@ -484,7 +540,8 @@
             
             // ปุ่มบนหน้าจอสรุป
             document.getElementById('next-word-btn').addEventListener('click', () => {
-                setupGame(currentLevel); // เล่นคำศัพท์ต่อไปในระดับเดิม
+                showScreen('start-screen'); // กลับไปหน้าเลือกความยากเพื่อเลือกคำศัพท์ใหม่ (ตาม flow V1)
+                // ถ้าต้องการให้เริ่มเกมเดิมทันที: setupGame(currentLevel);
             });
             document.getElementById('return-start-btn').addEventListener('click', () => {
                 showScreen('start-screen');
