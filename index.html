@@ -21,14 +21,16 @@
             /* Snake Specific Colors */
             --color-snake-head: #004D40; /* Dark Teal Green */
             --color-snake-body: #4DB6AC; /* Light Teal Green */
-            /* V2.7: Target Letter color to Red */
-            --color-letter: #E53935; /* Red for target/letter pieces */
             
-            /* V2.7: Red for return buttons (Request 2, 4) */
+            /* V2.8: Letter Colors (Request 4) */
+            --color-letter-target: #E53935; /* Red for the next target letter */
+            --color-letter-non-target: #FFC107; /* Yellow for other letters */
+            
+            /* V2.7: Red for return buttons */
             --color-return-btn: #E53935; 
             --color-return-btn-shadow: #C62828; 
             
-            /* Difficulty Colors (Request 1) */
+            /* Difficulty Colors (Request 1 from V2.7) */
             --color-easy: #FFC107;      /* Yellow */
             --color-medium: #4CAF50;    /* Green */
             --color-hard: #2196F3;      /* Blue */
@@ -45,7 +47,6 @@
         /* --- CONTAINER & BASE STYLES --- */
         body {
             font-family: 'Sarabun', sans-serif;
-            /* V2.7: Use light brown background */
             background-color: var(--color-bg); 
             color: var(--color-text-dark);
             margin: 0;
@@ -63,7 +64,6 @@
             width: 100%;
             max-width: 500px; 
             box-sizing: border-box;
-            /* V2.7: Use lighter tan for container */
             background-color: var(--color-card-bg); 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
             min-height: 100vh;
@@ -110,7 +110,7 @@
             padding: 0 15px;
         }
 
-        /* V2.7: Difficulty Button Colors (Request 1) */
+        /* Difficulty Button Colors */
         .main-difficulty-btn[data-level="easy"] {
             background-color: var(--color-easy); 
             box-shadow: 0 4px 0 #FFB300; 
@@ -128,7 +128,6 @@
         
         #controls-wrapper {
             order: 2; 
-            /* V2.7: เลื่อนกลุ่มปุ่มควบคุมขึ้น 40px */
             margin-top: -30px; 
             padding-top: 10px; 
             padding-bottom: 15px; 
@@ -178,7 +177,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.1s;
-            /* V2.7: เปลี่ยนกลับเป็นสีเขียว (Request 3) */
+            /* ปุ่มควบคุมสีเขียว */
             background-color: var(--color-secondary); 
             box-shadow: 0 5px 0 var(--color-snake-head); 
             
@@ -197,32 +196,94 @@
         
         /* --- Snake & Letter Styles --- */
         
-        /* V2.7: Snake head "eaten" effect (Request 7) */
+        /* V2.8: Head (Effect) */
         .snake-head { 
             background-color: var(--color-snake-head); 
             border-radius: 50%;
-            transition: transform 0.1s ease-out; /* สำหรับเอฟเฟกต์การโต/ยุบ */
+            transition: transform 0.1s ease-out; 
+            z-index: 30; /* ให้อยู่ด้านบนสุด */
         }
-        
+        /* V2.8: Eating zoom effect (Request 3) */
         .snake-head.eaten {
             transform: scale(1.3); 
         }
 
-        .snake-body { background-color: var(--color-snake-body); border-radius: 20%; }
+        .snake-body { 
+            background-color: var(--color-snake-body); 
+            border-radius: 20%; 
+            transition: transform 0.2s;
+        }
         
-        .letter-piece { 
-            /* V2.7: เปลี่ยนสีเป็นสีแดง (Request 8) */
-            background-color: var(--color-letter); 
-            color: var(--color-text-light); 
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        /* V2.8: Snake Tail Appearance (Request 2) */
+        .snake-tail {
+            background-color: var(--color-snake-body);
+            position: relative;
+            /* Make the last segment visually part of the tail */
+            border-radius: 20%; 
+            transform: scale(0.9); /* ทำให้ส่วนท้ายดูเล็กลงหน่อย */
+            transition: transform 0.2s;
         }
 
+        .snake-tail::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            
+            background-color: var(--color-snake-body);
+            
+            /* ใช้ clip-path สำหรับรูปสามเหลี่ยมคม/แหลม */
+            clip-path: polygon(100% 50%, 0% 0%, 0% 100%); 
+            border-radius: 15%; /* มุมมนเล็กน้อย */
+            
+            /* Initial transformation to make it look like a tail tip */
+            transform: scale(0.8) translateX(25%); 
+            transform-origin: center;
+            transition: transform 0.1s;
+            z-index: -1; /* ให้อยู่ด้านล่าง cell */
+        }
+
+        /* Rotation and translation for the triangle tip based on direction */
+        .snake-tail[data-dir="UP"]::after { 
+            transform: scale(0.8) rotate(-90deg) translateX(25%); 
+        }
+        .snake-tail[data-dir="DOWN"]::after { 
+            transform: scale(0.8) rotate(90deg) translateX(25%); 
+        }
+        .snake-tail[data-dir="LEFT"]::after { 
+            transform: scale(0.8) rotate(180deg) translateX(25%); 
+        }
+        .snake-tail[data-dir="RIGHT"]::after { 
+            transform: scale(0.8) rotate(0deg) translateX(25%); 
+        }
+        
+        /* V2.8: Letter Piece Styles (Request 4) */
+        .letter-piece { 
+            color: var(--color-text-dark); /* ใช้สีเข้มเพื่อให้เห็นตัวอักษรบนสีเหลือง/แดง */
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .letter-piece.target {
+            /* เป้าหมายถัดไป: สีแดง */
+            background-color: var(--color-letter-target);
+            color: var(--color-text-light); /* ตัวอักษรสีขาวบนสีแดง */
+        }
+        
+        .letter-piece:not(.target) {
+            /* ตัวอักษรอื่นๆ: สีเหลือง */
+            background-color: var(--color-letter-non-target); 
+            color: var(--color-text-dark); /* ตัวอักษรสีดำบนสีเหลือง */
+        }
+        
         /* --- Game Text Styles --- */
         #game-screen h1 { margin-bottom: 0; font-size: 1.5rem; }
         #game-info { line-height: 1.2; margin-bottom: 0.2rem; font-size: 1.1rem; }
         
-        /* V2.7: คำโจทย์ในหน้าเกมเพลย์ให้แสดงเป็นตัวหนา และใหญ่ขึ้น (Request 6) */
+        /* คำโจทย์ในหน้าเกมเพลย์ให้แสดงเป็นตัวหนา และใหญ่ขึ้น */
         #full-word-display {
             font-size: 1.5rem; 
             font-weight: 900; 
@@ -245,7 +306,7 @@
         }
         
         .overlay-content {
-            background-color: var(--color-card-bg); /* ใช้สีพื้นหลังใหม่ */
+            background-color: var(--color-card-bg); 
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -266,13 +327,13 @@
             padding: 1rem;
             border-radius: 50px;
             font-weight: bold;
-            background-color: var(--color-primary); /* Default for Primary Actions */
+            background-color: var(--color-primary); 
             box-shadow: 0 4px 0 #1B5E20; 
             width: 100%; 
             box-sizing: border-box;
         }
         
-        /* V2.7: ปุ่มกลับหน้าเริ่มต้น/หน้าหลัก เป็นสีแดง (Request 2, 4) */
+        /* ปุ่มกลับหน้าเริ่มต้น/หน้าหลัก สีแดง */
         #overlay-return-btn, #level-return-btn {
             background-color: var(--color-return-btn);
             box-shadow: 0 4px 0 var(--color-return-btn-shadow);
@@ -280,7 +341,6 @@
         
         /* --- Summary Screen Styles --- */
         
-        /* V2.7: จัดกลุ่มปุ่มในหน้าสรุปและเพิ่มระยะห่าง 15px (Request 4) */
         .modal-btn-group {
             width: 100%; 
             max-width: 300px; 
@@ -290,7 +350,7 @@
             gap: 15px; /* เว้นระยะห่าง 15px */
         }
 
-        /* V2.7: เพิ่มขนาด คำศัพท์ คำแปลในหน้าสรุป (Request 5) */
+        /* เพิ่มขนาด คำศัพท์ คำแปลในหน้าสรุป */
         #level-summary-list li {
             font-size: 1.1rem; 
             line-height: 1.6;
@@ -468,7 +528,7 @@
         let direction = 'RIGHT'; 
         let gameInterval;
         let isGameRunning = false;
-        let isHeadEaten = false; // V2.7: Flag for the eating effect
+        let isHeadEaten = false; 
 
         function readWordAndTranslation(word, translation, delay = 100) { 
             if (!synth) return;
@@ -538,15 +598,33 @@
             wordToSpell = currentWordObj.word;
             currentWordIndex = 0;
             
+            // Initial snake position and direction
             snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }]; 
-            direction = 'RIGHT';
+            direction = 'RIGHT'; 
             letterPositions = [];
             isGameRunning = false;
-            isHeadEaten = false; // Reset effect flag
+            isHeadEaten = false; 
 
             const wordLetters = wordToSpell.split('');
+            
+            // V2.8: Initialize occupied positions including the snake's body
             const occupiedPositions = new Set(['5,5', '4,5']); 
-
+            
+            // V2.8: Add cell directly in front of the head to occupied list (Request 1 fix)
+            const head = snake[0];
+            let nextX = head.x, nextY = head.y;
+            switch(direction) {
+                case 'UP': nextY--; break;
+                case 'DOWN': nextY++; break;
+                case 'LEFT': nextX--; break;
+                case 'RIGHT': nextX++; break;
+            }
+            // Check boundaries before adding (prevents initial crash if starting near edge)
+            if (nextX >= 0 && nextX < GRID_SIZE && nextY >= 0 && nextY < GRID_SIZE) {
+                occupiedPositions.add(`${nextX},${nextY}`); 
+            }
+            
+            // Generate letter positions
             wordLetters.forEach(letter => {
                 let x, y, posKey;
                 do {
@@ -591,7 +669,6 @@
             
             completedWordsInLevel.forEach(item => {
                 const li = document.createElement('li');
-                // V2.7: เพิ่มขนาดคำศัพท์/คำแปล
                 li.innerHTML = `<strong>${item.word}</strong> / ${item.translation}`;
                 levelSummaryList.appendChild(li);
             });
@@ -627,6 +704,9 @@
 
         function updateGame() {
             if (!isGameRunning) return;
+            
+            // Reset eating effect flag before processing the move
+            isHeadEaten = false; 
 
             const head = { x: snake[0].x, y: snake[0].y };
             
@@ -660,7 +740,7 @@
                     currentWordIndex++;
                     letterPositions.splice(collectedLetterPieceIndex, 1);
                     letterCollected = true;
-                    isHeadEaten = true; // V2.7: SET FLAG for eating effect
+                    isHeadEaten = true; // Set flag for eating effect
                 } else {
                     showGameOver(`Game Over!`, `คุณเก็บตัวอักษรผิดตัว! ❌<br>เก็บ <strong>${piece.letter}</strong> แทนที่จะเป็น <strong>${currentTargetLetter}</strong>`);
                     return;
@@ -689,11 +769,6 @@
 
             drawBoard();
             updateDisplays();
-            
-            if (isHeadEaten) {
-                // V2.7: Reset flag after drawing to allow the head to shrink on the next interval
-                isHeadEaten = false;
-            }
         }
 
         function drawBoard() {
@@ -706,19 +781,46 @@
             }).join('');
             gameBoard.innerHTML = cellsHTML;
 
+            // V2.8: Apply head/body/tail classes (Request 2)
             snake.forEach((segment, index) => {
                 const cell = gameBoard.querySelector(`.cell[data-x="${segment.x}"][data-y="${segment.y}"]`);
                 if (cell) {
-                    // V2.7: Check the flag here for the 'eaten' class
-                    const headClass = (index === 0) ? `snake-head${isHeadEaten ? ' eaten' : ''}` : 'snake-body';
-                    cell.className = `cell ${headClass}`;
+                    cell.removeAttribute('data-dir'); // Clear previous direction
+                    
+                    if (index === 0) {
+                        // Head: Apply eating effect class if needed
+                        const headClass = `snake-head${isHeadEaten ? ' eaten' : ''}`;
+                        cell.className = `cell ${headClass}`;
+                    } else if (index === snake.length - 1) {
+                        // Tail: Apply snake-tail class and direction
+                        cell.className = 'cell snake-tail';
+                        
+                        // Determine tail direction (segment before the tail)
+                        const penultimate = snake[snake.length - 2];
+                        const tail = segment; 
+                        let tailDir = '';
+                        // Determine the direction from the penultimate segment to the tail segment (the direction the tail is pointing)
+                        if (tail.x < penultimate.x) tailDir = 'RIGHT'; 
+                        else if (tail.x > penultimate.x) tailDir = 'LEFT';
+                        else if (tail.y < penultimate.y) tailDir = 'DOWN';
+                        else if (tail.y > penultimate.y) tailDir = 'UP'; 
+                        
+                        cell.setAttribute('data-dir', tailDir);
+                    } else {
+                        // Body
+                        cell.className = 'cell snake-body';
+                    }
                 }
             });
 
+            // V2.8: Apply letter colors (Request 4)
+            const currentTargetLetter = wordToSpell[currentWordIndex];
             letterPositions.forEach(p => {
                 const cell = gameBoard.querySelector(`.cell[data-x="${p.x}"][data-y="${p.y}"]`);
                 if (cell) {
-                    cell.className = 'cell letter-piece';
+                    // Check if this letter is the current target
+                    const isTarget = p.letter === currentTargetLetter;
+                    cell.className = `cell letter-piece${isTarget ? ' target' : ''}`;
                     cell.textContent = p.letter;
                 }
             });
