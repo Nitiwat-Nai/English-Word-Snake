@@ -9,21 +9,29 @@
         /* --- THEME & GLOBAL STYLES (Jungle Theme) --- */
         :root {
             /* Jungle Theme Colors */
-            --color-primary: #1B5E20; 
-            --color-secondary: #388E3C; 
-            --color-bg: #F1F8E9; 
-            --color-text-dark: #3E2723; 
+            --color-primary: #1B5E20; /* Deep Green (Header/Main) */
+            --color-secondary: #388E3C; /* Darker Green/Accent (for Controls) */
+            
+            /* V2.7: Background to Light Brown/Tan */
+            --color-bg: #D7CCC8; /* Light Brown/Tan Body Background */
+            --color-card-bg: #FBE9E7; /* Lighter Background for container/card */
+            --color-text-dark: #3E2723; /* Dark Brown Text */
             --color-text-light: #FFFFFF;
             
             /* Snake Specific Colors */
-            --color-snake-head: #004D40; 
-            --color-snake-body: #4DB6AC; 
-            --color-letter: #FF9800; /* Orange/Letter Accent */
+            --color-snake-head: #004D40; /* Dark Teal Green */
+            --color-snake-body: #4DB6AC; /* Light Teal Green */
+            /* V2.7: Target Letter color to Red */
+            --color-letter: #E53935; /* Red for target/letter pieces */
             
-            /* Difficulty Colors */
-            --color-easy: #FFC107;      
-            --color-medium: #4CAF50;    
-            --color-hard: #2196F3;      
+            /* V2.7: Red for return buttons (Request 2, 4) */
+            --color-return-btn: #E53935; 
+            --color-return-btn-shadow: #C62828; 
+            
+            /* Difficulty Colors (Request 1) */
+            --color-easy: #FFC107;      /* Yellow */
+            --color-medium: #4CAF50;    /* Green */
+            --color-hard: #2196F3;      /* Blue */
             
             /* Grid Size */
             --grid-size: 15;
@@ -37,7 +45,8 @@
         /* --- CONTAINER & BASE STYLES --- */
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: var(--color-bg);
+            /* V2.7: Use light brown background */
+            background-color: var(--color-bg); 
             color: var(--color-text-dark);
             margin: 0;
             padding: 0;
@@ -54,7 +63,8 @@
             width: 100%;
             max-width: 500px; 
             box-sizing: border-box;
-            background-color: var(--color-text-light);
+            /* V2.7: Use lighter tan for container */
+            background-color: var(--color-card-bg); 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
             min-height: 100vh;
             display: flex;
@@ -100,17 +110,30 @@
             padding: 0 15px;
         }
 
+        /* V2.7: Difficulty Button Colors (Request 1) */
+        .main-difficulty-btn[data-level="easy"] {
+            background-color: var(--color-easy); 
+            box-shadow: 0 4px 0 #FFB300; 
+        }
+        .main-difficulty-btn[data-level="medium"] {
+            background-color: var(--color-medium); 
+            box-shadow: 0 4px 0 #388E3C; 
+        }
+        .main-difficulty-btn[data-level="hard"] {
+            background-color: var(--color-hard); 
+            box-shadow: 0 4px 0 #1565C0; 
+        }
+
         /* --- Game Screen Layout --- */
         
         #controls-wrapper {
             order: 2; 
-            /* V2.6: เลื่อนกลุ่มปุ่มควบคุมขึ้น 40px (10px - 40px = -30px) */
+            /* V2.7: เลื่อนกลุ่มปุ่มควบคุมขึ้น 40px */
             margin-top: -30px; 
             padding-top: 10px; 
             padding-bottom: 15px; 
             margin-left: auto; 
             margin-right: auto;
-            /* ทำให้ซ้อนทับถ้าจำเป็น */
             z-index: 5;
         }
         
@@ -125,13 +148,12 @@
             background-color: #CFD8DC; 
             margin-left: auto;
             margin-right: auto;
-            z-index: 10; /* ให้กระดานอยู่ด้านบนกว่า Controls (ถ้าเกิดการซ้อนทับ) */
+            z-index: 10; 
         }
         
         /* --- Controls --- */
         .controls {
             display: grid;
-            /* V2.6: กำหนดพื้นที่ให้เป็น 2 แถว: แถวบนมีปุ่มเดียว (ตรงกลาง), แถวล่างมีสามปุ่ม */
             grid-template-areas: 
                 ". up ." 
                 "left down right";
@@ -142,7 +164,6 @@
             margin: 15px auto 0; 
         }
         
-        /* V2.6: กำหนดตำแหน่งของแต่ละปุ่มให้ตรงกับ Grid Area */
         #control-up { grid-area: up; }
         #control-left { grid-area: left; }
         #control-down { grid-area: down; }
@@ -157,9 +178,9 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.1s;
-            /* สีส้ม */
-            background-color: var(--color-letter); 
-            box-shadow: 0 5px 0 #F57C00; /* ส้มเข้ม */
+            /* V2.7: เปลี่ยนกลับเป็นสีเขียว (Request 3) */
+            background-color: var(--color-secondary); 
+            box-shadow: 0 5px 0 var(--color-snake-head); 
             
             min-width: var(--control-new-size); 
             min-height: var(--control-new-size);
@@ -171,10 +192,45 @@
         }
         .control-btn:active {
             transform: translateY(3px);
-            box-shadow: 0 2px 0 #F57C00; 
+            box-shadow: 0 2px 0 var(--color-snake-head); 
         }
         
-        /* --- Modal/Overlay (V2.4 Fix) --- */
+        /* --- Snake & Letter Styles --- */
+        
+        /* V2.7: Snake head "eaten" effect (Request 7) */
+        .snake-head { 
+            background-color: var(--color-snake-head); 
+            border-radius: 50%;
+            transition: transform 0.1s ease-out; /* สำหรับเอฟเฟกต์การโต/ยุบ */
+        }
+        
+        .snake-head.eaten {
+            transform: scale(1.3); 
+        }
+
+        .snake-body { background-color: var(--color-snake-body); border-radius: 20%; }
+        
+        .letter-piece { 
+            /* V2.7: เปลี่ยนสีเป็นสีแดง (Request 8) */
+            background-color: var(--color-letter); 
+            color: var(--color-text-light); 
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- Game Text Styles --- */
+        #game-screen h1 { margin-bottom: 0; font-size: 1.5rem; }
+        #game-info { line-height: 1.2; margin-bottom: 0.2rem; font-size: 1.1rem; }
+        
+        /* V2.7: คำโจทย์ในหน้าเกมเพลย์ให้แสดงเป็นตัวหนา และใหญ่ขึ้น (Request 6) */
+        #full-word-display {
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            color: var(--color-primary);
+        }
+        
+        /* --- Modal/Overlay & Buttons --- */
+
         #game-overlay {
             position: absolute; 
             top: 0;
@@ -185,11 +241,11 @@
             justify-content: center;
             align-items: center;
             background-color: rgba(255, 255, 255, 0.9); 
-            z-index: 100; /* สูงสุด */
+            z-index: 100; 
         }
         
         .overlay-content {
-            background-color: var(--color-text-light);
+            background-color: var(--color-card-bg); /* ใช้สีพื้นหลังใหม่ */
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -201,19 +257,6 @@
             margin: 10px 0; 
         }
 
-        /* --- Other Styles (Unchanged) --- */
-        .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
-        .snake-body { background-color: var(--color-snake-body); border-radius: 20%; }
-        .letter-piece { 
-            background-color: var(--color-letter); 
-            color: var(--color-text-light); 
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        #game-screen h1 { margin-bottom: 0; font-size: 1.5rem; }
-        #game-info { line-height: 1.2; margin-bottom: 0.2rem; font-size: 1.1rem; }
-        
         .modal-btn, .main-difficulty-btn, .sub-level-btn, #start-game-btn-overlay {
             color: var(--color-text-light);
             border: none;
@@ -223,10 +266,38 @@
             padding: 1rem;
             border-radius: 50px;
             font-weight: bold;
-            background-color: var(--color-primary);
+            background-color: var(--color-primary); /* Default for Primary Actions */
             box-shadow: 0 4px 0 #1B5E20; 
             width: 100%; 
             box-sizing: border-box;
+        }
+        
+        /* V2.7: ปุ่มกลับหน้าเริ่มต้น/หน้าหลัก เป็นสีแดง (Request 2, 4) */
+        #overlay-return-btn, #level-return-btn {
+            background-color: var(--color-return-btn);
+            box-shadow: 0 4px 0 var(--color-return-btn-shadow);
+        }
+        
+        /* --- Summary Screen Styles --- */
+        
+        /* V2.7: จัดกลุ่มปุ่มในหน้าสรุปและเพิ่มระยะห่าง 15px (Request 4) */
+        .modal-btn-group {
+            width: 100%; 
+            max-width: 300px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 15px; /* เว้นระยะห่าง 15px */
+        }
+
+        /* V2.7: เพิ่มขนาด คำศัพท์ คำแปลในหน้าสรุป (Request 5) */
+        #level-summary-list li {
+            font-size: 1.1rem; 
+            line-height: 1.6;
+        }
+        #level-summary-list li strong {
+            font-size: 1.2rem; 
+            font-weight: 900;
         }
         
         .hidden {
@@ -298,7 +369,7 @@
             <ul id="level-summary-list" style="list-style-type: none; padding: 0;">
             </ul>
             <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">รายการคำศัพท์ทั้งหมดในเลเวลนี้:</p>
-            <div style="width: 100%; max-width: 300px; display: flex; flex-direction: column; align-items: center; gap: 0;">
+            <div class="modal-btn-group">
                 <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
                 <button id="level-return-btn" class="modal-btn" disabled>กลับหน้าหลัก</button>
             </div>
@@ -333,7 +404,7 @@
         const LEVEL_WORD_COUNT = 5;
         
         const DIFFICULTY_COLORS = {
-            'easy': { color: '#FFC107', shadow: '#FF9800' },
+            'easy': { color: '#FFC107', shadow: '#FFB300' },
             'medium': { color: '#4CAF50', shadow: '#388E3C' },
             'hard': { color: '#2196F3', shadow: '#1565C0' }
         };
@@ -397,6 +468,7 @@
         let direction = 'RIGHT'; 
         let gameInterval;
         let isGameRunning = false;
+        let isHeadEaten = false; // V2.7: Flag for the eating effect
 
         function readWordAndTranslation(word, translation, delay = 100) { 
             if (!synth) return;
@@ -470,6 +542,7 @@
             direction = 'RIGHT';
             letterPositions = [];
             isGameRunning = false;
+            isHeadEaten = false; // Reset effect flag
 
             const wordLetters = wordToSpell.split('');
             const occupiedPositions = new Set(['5,5', '4,5']); 
@@ -518,6 +591,7 @@
             
             completedWordsInLevel.forEach(item => {
                 const li = document.createElement('li');
+                // V2.7: เพิ่มขนาดคำศัพท์/คำแปล
                 li.innerHTML = `<strong>${item.word}</strong> / ${item.translation}`;
                 levelSummaryList.appendChild(li);
             });
@@ -586,6 +660,7 @@
                     currentWordIndex++;
                     letterPositions.splice(collectedLetterPieceIndex, 1);
                     letterCollected = true;
+                    isHeadEaten = true; // V2.7: SET FLAG for eating effect
                 } else {
                     showGameOver(`Game Over!`, `คุณเก็บตัวอักษรผิดตัว! ❌<br>เก็บ <strong>${piece.letter}</strong> แทนที่จะเป็น <strong>${currentTargetLetter}</strong>`);
                     return;
@@ -614,6 +689,11 @@
 
             drawBoard();
             updateDisplays();
+            
+            if (isHeadEaten) {
+                // V2.7: Reset flag after drawing to allow the head to shrink on the next interval
+                isHeadEaten = false;
+            }
         }
 
         function drawBoard() {
@@ -629,7 +709,9 @@
             snake.forEach((segment, index) => {
                 const cell = gameBoard.querySelector(`.cell[data-x="${segment.x}"][data-y="${segment.y}"]`);
                 if (cell) {
-                    cell.className = index === 0 ? 'cell snake-head' : 'cell snake-body';
+                    // V2.7: Check the flag here for the 'eaten' class
+                    const headClass = (index === 0) ? `snake-head${isHeadEaten ? ' eaten' : ''}` : 'snake-body';
+                    cell.className = `cell ${headClass}`;
                 }
             });
 
