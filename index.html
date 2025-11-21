@@ -8,9 +8,9 @@
     <style>
         /* --- THEME & GLOBAL STYLES --- */
         :root {
-            --color-primary: #4E342E; 
-            --color-secondary: #BCAAA4; 
-            --color-bg: #F5F5DC; 
+            --color-primary: #4E342E; /* Dark Brown (Earth/Trunk) */
+            --color-secondary: #BCAAA4; /* Light Brown/Beige */
+            --color-bg: #F5F5DC; /* Beige/Creamy Background (Sand) */
             --color-snake-head: #388E3C; 
             --color-snake-body: #81C784; 
             --color-letter: #FFB300; 
@@ -19,8 +19,9 @@
 
             --grid-size: 15;
             --cell-size: 25px;
-            --control-btn-padding: 18px; 
-            --control-btn-font: 28px; 
+            /* 4. ปุ่มกดบังคับทิศทางเพิ่มขนาด อีก 20% (รวมเป็น 144% ของเดิม) */
+            --control-btn-padding: 22px; 
+            --control-btn-font: 34px; 
         }
 
         body {
@@ -69,7 +70,8 @@
             grid-template-columns: repeat(var(--grid-size), 1fr);
             grid-template-rows: repeat(var(--grid-size), 1fr);
             border: 5px solid var(--color-primary);
-            background-color: #A5D6A7; 
+            /* 3. เปลี่ยนสีพื้นสนามเป็นสีน้ำตาลอ่อน */
+            background-color: #D7CCC8; 
         }
 
         .cell {
@@ -93,10 +95,6 @@
         }
 
         /* Sub-Level Selection */
-        .main-levels button {
-            margin: 5px;
-        }
-
         .sub-level-container {
             margin-top: 15px;
             display: grid;
@@ -148,6 +146,19 @@
         #pre-game-modal .modal-content {
             padding: 50px 30px; 
         }
+
+        #level-summary-screen ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        #level-summary-screen li {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--color-text-dark);
+            border-bottom: 1px dashed var(--color-secondary);
+            padding-bottom: 3px;
+        }
         
         /* Controls & Buttons */
         .controls {
@@ -196,6 +207,18 @@
             box-shadow: 0 3px #1B5E20; 
             font-size: 20px;
         }
+        .modal-btn:disabled {
+            background-color: #90A4AE;
+            cursor: not-allowed;
+            box-shadow: 0 3px #607D8B;
+        }
+
+        #game-info {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--color-text-dark);
+        }
     </style>
 </head>
 <body>
@@ -212,7 +235,7 @@
         <div id="sub-levels-container">
             <div id="sub-levels-easy" class="sub-level-container hidden">
                 <h2>ง่าย: เลือกเลเวลย่อย (3-5 อักษร)</h2>
-                </div>
+            </div>
             <div id="sub-levels-medium" class="sub-level-container hidden">
                 <h2>ปานกลาง: เลือกเลเวลย่อย (6-8 อักษร)</h2>
             </div>
@@ -242,13 +265,13 @@
         <p>คำศัพท์ที่สะสม: <span id="collected-word"></span></p>
     </div>
 
-    <div id="summary-screen" class="screen">
-        <h2>🎉 คำศัพท์ที่สะกดได้สมบูรณ์!</h2>
-        <p>คำศัพท์: <strong id="final-word" style="font-size: 28px; color: var(--color-snake-head);"></strong></p>
-        <p>คำแปล: <span id="final-translation" style="font-size: 20px;"></span></p>
-        <p id="tts-status" style="color: var(--color-primary);">รอการอ่านออกเสียง...</p>
-        <button id="next-word-btn" class="modal-btn">คำต่อไป (ระดับเดิม)</button>
-        <button id="return-start-btn" class="modal-btn">กลับหน้าเริ่มต้น</button>
+    <div id="level-summary-screen" class="screen">
+        <h2>🎉 จบเลเวล! คำศัพท์ที่ค้นพบ</h2>
+        <ul id="level-summary-list">
+            </ul>
+        <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">กำลังอ่านสรุปคำศัพท์...</p>
+        <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
+        <button id="level-return-btn" class="modal-btn" disabled>กลับหน้าหลัก</button>
     </div>
     
     <div id="pre-game-modal" class="modal-overlay">
@@ -267,24 +290,24 @@
 
     <script>
         const synth = window.speechSynthesis;
+        // Element IDs
         const gameBoard = document.getElementById('game-board');
         const collectedWordDisplay = document.getElementById('collected-word');
         const nextLetterDisplay = document.getElementById('next-letter');
         const fullWordDisplay = document.getElementById('full-word-display');
         const ttsStatus = document.getElementById('tts-status');
-        const gameOverModal = document.getElementById('game-over-modal');
-        const preGameModal = document.getElementById('pre-game-modal');
         const startGameButton = document.getElementById('start-game-btn');
+        const levelNextBtn = document.getElementById('level-next-btn');
+        const levelReturnBtn = document.getElementById('level-return-btn');
+        const levelSummaryList = document.getElementById('level-summary-list');
 
         const GRID_SIZE = 15;
         const GAME_SPEED = 250; 
         const START_DELAY = 500; 
         const END_LEVEL_DELAY = 500;
 
-        // 2. โครงสร้างคำศัพท์ 3 ระดับหลัก x 10 เลเวลย่อย x 5 คำศัพท์
         const WORDS = {
             'easy': [
-                // Level 1-10, 5 words each (3-5 letters)
                 [{ word: 'CAT', translation: 'แมว' }, { word: 'DOG', translation: 'สุนัข' }, { word: 'SUN', translation: 'อาทิตย์' }, { word: 'MAP', translation: 'แผนที่' }, { word: 'ZOO', translation: 'สวนสัตว์' }],
                 [{ word: 'FISH', translation: 'ปลา' }, { word: 'BIRD', translation: 'นก' }, { word: 'RAIN', translation: 'ฝน' }, { word: 'FIRE', translation: 'ไฟ' }, { word: 'TREE', translation: 'ต้นไม้' }],
                 [{ word: 'BALL', translation: 'ลูกบอล' }, { word: 'BOOK', translation: 'หนังสือ' }, { word: 'GAME', translation: 'เกม' }, { word: 'ROAD', translation: 'ถนน' }, { word: 'MOON', translation: 'ดวงจันทร์' }],
@@ -297,7 +320,6 @@
                 [{ word: 'SMILE', translation: 'ยิ้ม' }, { word: 'LAUGH', translation: 'หัวเราะ' }, { word: 'SLEEP', translation: 'นอน' }, { word: 'DREAM', translation: 'ฝัน' }, { word: 'WAKE', translation: 'ตื่น' }],
             ],
             'medium': [
-                // Level 1-10, 5 words each (6-8 letters)
                 [{ word: 'ORANGE', translation: 'ส้ม' }, { word: 'TICKET', translation: 'ตั๋ว' }, { word: 'PURPLE', translation: 'สีม่วง' }, { word: 'FATHER', translation: 'พ่อ' }, { word: 'MOTHER', translation: 'แม่' }],
                 [{ word: 'SCHOOL', translation: 'โรงเรียน' }, { word: 'TRAVEL', translation: 'เดินทาง' }, { word: 'VACATION', translation: 'วันหยุด' }, { word: 'FRIEND', translation: 'เพื่อน' }, { word: 'FAMILY', translation: 'ครอบครัว' }],
                 [{ word: 'MORNING', translation: 'เช้า' }, { word: 'EVENING', translation: 'เย็น' }, { word: 'WEEKEND', translation: 'วันหยุดสุดสัปดาห์' }, { word: 'HISTORY', translation: 'ประวัติศาสตร์' }, { word: 'SCIENCE', translation: 'วิทยาศาสตร์' }],
@@ -310,7 +332,6 @@
                 [{ word: 'MOUNTAIN', translation: 'ภูเขา' }, { word: 'FOREST', translation: 'ป่า' }, { word: 'PLANET', translation: 'ดาวเคราะห์' }, { word: 'CASTLE', translation: 'ปราสาท' }, { word: 'ADVENT', translation: 'การมาถึง' }],
             ],
             'hard': [
-                // Level 1-10, 5 words each (9-12 letters)
                 [{ word: 'DICTATION', translation: 'การเขียนตามคำบอก' }, { word: 'AMAZEMENT', translation: 'ความประหลาดใจ' }, { word: 'ADVENTURE', translation: 'การผจญภัย' }, { word: 'TECHNOLOGY', translation: 'เทคโนโลยี' }, { word: 'RESTAURANT', translation: 'ร้านอาหาร' }],
                 [{ word: 'COMPUTER', translation: 'คอมพิวเตอร์' }, { word: 'TELEVISION', translation: 'โทรทัศน์' }, { word: 'KNOWLEDGE', translation: 'ความรู้' }, { word: 'DIFFICULT', translation: 'ยาก' }, { word: 'EXCELLENT', translation: 'ยอดเยี่ยม' }],
                 [{ word: 'COMMUNITY', translation: 'ชุมชน' }, { word: 'ECOLOGY', translation: 'นิเวศวิทยา' }, { word: 'EDUCATION', translation: 'การศึกษา' }, { word: 'IMAGINE', translation: 'จินตนาการ' }, { word: 'LANGUAGE', translation: 'ภาษา' }],
@@ -326,67 +347,78 @@
 
         let snake = [];
         let currentWordObj = {};
+        let currentLevelWordsList = []; // 5 คำศัพท์สำหรับเลเวลย่อยปัจจุบัน
+        let completedWordsInLevel = []; // คำศัพท์ที่สะกดเสร็จแล้วในเลเวลย่อยนี้
+        let currentWordIndexInLevel = 0; // ลำดับคำศัพท์ที่กำลังเล่น (0 ถึง 4)
+        
         let wordToSpell = '';
-        let currentMainLevel = 'easy'; // ระดับหลักที่เลือก
-        let currentSubLevel = 1; // เลเวลย่อยที่เลือก
+        let currentMainLevel = 'easy'; 
+        let currentSubLevel = 1; 
         let currentWordIndex = 0;
         let letterPositions = []; 
         let direction = 'RIGHT'; 
         let gameInterval;
         let isGameRunning = false;
+        
+        const LEVEL_WORD_COUNT = 5;
 
-        function getRandomWord(mainLevel, subLevel) {
-            // ดึงรายการคำศัพท์ของเลเวลย่อยนั้นๆ (subLevel 1 ใช้อินเด็กซ์ 0)
-            const list = WORDS[mainLevel][subLevel - 1];
-            // สุ่มเลือก 1 คำศัพท์จาก 5 คำ
-            const randomIndex = Math.floor(Math.random() * list.length);
-            return list[randomIndex];
-        }
-
-        function speakWord(word, translation) {
-            // ... (Speech Synthesis function remains the same)
-            if (!synth) {
-                ttsStatus.textContent = "⚠ เบราว์เซอร์ไม่รองรับ Text-to-Speech";
+        // 1. ฟังก์ชันอ่านออกเสียงตามลำดับ
+        function readLevelSummary(index, wordsList, nextBtn, returnBtn) {
+            if (index >= wordsList.length) {
+                // อ่านครบ 5 คำแล้ว
+                nextBtn.disabled = false;
+                returnBtn.disabled = false;
+                ttsStatus.textContent = "✅ การอ่านจบแล้ว คุณสามารถกดปุ่มเพื่อไปเลเวลต่อไปได้";
                 return;
             }
+
+            const wordObj = wordsList[index];
+            const word = wordObj.word;
+            const translation = wordObj.translation;
+            
+            // Highlight current speaking word
+            const listItems = levelSummaryList.querySelectorAll('li');
+            listItems.forEach((li, i) => {
+                li.style.backgroundColor = (i === index) ? '#FFF9C4' : 'transparent'; // Light yellow highlight
+            });
+
+
+            if (!synth) {
+                // หากไม่รองรับ TTS ให้ข้ามไป
+                readLevelSummary(wordsList.length, wordsList, nextBtn, returnBtn);
+                return;
+            }
+            
             if (synth.speaking) {
                 synth.cancel();
             }
-
-            ttsStatus.textContent = "กำลังอ่านออกเสียงคำศัพท์ (อังกฤษ): " + word;
+            
+            ttsStatus.textContent = `(${index + 1}/${wordsList.length}) กำลังอ่าน (อังกฤษ): ${word}`;
             const engUtterance = new SpeechSynthesisUtterance(word);
             engUtterance.lang = 'en-US';
             engUtterance.rate = 0.8; 
-            
+
+            // Chain the readings
             engUtterance.onend = () => {
-                ttsStatus.textContent = "กำลังอ่านคำแปล (ไทย): " + translation;
+                ttsStatus.textContent = `(${index + 1}/${wordsList.length}) กำลังอ่านคำแปล (ไทย): ${translation}`;
                 const thaiUtterance = new SpeechSynthesisUtterance(translation);
                 thaiUtterance.lang = 'th-TH';
                 thaiUtterance.rate = 0.9;
                 
                 thaiUtterance.onend = () => {
-                    ttsStatus.textContent = "การอ่านจบแล้ว";
+                    // Move to the next word in the list
+                    readLevelSummary(index + 1, wordsList, nextBtn, returnBtn);
                 }
                 synth.speak(thaiUtterance);
             };
 
             synth.speak(engUtterance);
         }
-        
-        // 4. ฟังก์ชันแสดง/ซ่อนเลเวลย่อย
-        function showSubLevels(mainLevel) {
-            document.querySelectorAll('.sub-level-container').forEach(container => {
-                container.classList.add('hidden');
-            });
-            document.getElementById(`sub-levels-${mainLevel}`).classList.remove('hidden');
-        }
 
-        // 4. ฟังก์ชันสร้างปุ่มเลเวลย่อย
         function generateSubLevelButtons() {
             const mainLevels = ['easy', 'medium', 'hard'];
             mainLevels.forEach(mainLevel => {
                 const container = document.getElementById(`sub-levels-${mainLevel}`);
-                // ล้างปุ่มเก่าออกก่อน (ป้องกันการสร้างซ้ำ)
                 container.querySelectorAll('.sub-level-btn').forEach(btn => btn.remove());
 
                 for (let i = 1; i <= 10; i++) {
@@ -400,17 +432,40 @@
                 }
             });
         }
+        
+        function showSubLevels(mainLevel) {
+            document.querySelectorAll('.sub-level-container').forEach(container => {
+                container.classList.add('hidden');
+            });
+            document.getElementById(`sub-levels-${mainLevel}`).classList.remove('hidden');
+        }
 
+        // เริ่มต้นเซ็ตอัพระดับและเลเวลย่อยทั้งหมด (5 คำ)
         function setupGame(mainLevel, subLevel) {
-            // ตั้งค่าระดับที่เลือก
             currentMainLevel = mainLevel;
             currentSubLevel = subLevel;
 
-            // 1. เลือกคำศัพท์ตาม MainLevel และ SubLevel
-            currentWordObj = getRandomWord(currentMainLevel, currentSubLevel);
+            // ดึงรายการคำศัพท์ 5 คำ สำหรับเลเวลย่อยนี้
+            currentLevelWordsList = WORDS[mainLevel][subLevel - 1]; 
+            completedWordsInLevel = [];
+            currentWordIndexInLevel = 0;
+            
+            startNextWord();
+        }
+
+        // เริ่มต้นเซ็ตอัพคำศัพท์คำถัดไป (1 ใน 5 คำ)
+        function startNextWord() {
+            if (currentWordIndexInLevel >= currentLevelWordsList.length) {
+                // คำศัพท์ครบ 5 คำแล้ว
+                showLevelSummaryScreen();
+                return;
+            }
+            
+            currentWordObj = currentLevelWordsList[currentWordIndexInLevel];
             wordToSpell = currentWordObj.word;
             currentWordIndex = 0;
             
+            // Reset snake and game state
             snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }]; 
             direction = 'RIGHT';
             letterPositions = [];
@@ -436,13 +491,14 @@
             drawBoard(); 
             updateDisplays(); 
             
-            // 3. แสดงข้อความระดับความยากในปุ่ม
+            // 3. แสดงข้อความระดับความยากในปุ่ม (คำที่ x/5)
             const levelTextMap = { 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
-            startGameButton.textContent = `เริ่มเกม: ระดับ${levelTextMap[currentMainLevel]} เลเวล ${currentSubLevel}`;
+            const progress = currentWordIndexInLevel + 1;
+            startGameButton.textContent = `เริ่มเกม: ระดับ${levelTextMap[currentMainLevel]} เลเวล ${currentSubLevel} (${progress}/${LEVEL_WORD_COUNT})`;
             
-            showModal('pre-game-modal'); // แสดง Modal เริ่มเกมทับหน้าจอ
+            showModal('pre-game-modal'); 
         }
-        
+
         function runGame() {
             hideModal('pre-game-modal');
             clearInterval(gameInterval);
@@ -453,18 +509,31 @@
             }, START_DELAY); 
         }
         
+        // 2. ฟังก์ชันแสดงหน้าสรุปเลเวลย่อย
+        function showLevelSummaryScreen() {
+            showScreen('level-summary-screen');
+            levelSummaryList.innerHTML = '';
+            
+            // สร้างรายการคำศัพท์ที่สะกดได้
+            completedWordsInLevel.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `${item.word} / ${item.translation}`;
+                levelSummaryList.appendChild(li);
+            });
+
+            // ปิดการใช้งานปุ่มก่อนเริ่มอ่าน
+            levelNextBtn.disabled = true;
+            levelReturnBtn.disabled = true;
+
+            // เริ่มอ่านออกเสียง
+            readLevelSummary(0, completedWordsInLevel, levelNextBtn, levelReturnBtn);
+        }
+
         function showGameOverModal(message) {
             isGameRunning = false;
             clearInterval(gameInterval);
             document.getElementById('game-over-message').innerHTML = message;
             showModal('game-over-modal');
-        }
-
-        function showSummaryScreen() {
-            document.getElementById('final-word').textContent = wordToSpell;
-            document.getElementById('final-translation').textContent = currentWordObj.translation;
-            showScreen('summary-screen');
-            speakWord(wordToSpell, currentWordObj.translation); 
         }
 
         function updateDisplays() {
@@ -482,7 +551,6 @@
 
             const head = { x: snake[0].x, y: snake[0].y };
             
-            // ... (Movement Logic)
             switch(direction) {
                 case 'UP': head.y--; break;
                 case 'DOWN': head.y++; break;
@@ -529,8 +597,12 @@
                 clearInterval(gameInterval);
                 isGameRunning = false; 
                 
+                // เก็บคำศัพท์ที่เสร็จแล้ว
+                completedWordsInLevel.push(currentWordObj);
+                currentWordIndexInLevel++; 
+                
                 setTimeout(() => {
-                    showSummaryScreen();
+                    startNextWord(); // ไปเริ่มคำศัพท์ต่อไป หรือแสดงหน้าสรุปเลเวล
                 }, END_LEVEL_DELAY); 
                 
                 return;
@@ -579,7 +651,7 @@
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = (id === 'game-screen') ? 'flex' : 'block';
+            document.getElementById(id).style.display = (id === 'game-screen' || id === 'level-summary-screen') ? 'flex' : 'block';
         }
         
         function showModal(id) {
@@ -589,13 +661,36 @@
         function hideModal(id) {
             document.getElementById(id).style.display = 'none';
         }
+        
+        // --- Event Handlers for Level Navigation ---
+
+        function goToNextLevel() {
+            let nextSubLevel = currentSubLevel + 1;
+            let nextMainLevel = currentMainLevel;
+
+            if (nextSubLevel > 10) {
+                // ถ้าจบเลเวลย่อยสุดท้าย (10)
+                alert(`🎉 คุณผ่านระดับ ${nextMainLevel} ทั้งหมด 10 เลเวลแล้ว!`);
+                showScreen('start-screen');
+                showSubLevels('easy');
+                return;
+            }
+            
+            // ถ้ายังไม่จบระดับย่อย
+            setupGame(nextMainLevel, nextSubLevel);
+        }
+
+        function returnToStartScreen() {
+            showScreen('start-screen');
+            showSubLevels('easy');
+        }
 
 
         // --- Event Listeners & Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            generateSubLevelButtons(); // สร้างปุ่มเลเวลย่อยทั้งหมด
+            generateSubLevelButtons(); 
 
-            // 4. ปุ่มเลือกความยากหลัก: แสดง/ซ่อนเลเวลย่อย
+            // ปุ่มเลือกความยากหลัก: แสดง/ซ่อนเลเวลย่อย
             document.querySelectorAll('.main-difficulty-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => showSubLevels(e.target.dataset.level));
             });
@@ -606,19 +701,13 @@
             // ปุ่มกลับหน้าเริ่มต้นจาก Game Over Modal
             document.getElementById('game-over-retry-btn').addEventListener('click', () => {
                 hideModal('game-over-modal');
-                showScreen('start-screen');
-                showSubLevels('easy'); // ตั้งค่าเริ่มต้นให้แสดงเลเวลย่อยของ Easy
+                returnToStartScreen();
             });
 
-            // ปุ่มบนหน้าจอสรุป
-            document.getElementById('next-word-btn').addEventListener('click', () => {
-                // เล่นคำศัพท์ต่อไปในระดับเดิมและเลเวลย่อยเดิม (สุ่มคำศัพท์ใหม่)
-                setupGame(currentMainLevel, currentSubLevel); 
-            });
-            document.getElementById('return-start-btn').addEventListener('click', () => {
-                showScreen('start-screen');
-                showSubLevels('easy');
-            });
+            // 2. ปุ่มใน Level Summary
+            levelNextBtn.addEventListener('click', goToNextLevel);
+            levelReturnBtn.addEventListener('click', returnToStartScreen);
+
 
             // ปุ่มควบคุมทิศทาง & Keyboard (เหมือนเดิม)
             document.querySelectorAll('.control-btn').forEach(btn => {
@@ -636,7 +725,7 @@
             });
 
             showScreen('start-screen'); 
-            showSubLevels('easy'); // ตั้งค่าเริ่มต้นให้แสดงเลเวลย่อยของ Easy
+            showSubLevels('easy'); 
         });
     </script>
 </body>
