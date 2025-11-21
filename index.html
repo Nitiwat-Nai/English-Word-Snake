@@ -93,22 +93,20 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        /* Controls Alignment Fix */
+        /* Controls Alignment Fix (FINAL FIX) */
         #controls-wrapper {
-            /* กำหนดความกว้างให้เท่ากับความกว้างภายในของ game-container (375px) */
-            width: calc(var(--grid-size) * var(--cell-size)); 
+            /* ลบ width และ Flexbox ออกไป ให้เป็น block ธรรมดา */
             margin-top: 20px; 
-            display: flex; 
-            justify-content: center; /* จัดกึ่งกลางปุ่มภายในกรอบ */
             box-sizing: border-box;
+            width: 100%; 
         }
 
         .controls {
             display: grid;
             grid-template-areas: ". up ." "left down right";
             grid-gap: 10px;
-            width: 200px; 
-            margin: 0; /* รีเซ็ต margin */
+            width: 200px; /* ความกว้างคงที่ของกลุ่มปุ่ม */
+            margin: 0 auto; /* **FIX: จัดกึ่งกลางองค์ประกอบ 200px ด้วย margin auto** */
         }
         
         .control-btn {
