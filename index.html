@@ -38,16 +38,16 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Start from top of the screen */
+            align-items: flex-start;
             min-height: 100vh;
             text-align: center;
             overflow-x: hidden;
-            padding-top: 0; /* Remove top padding */
+            padding-top: 0;
         }
 
         .container {
             width: 100%;
-            max-width: 500px; /* **Max width 500px** */
+            max-width: 500px; 
             box-sizing: border-box;
             background-color: var(--color-text-light);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -68,18 +68,18 @@
 
         .screen {
             padding: 1rem;
-            display: none; 
             flex-grow: 1;
             flex-direction: column;
             justify-content: flex-start; 
             gap: 15px;
-            align-items: center; /* Center children within screen */
+            align-items: center; 
             width: 100%;
             box-sizing: border-box;
+            /* ตั้งเป็น none เป็นค่าเริ่มต้น และให้ JS override สำหรับหน้าจอเริ่มต้น */
+            display: none; 
         }
-        .screen.active { display: flex; }
 
-        /* --- Game Board (Centering it within the container) --- */
+        /* --- Game Board --- */
         .game-container {
             width: calc(var(--grid-size) * var(--cell-size)); /* 375px */
             height: calc(var(--grid-size) * var(--cell-size));
@@ -87,9 +87,9 @@
             grid-template-columns: repeat(var(--grid-size), 1fr);
             grid-template-rows: repeat(var(--grid-size), 1fr);
             border: 5px solid var(--color-primary);
-            background-color: #CFD8DC; /* Light Grey background for board */
+            background-color: #CFD8DC; 
             margin-top: 15px; 
-            margin-left: auto; /* Ensure centering */
+            margin-left: auto;
             margin-right: auto;
         }
 
@@ -113,7 +113,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- Controls (Using Word Match Button Style and Centering) --- */
+        /* --- Controls --- */
         #controls-wrapper {
             margin-top: 20px; 
             box-sizing: border-box;
@@ -125,16 +125,15 @@
             grid-template-areas: ". up ." "left down right";
             grid-gap: 10px;
             width: 200px; 
-            margin: 0 auto; /* **FIXED ALIGNMENT** */
+            margin: 0 auto; 
         }
 
-        /* Standard Button Style (from Word Match .control-btn) */
         .control-btn {
             color: var(--color-text-light);
             border: none;
             padding: 1rem; 
             border-radius: 50px;
-            font-size: 1.5rem; /* Larger font for d-pad icons */
+            font-size: 1.5rem; 
             font-weight: bold;
             cursor: pointer;
             transition: all 0.1s;
@@ -152,7 +151,7 @@
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
 
-        /* --- Other Buttons (Apply Word Match style) --- */
+        /* --- Other Buttons --- */
         .modal-btn, .main-difficulty-btn, .sub-level-btn, #start-game-btn {
             background-color: var(--color-primary); 
             box-shadow: 0 4px 0 #1B5E20; 
@@ -182,7 +181,6 @@
         }
         
         .sub-level-container {
-            /* เปลี่ยนเป็น 3 คอลัมน์เหมือน Word Match */
             grid-template-columns: repeat(3, 1fr); 
             max-width: 100%;
             gap: 10px;
@@ -221,9 +219,13 @@
         }
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.4); /* Darker overlay */
+            background-color: rgba(0, 0, 0, 0.4); 
             backdrop-filter: blur(5px); z-index: 1000; display: none; 
             justify-content: center; align-items: center;
+        }
+        /* Style for hiding elements */
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -233,24 +235,24 @@
             <h1>English Word Snake 🐍</h1>
         </header>
 
-        <div id="start-screen" class="screen active">
+        <div id="start-screen" class="screen"> 
             <h2>เลือกความยากหลัก:</h2>
-            <div class="main-levels">
+            <div class="main-levels" style="width: 100%;">
                 <button class="main-difficulty-btn" data-level="easy">ระดับ ง่าย</button>
                 <button class="main-difficulty-btn" data-level="medium">ระดับ ปานกลาง</button>
                 <button class="main-difficulty-btn" data-level="hard">ระดับ ยาก</button>
             </div>
             
             <div id="sub-level-description" class="sub-level-header hidden">
-                </div>
+            </div>
 
             <div id="sub-levels-container" style="width: 100%;">
                 <div id="sub-levels-easy" class="sub-level-container hidden">
-                    </div>
+                </div>
                 <div id="sub-levels-medium" class="sub-level-container hidden">
-                    </div>
+                </div>
                 <div id="sub-levels-hard" class="sub-level-container hidden">
-                    </div>
+                </div>
             </div>
         </div>
         
@@ -263,7 +265,7 @@
             </div>
             
             <div id="game-board" class="game-container">
-                </div>
+            </div>
 
             <div id="controls-wrapper">
                 <div class="controls">
@@ -280,7 +282,7 @@
         <div id="level-summary-screen" class="screen">
             <h2>🎉 จบเลเวล! คำศัพท์ที่ค้นพบ</h2>
             <ul id="level-summary-list" style="list-style-type: none; padding: 0;">
-                </ul>
+            </ul>
             <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">กำลังอ่านสรุปคำศัพท์...</p>
             <div style="width: 100%; max-width: 300px;">
                 <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
@@ -301,7 +303,9 @@
                 <button id="game-over-retry-btn" class="modal-btn">กลับหน้าเริ่มต้น</button>
             </div>
         </div>
-    </div> <script>
+    </div> 
+
+    <script>
         const synth = window.speechSynthesis;
         const gameBoard = document.getElementById('game-board');
         const collectedWordDisplay = document.getElementById('collected-word');
@@ -320,7 +324,7 @@
         const END_LEVEL_DELAY = 500;
         const LEVEL_WORD_COUNT = 5;
 
-        // โครงสร้างคำศัพท์และคำอธิบาย (เหมือนเดิม)
+        // โครงสร้างคำศัพท์ (เหมือนเดิม)
         const WORDS = {
             'easy': [
                 [{ word: 'CAT', translation: 'แมว' }, { word: 'DOG', translation: 'สุนัข' }, { word: 'SUN', translation: 'อาทิตย์' }, { word: 'MAP', translation: 'แผนที่' }, { word: 'ZOO', translation: 'สวนสัตว์' }],
@@ -651,9 +655,13 @@
             }
         }
 
+        // **FIXED FUNCTION:** Use inline style for reliable display switching
         function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.screen').forEach(s => {
+                s.style.display = 'none'; 
+                s.classList.remove('active'); // Clean up old class usage
+            });
+            document.getElementById(id).style.display = 'flex'; // Show the target screen
         }
         
         function showModal(id) {
@@ -718,8 +726,8 @@
                 }
             });
 
-            showScreen('start-screen'); 
-            showSubLevels('easy'); 
+            showScreen('start-screen'); // **FIXED: Correctly set initial screen**
+            showSubLevels('easy'); // **FIXED: Ensure sub-levels are displayed**
         });
     </script>
 </body>
