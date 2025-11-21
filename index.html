@@ -21,9 +21,9 @@
             --color-letter: #FF9800; /* Orange/Letter Accent */
             
             /* Difficulty Colors */
-            --color-easy: #FFC107;      /* Yellow */
-            --color-medium: #4CAF50;    /* Green */
-            --color-hard: #2196F3;      /* Blue */
+            --color-easy: #FFC107;
+            --color-medium: #4CAF50;
+            --color-hard: #2196F3;
             
             /* Grid Size */
             --grid-size: 15;
@@ -62,7 +62,7 @@
             flex-direction: column;
             justify-content: flex-start;
             padding: 0;
-            position: relative; /* For overlay positioning */
+            position: relative;
         }
 
         header {
@@ -85,18 +85,44 @@
             display: none; 
         }
 
-        /* --- Game Screen Layout --- */
+        /* --- Game Screen Layout (Requirement 3: Tighten Spacing & Move Up) --- */
         #game-screen {
-             justify-content: space-between; 
+             justify-content: flex-start; /* Start from the top */
+             padding-top: 5px; /* Reduce top padding */
         }
-        #game-screen h1 { margin-bottom: 0.5rem; }
-        #game-screen #game-info { margin-bottom: 0.5rem; }
+        
+        #game-screen h1 { 
+            margin-bottom: 0.2rem; /* Move "Word Snake" up */
+            font-size: 1.5rem;
+        }
+        
+        #game-info {
+            line-height: 1.2; /* Tighten line spacing */
+            margin-bottom: 0.5rem; 
+            font-size: 1.1rem; /* Base font size */
+        }
+        
+        #game-info span {
+             font-size: 1.2rem; /* Make the variable content slightly larger */
+             font-weight: bold;
+             color: var(--color-snake-head);
+        }
+        
+        #collected-word {
+            font-size: 1.3rem !important;
+            color: var(--color-letter) !important;
+        }
+        
         .game-container {
-            margin-top: 5px; 
-            order: 1; 
+            margin-top: 5px; /* Keep board close to info */
+            order: 1; /* Board remains the first major content block */
         }
+        
         #controls-wrapper {
             order: 2; 
+            margin-top: auto; /* Push controls to the bottom */
+            padding-top: 15px; 
+            padding-bottom: 15px;
         }
         
         /* --- Game Board --- */
@@ -112,17 +138,6 @@
             margin-right: auto;
         }
 
-        .cell {
-            border: none; 
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: calc(var(--cell-size) * 0.7);
-            color: var(--color-text-light); 
-        }
-
         .snake-head { background-color: var(--color-snake-head); border-radius: 50%; }
         .snake-body { background-color: var(--color-snake-body); border-radius: 20%; }
         .letter-piece { 
@@ -132,84 +147,44 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- Controls (Requirement 3: Re-arrangement) --- */
+        /* --- Controls (Requirement 2: New 2-Row Arrangement) --- */
         .controls {
             display: grid;
-            /* New Grid Area: UP / LEFT/RIGHT / DOWN */
-            grid-template-areas: "up up up" "left . right" ". down .";
-            grid-gap: 15px; 
-            width: calc(var(--control-btn-base-size) * 1.5); 
+            /* New Grid Area: UP / LEFT | DOWN | RIGHT */
+            grid-template-areas: ". up ." "left down right";
+            grid-template-columns: 1fr 1fr 1fr; /* 3 columns for the bottom row */
+            grid-gap: 10px; 
+            width: 90%; 
+            max-width: 300px; /* Limit total size */
             margin: 15px auto 0; 
         }
 
         .control-btn {
             color: var(--color-text-light);
             border: none;
-            padding: calc(var(--control-btn-padding) * 1.2); 
-            border-radius: 50px;
-            font-size: var(--control-btn-font); 
+            padding: 0.8rem 0; /* Adjusted padding for better fit */
+            border-radius: 10px; /* Square up buttons slightly */
+            font-size: 2rem; 
             font-weight: bold;
             cursor: pointer;
             transition: all 0.1s;
             background-color: var(--color-secondary); 
             box-shadow: 0 5px 0 var(--color-snake-head); 
-            width: 100%;
         }
         .control-btn:active {
             transform: translateY(3px);
             box-shadow: 0 2px 0 var(--color-snake-head); 
         }
         /* Grid assignment based on new layout */
-        #control-up { grid-area: up; }
+        #control-up { 
+            grid-area: up; 
+            width: 100%; /* Ensure it spans the middle column */
+        }
         #control-left { grid-area: left; }
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
 
-
-        /* --- Level Select Screen (Requirement 1: New Layout) --- */
-        
-        .main-levels-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column; /* 1 column */
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        /* Main Difficulty Button Colors */
-        .main-difficulty-btn {
-            width: 80%; /* Takes up most of the wrapper width */
-            margin: 0 auto;
-        }
-
-        .main-difficulty-btn[data-level="easy"] {
-            background-color: var(--color-easy);
-            box-shadow: 0 4px 0 #FF9800; 
-        }
-        .main-difficulty-btn[data-level="medium"] {
-            background-color: var(--color-medium);
-            box-shadow: 0 4px 0 #388E3C; 
-        }
-        .main-difficulty-btn[data-level="hard"] {
-            background-color: var(--color-hard);
-            box-shadow: 0 4px 0 #1565C0; 
-        }
-
-        /* Sub-Level Button Grid (Requirement 1: 2 COLUMNS, 5 ROWS) */
-        .sub-level-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* **2 COLUMNS** */
-            grid-template-rows: repeat(5, 1fr); /* **5 ROWS** */
-            max-width: 300px; /* Limit width for cleaner look */
-            margin: 0 auto;
-            gap: 10px;
-        }
-        .sub-level-btn {
-            font-size: 0.9rem;
-            padding: 0.7rem;
-        }
-        
-        /* --- Modal Overlay (Requirement 2: Blur effect) --- */
+        /* --- Modal Overlay (Game Start/Game Over) --- */
         #game-overlay {
             position: absolute; 
             top: 0; 
@@ -217,7 +192,7 @@
             width: 100%; 
             height: 100%;
             background-color: rgba(0, 0, 0, 0.4); 
-            backdrop-filter: blur(5px); /* **BLUR EFFECT** */
+            backdrop-filter: blur(5px); 
             z-index: 1000; 
             display: none; 
             flex-direction: column;
@@ -238,10 +213,24 @@
             color: var(--color-primary);
         }
         
-        /* --- Other shared styles --- */
-        .modal-btn, .main-difficulty-btn, .sub-level-btn, #start-game-btn {
-            background-color: var(--color-primary); /* Default style */
-            box-shadow: 0 4px 0 #1B5E20; 
+        /* --- Other shared styles (Level Select/Summary) --- */
+        .main-levels-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column; 
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .main-difficulty-btn { width: 80%; margin: 0 auto; }
+        .sub-level-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            grid-template-rows: repeat(5, 1fr); 
+            max-width: 300px; 
+            margin: 0 auto;
+            gap: 10px;
+        }
+        .modal-btn, .main-difficulty-btn, .sub-level-btn, #start-game-btn-overlay {
             color: var(--color-text-light);
             border: none;
             cursor: pointer;
@@ -250,28 +239,17 @@
             padding: 1rem;
             border-radius: 50px;
             font-weight: bold;
+            background-color: var(--color-primary);
+            box-shadow: 0 4px 0 #1B5E20; 
         }
-        .modal-btn:active, .main-difficulty-btn:active, .sub-level-btn:active, #start-game-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 var(--color-primary); 
-        }
-        
         #start-game-btn-overlay {
             background-color: var(--color-snake-head);
             box-shadow: 0 4px 0 #00251A;
             margin-top: 15px; 
         }
-        
-        /* Summary Screen */
-        #level-summary-list li {
-            font-size: 1.2rem; 
-            margin: 10px 0;
-            padding: 5px;
-            border-bottom: 1px solid var(--color-bg);
-        }
-        #level-summary-list strong {
-            font-size: 1.4rem; 
-            color: var(--color-primary);
+        #overlay-return-btn {
+            background-color: #F44336; 
+            box-shadow: 0 4px 0 #D32F2F;
         }
 
         .hidden {
@@ -314,7 +292,7 @@
                 เป้าหมายถัดไป: <span id="next-letter">?</span>
             </div>
             
-            <p>คำศัพท์ที่สะสม: <span id="collected-word"></span></p>
+            <p style="margin-top: 0;">คำศัพท์ที่สะสม: <span id="collected-word"></span></p>
 
             <div id="game-board" class="game-container"> 
             </div>
@@ -334,7 +312,7 @@
                 <h2 id="overlay-title">พร้อมเริ่มเกมหรือไม่?</h2>
                 <p id="overlay-message">คำศัพท์ที่ต้องสะกด: <strong id="overlay-word">CAT</strong></p>
                 <button id="start-game-btn-overlay" class="modal-btn">เริ่มเกม</button> 
-                <button id="overlay-return-btn" class="modal-btn hidden" style="background-color: #F44336; box-shadow: 0 4px 0 #D32F2F;">กลับหน้าเริ่มต้น</button>
+                <button id="overlay-return-btn" class="modal-btn hidden">กลับหน้าเริ่มต้น</button>
              </div>
         </div>
 
@@ -358,7 +336,7 @@
         const fullWordDisplay = document.getElementById('full-word-display');
         const ttsStatus = document.getElementById('tts-status');
         
-        // Overlay elements (Requirement 2)
+        // Overlay elements
         const gameOverlay = document.getElementById('game-overlay');
         const overlayTitle = document.getElementById('overlay-title');
         const overlayMessage = document.getElementById('overlay-message');
@@ -445,7 +423,6 @@
 
         function readWordAndTranslation(word, translation, delay = 1500) {
             if (!synth) return;
-            
             if (synth.speaking) {
                 synth.cancel();
             }
@@ -476,8 +453,6 @@
             }
 
             const wordObj = wordsList[index];
-            const word = wordObj.word;
-            const translation = wordObj.translation;
             
             const listItems = levelSummaryList.querySelectorAll('li');
             listItems.forEach((li, i) => {
@@ -493,14 +468,14 @@
                 synth.cancel();
             }
             
-            ttsStatus.textContent = `(${index + 1}/${wordsList.length}) กำลังอ่าน: ${word} (${translation})`;
-            const engUtterance = new SpeechSynthesisUtterance(word);
+            ttsStatus.textContent = `(${index + 1}/${wordsList.length}) กำลังอ่าน: ${wordObj.word} (${wordObj.translation})`;
+            const engUtterance = new SpeechSynthesisUtterance(wordObj.word);
             engUtterance.lang = 'en-US';
             engUtterance.rate = 0.8; 
 
             engUtterance.onend = () => {
                 setTimeout(() => { 
-                    const thaiUtterance = new SpeechSynthesisUtterance(translation);
+                    const thaiUtterance = new SpeechSynthesisUtterance(wordObj.translation);
                     thaiUtterance.lang = 'th-TH';
                     thaiUtterance.rate = 0.9;
                     
@@ -596,7 +571,7 @@
             const levelTextMap = { 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
             const progress = currentWordIndexInLevel + 1;
             
-            // Show start overlay (Requirement 2)
+            // Show start overlay (Requirement 1 fixed)
             overlayTitle.textContent = "พร้อมเริ่มเกมหรือไม่?";
             overlayMessage.innerHTML = `ระดับ${levelTextMap[currentMainLevel]} เลเวล ${currentSubLevel} (${progress}/${LEVEL_WORD_COUNT}): คำศัพท์ที่ต้องสะกด: <strong id="overlay-word">${wordToSpell}</strong>`;
             startGameButtonOverlay.textContent = `เริ่มเกม`;
@@ -631,7 +606,6 @@
             readLevelSummary(0, completedWordsInLevel, levelNextBtn, levelReturnBtn);
         }
 
-        // Modified to use the new unified overlay (Requirement 2)
         function showGameOver(title, message) {
             isGameRunning = false;
             clearInterval(gameInterval);
@@ -641,7 +615,7 @@
             
             startGameButtonOverlay.textContent = "ลองใหม่";
             startGameButtonOverlay.classList.remove('hidden');
-            overlayReturnBtn.classList.remove('hidden'); // Show return button on game over
+            overlayReturnBtn.classList.remove('hidden'); 
             showOverlay();
         }
 
@@ -752,7 +726,6 @@
                                (direction === 'LEFT' && newDirection === 'RIGHT') ||
                                (direction === 'RIGHT' && newDirection === 'LEFT');
             
-            // Only allow direction change if game is running and it's not the opposite direction
             if (!isOpposite && isGameRunning) {
                 direction = newDirection;
             }
@@ -764,15 +737,16 @@
                 s.classList.remove('active'); 
             });
             document.getElementById(id).style.display = 'flex'; 
-            hideOverlay(); // Ensure overlay is hidden when switching to non-game screens
         }
         
-        // Overlay control functions (Requirement 2)
+        // Overlay control functions
         function showOverlay() {
+            gameOverlay.classList.remove('hidden');
             gameOverlay.style.display = 'flex';
         }
 
         function hideOverlay() {
+            gameOverlay.classList.add('hidden');
             gameOverlay.style.display = 'none';
         }
         
@@ -790,7 +764,6 @@
         }
 
         function returnToStartScreen() {
-            // Cancel TTS before leaving the screen
             if (synth.speaking) {
                 synth.cancel();
             }
@@ -805,10 +778,16 @@
                 btn.addEventListener('click', (e) => showSubLevels(e.target.dataset.level));
             });
             
-            // Handle Start/Retry from the new Overlay button
-            startGameButtonOverlay.addEventListener('click', runGame);
+            startGameButtonOverlay.addEventListener('click', () => {
+                 if (overlayTitle.textContent.includes('Game Over')) {
+                    // If Game Over, restart the current word
+                    startNextWord();
+                } else {
+                    // Start the game
+                    runGame();
+                }
+            });
             
-            // Handle Return button from the new Overlay
             overlayReturnBtn.addEventListener('click', () => {
                 hideOverlay();
                 returnToStartScreen();
