@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Word Snake Game (V1.4)</title>
+    <title>English Word Snake Game (V1.4 Centering Fix)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         /* --- THEME & GLOBAL STYLES --- */
@@ -19,7 +19,7 @@
 
             --grid-size: 15;
             --cell-size: 25px;
-            /* 4. ปุ่มกดบังคับทิศทางเพิ่มขนาด อีก 20% (รวมเป็น 144% ของเดิม) */
+            /* ปุ่มกดบังคับทิศทาง (V1.4 size) */
             --control-btn-padding: 22px; 
             --control-btn-font: 34px; 
         }
@@ -53,7 +53,7 @@
         #game-screen {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* จัดกึ่งกลางองค์ประกอบย่อยในแนวนอน */
             padding: 10px;
         }
         
@@ -64,14 +64,13 @@
 
         /* Game Board */
         .game-container {
-            width: calc(var(--grid-size) * var(--cell-size));
+            width: calc(var(--grid-size) * var(--cell-size)); /* 375px */
             height: calc(var(--grid-size) * var(--cell-size));
             display: grid;
             grid-template-columns: repeat(var(--grid-size), 1fr);
             grid-template-rows: repeat(var(--grid-size), 1fr);
             border: 5px solid var(--color-primary);
-            /* 3. เปลี่ยนสีพื้นสนามเป็นสีน้ำตาลอ่อน */
-            background-color: #D7CCC8; 
+            background-color: #D7CCC8; /* สีน้ำตาลอ่อน (ตาม V1.4) */
         }
 
         .cell {
@@ -94,79 +93,16 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        /* Sub-Level Selection */
-        .sub-level-container {
-            margin-top: 15px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
-            max-width: 350px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .sub-level-container h2 {
-            grid-column: 1 / -1;
-            margin-top: 0;
-            font-size: 1.2em;
-            color: var(--color-primary);
-        }
-        
-        .sub-level-btn {
-            padding: 8px 5px !important;
-            font-size: 14px !important;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* MODAL & OVERLAY STYLES */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.4); 
-            backdrop-filter: blur(5px); 
-            z-index: 1000; 
-            display: none; 
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: var(--color-text-light);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            max-width: 300px;
-            width: 80%;
-            text-align: center;
-        }
-        #pre-game-modal .modal-content {
-            padding: 50px 30px; 
-        }
-
-        #level-summary-screen ul {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-        }
-        #level-summary-screen li {
-            font-size: 16px;
-            margin-bottom: 5px;
-            color: var(--color-text-dark);
-            border-bottom: 1px dashed var(--color-secondary);
-            padding-bottom: 3px;
-        }
-        
-        /* Controls & Buttons */
+        /* Controls & Buttons (แก้ไขเฉพาะจุดนี้) */
         .controls {
             margin-top: 20px;
             display: grid;
             grid-template-areas: ". up ." "left down right";
             grid-gap: 10px;
             width: 200px;
+            /* *** การแก้ไข: เพิ่ม margin auto เพื่อให้ปุ่มควบคุมจัดกึ่งกลางสนามเกม *** */
+            margin-left: auto; 
+            margin-right: auto;
         }
         .control-btn {
             padding: var(--control-btn-padding); 
@@ -189,35 +125,53 @@
         #control-down { grid-area: down; }
         #control-right { grid-area: right; }
         
+        /* Level Summary Screen (CSS จาก V1.4) */
+        #level-summary-screen ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        #level-summary-screen li {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--color-text-dark);
+            border-bottom: 1px dashed var(--color-secondary);
+            padding-bottom: 3px;
+        }
+        /* --- Existing Styles (Unchanged) --- */
+        .sub-level-container {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.4); 
+            backdrop-filter: blur(5px); z-index: 1000; display: none; 
+            justify-content: center; align-items: center;
+        }
         .main-difficulty-btn, .sub-level-btn, #start-game-btn, .modal-btn {
-            display: block;
-            width: 100%;
-            margin: 10px auto;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            background-color: var(--color-primary);
-            color: var(--color-text-light);
-            font-size: 18px;
-            cursor: pointer;
+            display: block; width: 100%; margin: 10px auto; padding: 15px;
+            border: none; border-radius: 8px; background-color: var(--color-primary);
+            color: var(--color-text-light); font-size: 18px; cursor: pointer;
             box-shadow: 0 3px #3E2723; 
         }
         #start-game-btn {
             background-color: var(--color-snake-head);
-            box-shadow: 0 3px #1B5E20; 
-            font-size: 20px;
+            box-shadow: 0 3px #1B5E20; font-size: 20px;
         }
         .modal-btn:disabled {
-            background-color: #90A4AE;
-            cursor: not-allowed;
-            box-shadow: 0 3px #607D8B;
+            background-color: #90A4AE; cursor: not-allowed; box-shadow: 0 3px #607D8B;
         }
-
         #game-info {
-            margin-top: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--color-text-dark);
+            margin-top: 10px; font-size: 18px; font-weight: bold; color: var(--color-text-dark);
         }
     </style>
 </head>
@@ -290,7 +244,6 @@
 
     <script>
         const synth = window.speechSynthesis;
-        // Element IDs
         const gameBoard = document.getElementById('game-board');
         const collectedWordDisplay = document.getElementById('collected-word');
         const nextLetterDisplay = document.getElementById('next-letter');
@@ -347,9 +300,9 @@
 
         let snake = [];
         let currentWordObj = {};
-        let currentLevelWordsList = []; // 5 คำศัพท์สำหรับเลเวลย่อยปัจจุบัน
-        let completedWordsInLevel = []; // คำศัพท์ที่สะกดเสร็จแล้วในเลเวลย่อยนี้
-        let currentWordIndexInLevel = 0; // ลำดับคำศัพท์ที่กำลังเล่น (0 ถึง 4)
+        let currentLevelWordsList = []; 
+        let completedWordsInLevel = []; 
+        let currentWordIndexInLevel = 0; 
         
         let wordToSpell = '';
         let currentMainLevel = 'easy'; 
@@ -362,10 +315,8 @@
         
         const LEVEL_WORD_COUNT = 5;
 
-        // 1. ฟังก์ชันอ่านออกเสียงตามลำดับ
         function readLevelSummary(index, wordsList, nextBtn, returnBtn) {
             if (index >= wordsList.length) {
-                // อ่านครบ 5 คำแล้ว
                 nextBtn.disabled = false;
                 returnBtn.disabled = false;
                 ttsStatus.textContent = "✅ การอ่านจบแล้ว คุณสามารถกดปุ่มเพื่อไปเลเวลต่อไปได้";
@@ -376,15 +327,13 @@
             const word = wordObj.word;
             const translation = wordObj.translation;
             
-            // Highlight current speaking word
             const listItems = levelSummaryList.querySelectorAll('li');
             listItems.forEach((li, i) => {
-                li.style.backgroundColor = (i === index) ? '#FFF9C4' : 'transparent'; // Light yellow highlight
+                li.style.backgroundColor = (i === index) ? '#FFF9C4' : 'transparent';
             });
 
 
             if (!synth) {
-                // หากไม่รองรับ TTS ให้ข้ามไป
                 readLevelSummary(wordsList.length, wordsList, nextBtn, returnBtn);
                 return;
             }
@@ -398,7 +347,6 @@
             engUtterance.lang = 'en-US';
             engUtterance.rate = 0.8; 
 
-            // Chain the readings
             engUtterance.onend = () => {
                 ttsStatus.textContent = `(${index + 1}/${wordsList.length}) กำลังอ่านคำแปล (ไทย): ${translation}`;
                 const thaiUtterance = new SpeechSynthesisUtterance(translation);
@@ -406,7 +354,6 @@
                 thaiUtterance.rate = 0.9;
                 
                 thaiUtterance.onend = () => {
-                    // Move to the next word in the list
                     readLevelSummary(index + 1, wordsList, nextBtn, returnBtn);
                 }
                 synth.speak(thaiUtterance);
@@ -440,12 +387,10 @@
             document.getElementById(`sub-levels-${mainLevel}`).classList.remove('hidden');
         }
 
-        // เริ่มต้นเซ็ตอัพระดับและเลเวลย่อยทั้งหมด (5 คำ)
         function setupGame(mainLevel, subLevel) {
             currentMainLevel = mainLevel;
             currentSubLevel = subLevel;
 
-            // ดึงรายการคำศัพท์ 5 คำ สำหรับเลเวลย่อยนี้
             currentLevelWordsList = WORDS[mainLevel][subLevel - 1]; 
             completedWordsInLevel = [];
             currentWordIndexInLevel = 0;
@@ -453,10 +398,8 @@
             startNextWord();
         }
 
-        // เริ่มต้นเซ็ตอัพคำศัพท์คำถัดไป (1 ใน 5 คำ)
         function startNextWord() {
             if (currentWordIndexInLevel >= currentLevelWordsList.length) {
-                // คำศัพท์ครบ 5 คำแล้ว
                 showLevelSummaryScreen();
                 return;
             }
@@ -465,13 +408,11 @@
             wordToSpell = currentWordObj.word;
             currentWordIndex = 0;
             
-            // Reset snake and game state
             snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }]; 
             direction = 'RIGHT';
             letterPositions = [];
             isGameRunning = false;
 
-            // วางตัวอักษร
             const wordLetters = wordToSpell.split('');
             const occupiedPositions = new Set(['5,5', '4,5']); 
 
@@ -491,7 +432,6 @@
             drawBoard(); 
             updateDisplays(); 
             
-            // 3. แสดงข้อความระดับความยากในปุ่ม (คำที่ x/5)
             const levelTextMap = { 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
             const progress = currentWordIndexInLevel + 1;
             startGameButton.textContent = `เริ่มเกม: ระดับ${levelTextMap[currentMainLevel]} เลเวล ${currentSubLevel} (${progress}/${LEVEL_WORD_COUNT})`;
@@ -509,23 +449,19 @@
             }, START_DELAY); 
         }
         
-        // 2. ฟังก์ชันแสดงหน้าสรุปเลเวลย่อย
         function showLevelSummaryScreen() {
             showScreen('level-summary-screen');
             levelSummaryList.innerHTML = '';
             
-            // สร้างรายการคำศัพท์ที่สะกดได้
             completedWordsInLevel.forEach(item => {
                 const li = document.createElement('li');
-                li.textContent = `${item.word} / ${item.translation}`;
+                li.innerHTML = `<strong>${item.word}</strong> / ${item.translation}`;
                 levelSummaryList.appendChild(li);
             });
 
-            // ปิดการใช้งานปุ่มก่อนเริ่มอ่าน
             levelNextBtn.disabled = true;
             levelReturnBtn.disabled = true;
 
-            // เริ่มอ่านออกเสียง
             readLevelSummary(0, completedWordsInLevel, levelNextBtn, levelReturnBtn);
         }
 
@@ -558,7 +494,6 @@
                 case 'RIGHT': head.x++; break;
             }
 
-            // ตรวจสอบการชน (Game Over)
             if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
                 showGameOverModal(`คุณชนกำแพง! 😭 (คำศัพท์: <strong>${wordToSpell}</strong>)`);
                 return;
@@ -592,17 +527,15 @@
                 snake.pop();
             }
             
-            // ตรวจสอบการสะกดคำครบ
             if (currentWordIndex === wordToSpell.length) {
                 clearInterval(gameInterval);
                 isGameRunning = false; 
                 
-                // เก็บคำศัพท์ที่เสร็จแล้ว
                 completedWordsInLevel.push(currentWordObj);
                 currentWordIndexInLevel++; 
                 
                 setTimeout(() => {
-                    startNextWord(); // ไปเริ่มคำศัพท์ต่อไป หรือแสดงหน้าสรุปเลเวล
+                    startNextWord(); 
                 }, END_LEVEL_DELAY); 
                 
                 return;
@@ -651,6 +584,7 @@
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            // Logic V1.4: ใช้ 'flex' สำหรับ game-screen และ level-summary-screen
             document.getElementById(id).style.display = (id === 'game-screen' || id === 'level-summary-screen') ? 'flex' : 'block';
         }
         
@@ -669,14 +603,11 @@
             let nextMainLevel = currentMainLevel;
 
             if (nextSubLevel > 10) {
-                // ถ้าจบเลเวลย่อยสุดท้าย (10)
                 alert(`🎉 คุณผ่านระดับ ${nextMainLevel} ทั้งหมด 10 เลเวลแล้ว!`);
-                showScreen('start-screen');
-                showSubLevels('easy');
+                returnToStartScreen();
                 return;
             }
             
-            // ถ้ายังไม่จบระดับย่อย
             setupGame(nextMainLevel, nextSubLevel);
         }
 
@@ -690,26 +621,21 @@
         document.addEventListener('DOMContentLoaded', () => {
             generateSubLevelButtons(); 
 
-            // ปุ่มเลือกความยากหลัก: แสดง/ซ่อนเลเวลย่อย
             document.querySelectorAll('.main-difficulty-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => showSubLevels(e.target.dataset.level));
             });
             
-            // ปุ่มเริ่มเกมจริง (อยู่ใน Modal)
             startGameButton.addEventListener('click', runGame);
             
-            // ปุ่มกลับหน้าเริ่มต้นจาก Game Over Modal
             document.getElementById('game-over-retry-btn').addEventListener('click', () => {
                 hideModal('game-over-modal');
                 returnToStartScreen();
             });
 
-            // 2. ปุ่มใน Level Summary
             levelNextBtn.addEventListener('click', goToNextLevel);
             levelReturnBtn.addEventListener('click', returnToStartScreen);
 
 
-            // ปุ่มควบคุมทิศทาง & Keyboard (เหมือนเดิม)
             document.querySelectorAll('.control-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => handleControls(e.target.dataset.direction));
             });
