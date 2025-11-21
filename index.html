@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Word Snake Game (V1.4 Centering Fix)</title>
+    <title>English Word Snake Game (V1.4 Final Fix)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         /* --- THEME & GLOBAL STYLES --- */
@@ -93,14 +93,14 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        /* Controls & Buttons (แก้ไขเฉพาะจุดนี้) */
+        /* Controls & Buttons (แก้ไขให้จัดกึ่งกลาง) */
         .controls {
             margin-top: 20px;
             display: grid;
             grid-template-areas: ". up ." "left down right";
             grid-gap: 10px;
             width: 200px;
-            /* *** การแก้ไข: เพิ่ม margin auto เพื่อให้ปุ่มควบคุมจัดกึ่งกลางสนามเกม *** */
+            /* การแก้ไข: เพิ่ม margin auto เพื่อให้ปุ่มควบคุมจัดกึ่งกลางสนามเกม */
             margin-left: auto; 
             margin-right: auto;
         }
@@ -147,7 +147,23 @@
             max-width: 350px;
             margin-left: auto;
             margin-right: auto;
+            /* แก้ไข: ซ่อนส่วนหัว h2 ไปยัง JS เพื่อย้ายไปแสดงบน Start Screen แทน */
         }
+        
+        /* การจัดรูปแบบสำหรับคำอธิบายเลเวลย่อย (เพิ่มใหม่) */
+        .sub-level-header {
+             color: var(--color-primary);
+             font-size: 1.1rem;
+             margin-top: 15px;
+             margin-bottom: 5px;
+             font-weight: bold;
+             text-align: left;
+             width: 100%;
+             max-width: 350px;
+             padding: 0 5px;
+             box-sizing: border-box;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -186,16 +202,16 @@
             <button class="main-difficulty-btn" data-level="hard">ระดับ ยาก</button>
         </div>
         
+        <div id="sub-level-description" class="sub-level-header hidden">
+            </div>
+
         <div id="sub-levels-container">
             <div id="sub-levels-easy" class="sub-level-container hidden">
-                <h2>ง่าย: เลือกเลเวลย่อย (3-5 อักษร)</h2>
-            </div>
+                </div>
             <div id="sub-levels-medium" class="sub-level-container hidden">
-                <h2>ปานกลาง: เลือกเลเวลย่อย (6-8 อักษร)</h2>
-            </div>
+                </div>
             <div id="sub-levels-hard" class="sub-level-container hidden">
-                <h2>ยาก: เลือกเลเวลย่อย (9-12 อักษร)</h2>
-            </div>
+                </div>
         </div>
     </div>
     
@@ -253,6 +269,7 @@
         const levelNextBtn = document.getElementById('level-next-btn');
         const levelReturnBtn = document.getElementById('level-return-btn');
         const levelSummaryList = document.getElementById('level-summary-list');
+        const subLevelDescriptionEl = document.getElementById('sub-level-description');
 
         const GRID_SIZE = 15;
         const GAME_SPEED = 250; 
@@ -296,6 +313,12 @@
                 [{ word: 'TRANSPORT', translation: 'ขนส่ง' }, { word: 'COMPLEXITY', translation: 'ความซับซ้อน' }, { word: 'CHALLENGES', translation: 'ความท้าทาย' }, { word: 'DISCOVERY', translation: 'การค้นพบ' }, { word: 'STRUCTURE', translation: 'โครงสร้าง' }],
                 [{ word: 'UNBELIEVABLE', translation: 'ไม่น่าเชื่อ' }, { word: 'INFORMATION', translation: 'ข้อมูล' }, { word: 'CONGRATULATIONS', translation: 'ยินดีด้วย' }, { word: 'ENVIRONMENT', translation: 'สิ่งแวดล้อม' }, { word: 'OPPORTUNITY', translation: 'โอกาส' }],
             ],
+        };
+
+        const LEVEL_DESCRIPTIONS = {
+            'easy': 'ง่าย: เลือกเลเวลย่อย (3-5 อักษร)',
+            'medium': 'ปานกลาง: เลือกเลเวลย่อย (6-8 อักษร)',
+            'hard': 'ยาก: เลือกเลเวลย่อย (9-12 อักษร)'
         };
 
         let snake = [];
@@ -385,6 +408,10 @@
                 container.classList.add('hidden');
             });
             document.getElementById(`sub-levels-${mainLevel}`).classList.remove('hidden');
+            
+            // *** การแก้ไขที่ 1: แสดงคำอธิบายเลเวลย่อยที่ด้านบน ***
+            subLevelDescriptionEl.textContent = LEVEL_DESCRIPTIONS[mainLevel];
+            subLevelDescriptionEl.classList.remove('hidden');
         }
 
         function setupGame(mainLevel, subLevel) {
