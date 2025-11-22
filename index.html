@@ -1,53 +1,66 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Word Snake Game 🐍 (Jungle Theme)</title>
+    <title>English Word Snake Game 🐍 (Premium Jungle)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- THEME & GLOBAL STYLES (Jungle Theme) --- */
+        /* --- THEME & GLOBAL STYLES (Premium Jungle Theme) --- */
         :root {
-            /* Jungle Theme Colors */
-            --color-primary: #1B5E20; /* Deep Green (Header/Main) */
-            --color-secondary: #388E3C; /* Darker Green/Accent (for Controls) */
-            
-            /* Background to Light Brown/Tan */
-            --color-bg: #D7CCC8; /* Light Brown/Tan Body Background */
-            --color-card-bg: #FBE9E7; /* Lighter Background for container/card */
-            --color-text-dark: #3E2723; /* Dark Brown Text */
+            /* Palette: Deep Jungle & Gold */
+            --color-primary: #2E7D32;
+            /* Rich Green */
+            --color-primary-dark: #1B5E20;
+            --color-accent: #FFD700;
+            /* Gold */
+            --color-accent-shadow: #C6A700;
+
+            --color-bg: #E8F5E9;
+            /* Very light green bg */
+            --color-card-bg: #FFFFFF;
+            --color-text-dark: #1A3C34;
+            /* Dark Jungle Green Text */
             --color-text-light: #FFFFFF;
-            
-            /* Snake Specific Colors */
-            --color-snake-head: #004D40; /* Dark Teal Green */
-            --color-snake-body: #4DB6AC; /* Light Teal Green */
-            
+
+            /* Snake Colors */
+            --color-snake-head: #00695C;
+            /* Teal Head */
+            --color-snake-body: #4DB6AC;
+            /* Teal Body */
+
+            /* Game Board */
+            --color-board-bg: #F1F8E9;
+            --color-board-border: #33691E;
+
             /* Letter Colors */
-            --color-letter-target: #E53935; /* Red for the next target letter */
-            --color-letter-non-target: #FFC107; /* Yellow for other letters */
-            
-            /* Red for return buttons */
-            --color-return-btn: #E53935; 
-            --color-return-btn-shadow: #C62828; 
-            
+            --color-letter-target: #D32F2F;
+            /* Red */
+            --color-letter-non-target: #FFECB3;
+            /* Pale Yellow */
+            --color-letter-text: #3E2723;
+
+            /* Special Item */
+            --color-golden-fruit: #FFD700;
+
             /* Difficulty Colors */
-            --color-easy: #FFC107;      /* Yellow */
-            --color-medium: #4CAF50;    /* Green */
-            --color-hard: #2196F3;      /* Blue */
-            
+            --color-easy: #FFCA28;
+            --color-medium: #66BB6A;
+            --color-hard: #42A5F5;
+
             /* Grid Size */
             --grid-size: 15;
-            --cell-size: 25px; 
-            
-            /* Control Button Styling */
-            --control-new-size: 70px; 
-            --control-btn-font: 2.0rem; 
+            --cell-size: 25px;
+
+            /* Controls */
+            --control-size: 65px;
         }
 
-        /* --- CONTAINER & BASE STYLES --- */
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: var(--color-bg); 
+            background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+            /* Lush Green Gradient */
             color: var(--color-text-dark);
             margin: 0;
             padding: 0;
@@ -55,924 +68,802 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            text-align: center;
             overflow-x: hidden;
-            padding-top: 0;
         }
 
         .container {
             width: 100%;
-            max-width: 500px; 
-            box-sizing: border-box;
-            background-color: var(--color-card-bg); 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.95);
+            /* Glass-ish opaque */
+            box-shadow: 0 20px 50px rgba(0, 50, 0, 0.3);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            padding: 0;
-            position: relative; 
-        }
-        
-        .main-levels-wrapper {
-            width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            padding: 0 15px; 
-            box-sizing: border-box;
+            position: relative;
+            backdrop-filter: blur(10px);
         }
 
         header {
-            background-color: var(--color-primary);
+            background: linear-gradient(to right, var(--color-primary-dark), var(--color-primary));
             color: var(--color-text-light);
-            padding: 1rem 1rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            padding: 1.2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 10;
         }
-        header h1 { font-size: 1.8rem; margin: 0; } 
+
+        header h1 {
+            font-size: 1.6rem;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
 
         .screen {
             padding: 1rem;
             flex-grow: 1;
+            display: flex;
             flex-direction: column;
-            justify-content: flex-start; 
-            gap: 15px;
-            align-items: center; 
+            align-items: center;
             width: 100%;
             box-sizing: border-box;
-            display: none; 
-        }
-        
-        .sub-level-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-            padding: 0 15px;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
-        /* Difficulty Button Colors */
-        .main-difficulty-btn[data-level="easy"] {
-            background-color: var(--color-easy); 
-            box-shadow: 0 4px 0 #FFB300; 
-        }
-        .main-difficulty-btn[data-level="medium"] {
-            background-color: var(--color-medium); 
-            box-shadow: 0 4px 0 #388E3C; 
-        }
-        .main-difficulty-btn[data-level="hard"] {
-            background-color: var(--color-hard); 
-            box-shadow: 0 4px 0 #1565C0; 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* --- Game Screen Layout --- */
-        
-        #controls-wrapper {
-            order: 2; 
-            margin-top: -30px; 
-            padding-top: 10px; 
-            padding-bottom: 15px; 
-            margin-left: auto; 
-            margin-right: auto;
-            z-index: 5;
+        /* --- Buttons --- */
+        .btn-3d {
+            border: none;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 900;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            color: white;
+            transition: transform 0.1s, box-shadow 0.1s;
+            width: 100%;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 transparent !important;
+        }
+
+        /* Difficulty Buttons */
+        .btn-easy {
+            background: var(--color-easy);
+            box-shadow: 0 5px 0 #FFB300;
+            color: #3E2723;
+        }
+
+        .btn-medium {
+            background: var(--color-medium);
+            box-shadow: 0 5px 0 #388E3C;
+        }
+
+        .btn-hard {
+            background: var(--color-hard);
+            box-shadow: 0 5px 0 #1565C0;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            box-shadow: 0 5px 0 var(--color-primary-dark);
+        }
+
+        .btn-danger {
+            background: #E53935;
+            box-shadow: 0 5px 0 #C62828;
+        }
+
         /* --- Game Board --- */
         .game-container {
-            width: calc(var(--grid-size) * var(--cell-size)); 
+            width: calc(var(--grid-size) * var(--cell-size));
             height: calc(var(--grid-size) * var(--cell-size));
             display: grid;
             grid-template-columns: repeat(var(--grid-size), 1fr);
             grid-template-rows: repeat(var(--grid-size), 1fr);
-            border: 5px solid var(--color-primary);
-            background-color: #CFD8DC; 
-            margin-left: auto;
-            margin-right: auto;
-            z-index: 10; 
-        }
-        
-        /* --- Controls --- */
-        .controls {
-            display: grid;
-            grid-template-areas: 
-                ". up ." 
-                "left down right";
-            grid-template-columns: 1fr 1fr 1fr; 
-            grid-gap: 10px; 
-            width: 90%; 
-            max-width: 350px; 
-            margin: 15px auto 0; 
-        }
-        
-        #control-up { grid-area: up; }
-        #control-left { grid-area: left; }
-        #control-down { grid-area: down; }
-        #control-right { grid-area: right; }
-
-        .control-btn {
-            color: var(--color-text-light);
-            border: none;
-            padding: 0.5rem; 
-            border-radius: 10px; 
-            font-size: var(--control-btn-font); 
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.1s;
-            /* ปุ่มควบคุมสีเขียว */
-            background-color: var(--color-secondary); 
-            box-shadow: 0 5px 0 var(--color-snake-head); 
-            
-            min-width: var(--control-new-size); 
-            min-height: var(--control-new-size);
-            aspect-ratio: 1/1; 
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-        }
-        .control-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 var(--color-snake-head); 
-        }
-        
-        /* --- Snake & Letter Styles --- */
-        
-        /* Head: Eating zoom effect */
-        .snake-head { 
-            background-color: var(--color-snake-head); 
-            border-radius: 50%;
-            transition: transform 0.1s ease-out; 
-            z-index: 30; 
-        }
-        .snake-head.eaten {
-            transform: scale(1.3); 
-        }
-        /* --- New: Whole Snake Flash Effect (Request 2) --- */
-        .snake-head.zoom-flash, 
-        .snake-body.zoom-flash,
-        .snake-tail.zoom-flash {
-            /* Increase size of all parts */
-            transform: scale(1.15) !important; 
-            /* Add a glowing effect */
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 10px var(--color-snake-head);
-            transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-        /* Make sure the normal head/body/tail transitions work when not flashing */
-        .snake-head, .snake-body, .snake-tail {
-             transition: transform 0.15s ease-in-out, border-radius 0.2s;
-        }
-
-
-        .snake-body { 
-            background-color: var(--color-snake-body); 
-            border-radius: 20%; 
-        }
-        
-        /* Snake Tail Appearance (Request 1 Fix) */
-        .snake-tail {
-            background-color: var(--color-snake-body);
+            border: 6px solid var(--color-board-border);
+            border-radius: 10px;
+            background-color: var(--color-board-bg);
+            /* Subtle grid pattern */
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: var(--cell-size) var(--cell-size);
+            margin: 10px auto;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
             position: relative;
-            /* Make the last segment visually part of the tail */
-            border-radius: 20%; 
-            /* Do not scale the segment itself */
-            transition: transform 0.2s;
         }
 
-        .snake-tail::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            
-            background-color: var(--color-snake-body);
-            
-            /* Polygon for a right-pointing triangle, point at 100% 50% */
-            clip-path: polygon(100% 50%, 0% 0%, 0% 100%); 
-            border-radius: 15%; 
-            
-            transform-origin: 50% 50%; /* Ensure rotation is around center */
-            transform: scale(0.8); /* Base scale */
-            transition: transform 0.1s;
-            z-index: -1; 
-        }
-
-        /* Rotation based on tail direction (Direction the tail segment is pointing) */
-        .snake-tail[data-dir="RIGHT"]::after { 
-            transform: scale(0.8) rotate(0deg); 
-        }
-        .snake-tail[data-dir="UP"]::after { 
-            transform: scale(0.8) rotate(-90deg); 
-        }
-        .snake-tail[data-dir="LEFT"]::after { 
-            transform: scale(0.8) rotate(180deg); 
-        }
-        .snake-tail[data-dir="DOWN"]::after { 
-            transform: scale(0.8) rotate(90deg); 
-        }
-        
-        /* Letter Piece Styles */
-        .letter-piece { 
-            color: var(--color-text-dark); 
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        
-        .letter-piece.target {
-            /* เป้าหมายถัดไป: สีแดง */
-            background-color: var(--color-letter-target);
-            color: var(--color-text-light); 
-        }
-        
-        .letter-piece:not(.target) {
-            /* ตัวอักษรอื่นๆ: สีเหลือง */
-            background-color: var(--color-letter-non-target); 
-            color: var(--color-text-dark); 
-        }
-        
-        /* --- Game Text Styles --- */
-        #game-screen h1 { margin-bottom: 0; font-size: 1.5rem; }
-        #game-info { line-height: 1.2; margin-bottom: 0.2rem; font-size: 1.1rem; }
-        
-        /* คำโจทย์ในหน้าเกมเพลย์ให้แสดงเป็นตัวหนา และใหญ่ขึ้น */
-        #full-word-display {
-            font-size: 1.5rem; 
-            font-weight: 900; 
-            color: var(--color-primary);
-        }
-        
-        /* --- Modal/Overlay & Buttons --- */
-
-        #game-overlay {
-            position: absolute; 
-            top: 0;
-            left: 0;
+        .cell {
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: rgba(255, 255, 255, 0.9); 
-            z-index: 100; 
-        }
-        
-        .overlay-content {
-            background-color: var(--color-card-bg); 
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 400px;
-        }
-        
-        #game-overlay .modal-btn {
-            margin: 10px 0; 
+            border-radius: 4px;
         }
 
-        .modal-btn, .main-difficulty-btn, .sub-level-btn, #start-game-btn-overlay {
-            color: var(--color-text-light);
-            border: none;
-            cursor: pointer;
-            transition: all 0.1s;
-            font-size: 1.2rem;
-            padding: 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-            background-color: var(--color-primary); 
-            box-shadow: 0 4px 0 #1B5E20; 
-            width: 100%; 
-            box-sizing: border-box;
-        }
-        
-        /* ปุ่มกลับหน้าเริ่มต้น/หน้าหลัก สีแดง */
-        #overlay-return-btn, #level-return-btn {
-            background-color: var(--color-return-btn);
-            box-shadow: 0 4px 0 var(--color-return-btn-shadow);
-        }
-        
-        /* --- Summary Screen Styles --- */
-        
-        .modal-btn-group {
-            width: 100%; 
-            max-width: 300px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 15px; 
+        /* Snake Styles */
+        .snake-head {
+            background: var(--color-snake-head);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+            position: relative;
         }
 
-        /* เพิ่มขนาด คำศัพท์ คำแปลในหน้าสรุป */
-        #level-summary-list li {
-            font-size: 1.1rem; 
-            line-height: 1.6;
+        /* Eyes for the snake head */
+        .snake-head::before,
+        .snake-head::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            top: 20%;
         }
-        #level-summary-list li strong {
-            font-size: 1.2rem; 
+
+        .snake-head::before {
+            left: 25%;
+        }
+
+        .snake-head::after {
+            right: 25%;
+        }
+
+        .snake-body {
+            background: var(--color-snake-body);
+            border-radius: 30%;
+            transform: scale(0.9);
+            /* Slight gap look */
+        }
+
+        .snake-tail {
+            background: var(--color-snake-body);
+            border-radius: 50%;
+            transform: scale(0.7);
+        }
+
+        /* Letters */
+        .letter-piece {
             font-weight: 900;
+            font-size: 0.9rem;
+            border-radius: 50%;
+            color: var(--color-letter-text);
+            background: var(--color-letter-non-target);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
-        
+
+        .letter-piece.target {
+            background: var(--color-letter-target);
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Golden Fruit */
+        .golden-fruit {
+            background: var(--color-golden-fruit);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--color-golden-fruit);
+            animation: spin 2s linear infinite;
+        }
+
+        .golden-fruit::after {
+            content: '⭐';
+            font-size: 12px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- HUD --- */
+        .hud-panel {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            width: 90%;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-display {
+            font-weight: 900;
+            color: var(--color-primary-dark);
+            font-size: 1.2rem;
+        }
+
+        .word-display {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--color-primary);
+            letter-spacing: 2px;
+        }
+
+        /* --- Controls --- */
+        .controls-area {
+            display: grid;
+            grid-template-areas:
+                ". up ."
+                "left down right";
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .ctrl-btn {
+            width: var(--control-size);
+            height: var(--control-size);
+            border-radius: 50%;
+            border: none;
+            background: var(--color-primary);
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 6px 0 var(--color-primary-dark), 0 10px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .ctrl-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 var(--color-primary-dark);
+        }
+
+        #ctrl-up {
+            grid-area: up;
+        }
+
+        #ctrl-left {
+            grid-area: left;
+        }
+
+        #ctrl-down {
+            grid-area: down;
+        }
+
+        #ctrl-right {
+            grid-area: right;
+        }
+
+        /* --- Overlay --- */
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
         .hidden {
             display: none !important;
         }
+
+        /* Sub-level Grid */
+        .sub-level-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
     </style>
 </head>
+
 <body>
+
     <div class="container">
         <header>
-            <h1>English Word Snake 🐍</h1>
+            <h1>Word Snake 🐍</h1>
         </header>
 
-        <div id="start-screen" class="screen"> 
-            <h2>เลือกความยากหลัก:</h2>
-            <div class="main-levels-wrapper">
-                <button class="main-difficulty-btn" data-level="easy">ระดับ ง่าย</button>
-                <button class="main-difficulty-btn" data-level="medium">ระดับ ปานกลาง</button>
-                <button class="main-difficulty-btn" data-level="hard">ระดับ ยาก</button>
-            </div>
-            
-            <div id="sub-level-description" class="sub-level-header hidden">
+        <!-- START SCREEN -->
+        <div id="start-screen" class="screen" style="display: flex;">
+            <h2 style="color: var(--color-primary-dark);">เลือกความยาก</h2>
+            <div style="width: 100%; max-width: 300px;">
+                <button class="btn-3d btn-easy" onclick="showSubLevels('easy')">ระดับ ง่าย (3-5 อักษร)</button>
+                <button class="btn-3d btn-medium" onclick="showSubLevels('medium')">ระดับ ปานกลาง (6-8 อักษร)</button>
+                <button class="btn-3d btn-hard" onclick="showSubLevels('hard')">ระดับ ยาก (9-12 อักษร)</button>
             </div>
 
-            <div id="sub-levels-container" style="width: 100%;">
-                <div id="sub-levels-easy" class="sub-level-container hidden">
+            <div id="sub-level-area" class="hidden" style="width: 100%; margin-top: 20px;">
+                <h3 id="sub-level-title" style="margin: 0 0 10px 0;">เลือกด่าน</h3>
+                <div id="sub-level-buttons" class="sub-level-grid">
+                    <!-- Generated by JS -->
                 </div>
-                <div id="sub-levels-medium" class="sub-level-container hidden">
-                </div>
-                <div id="sub-levels-hard" class="sub-level-container hidden">
-                </div>
+                <button class="btn-3d btn-danger" style="margin-top: 15px;" onclick="backToMain()">ย้อนกลับ</button>
             </div>
         </div>
-        
+
+        <!-- GAME SCREEN -->
         <div id="game-screen" class="screen">
-            <h1>Word Snake</h1>
-            <div id="game-info">
-                โจทย์: <span id="full-word-display"></span>
-                <br>
-                เป้าหมายถัดไป: <span id="next-letter">?</span>
-            </div>
-            
-            <p style="margin-top: 0;">คำศัพท์ที่สะสม: <span id="collected-word"></span></p>
-
-            <div id="game-board" class="game-container"> 
-            </div>
-
-            <div id="controls-wrapper">
-                <div class="controls">
-                    <button id="control-up" class="control-btn" data-direction="UP">⬆️</button>
-                    <button id="control-left" class="control-btn" data-direction="LEFT">⬅️</button>
-                    <button id="control-down" class="control-btn" data-direction="DOWN">⬇️</button>
-                    <button id="control-right" class="control-btn" data-direction="RIGHT">➡️</button>
+            <div class="hud-panel">
+                <div>
+                    <div style="font-size: 0.8rem; color: #666;">SCORE</div>
+                    <div id="score-val" class="score-display">0</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.8rem; color: #666;">TARGET</div>
+                    <div id="target-letter" class="score-display"
+                        style="color: var(--color-letter-target); font-size: 1.5rem;">A</div>
                 </div>
             </div>
-        </div>
-        
-        <div id="game-overlay" class="hidden">
-             <div class="overlay-content">
-                <h2 id="overlay-title">พร้อมเริ่มเกมหรือไม่?</h2>
-                <p id="overlay-message">คำศัพท์ที่ต้องสะกด: <strong id="overlay-word">CAT</strong></p>
-                <button id="start-game-btn-overlay" class="modal-btn">เริ่มเกม</button> 
-                <button id="overlay-return-btn" class="modal-btn hidden">กลับหน้าเริ่มต้น</button>
-             </div>
-        </div>
 
-        <div id="level-summary-screen" class="screen">
-            <h2>🎉 จบเลเวล! คำศัพท์ที่ค้นพบ</h2>
-            <ul id="level-summary-list" style="list-style-type: none; padding: 0;">
-            </ul>
-            <p id="tts-status" style="color: var(--color-primary); font-weight: bold;">รายการคำศัพท์ทั้งหมดในเลเวลนี้:</p>
-            <div class="modal-btn-group">
-                <button id="level-next-btn" class="modal-btn" disabled>เล่นเลเวลต่อไป</button>
-                <button id="level-return-btn" class="modal-btn" disabled>กลับหน้าหลัก</button>
+            <div id="word-progress" class="word-display">_ _ _</div>
+            <div style="font-size: 0.9rem; color: #555; margin-bottom: 5px;">คำศัพท์ที่สะสม</div>
+
+            <div id="game-board" class="game-container"></div>
+
+            <div class="controls-area">
+                <button id="ctrl-up" class="ctrl-btn">⬆️</button>
+                <button id="ctrl-left" class="ctrl-btn">⬅️</button>
+                <button id="ctrl-down" class="ctrl-btn">⬇️</button>
+                <button id="ctrl-right" class="ctrl-btn">➡️</button>
             </div>
         </div>
-    </div> 
+
+        <!-- SUMMARY SCREEN -->
+        <div id="summary-screen" class="screen">
+            <h2 style="color: var(--color-primary);">🎉 จบเลเวล!</h2>
+            <div
+                style="background: white; padding: 15px; border-radius: 10px; width: 100%; margin-bottom: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);">
+                <ul id="summary-list" style="list-style: none; padding: 0; text-align: left;"></ul>
+            </div>
+            <button class="btn-3d btn-primary" id="btn-next-level">ด่านต่อไป</button>
+            <button class="btn-3d btn-danger" onclick="backToMain()">กลับหน้าหลัก</button>
+        </div>
+
+        <!-- OVERLAY -->
+        <div id="overlay" class="hidden">
+            <div class="modal">
+                <h2 id="modal-title">พร้อมไหม?</h2>
+                <p id="modal-msg">คำศัพท์: CAT</p>
+                <button id="modal-btn" class="btn-3d btn-primary">เริ่มเกม</button>
+                <button id="modal-back-btn" class="btn-3d btn-danger hidden" onclick="backToMain()">ออก</button>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // --- AUDIO SYSTEM (Web Audio API) ---
+        class SoundManager {
+            constructor() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.enabled = true;
+            }
+
+            playTone(freq, type, duration, vol = 0.1) {
+                if (!this.enabled) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            playEat() { this.playTone(600, 'sine', 0.1, 0.2); setTimeout(() => this.playTone(800, 'sine', 0.1, 0.2), 50); }
+            playMove() { /* Too repetitive, skipped */ }
+            playWrong() { this.playTone(150, 'sawtooth', 0.3, 0.3); }
+            playBonus() { this.playTone(1000, 'triangle', 0.1, 0.2); setTimeout(() => this.playTone(1500, 'triangle', 0.2, 0.2), 100); }
+            playWin() {
+                [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'square', 0.2, 0.1), i * 100));
+            }
+            playGameOver() {
+                [400, 300, 200, 100].forEach((f, i) => setTimeout(() => this.playTone(f, 'sawtooth', 0.3, 0.2), i * 150));
+            }
+        }
+        const audio = new SoundManager();
         const synth = window.speechSynthesis;
-        const gameBoard = document.getElementById('game-board');
-        const collectedWordDisplay = document.getElementById('collected-word');
-        const nextLetterDisplay = document.getElementById('next-letter');
-        const fullWordDisplay = document.getElementById('full-word-display');
-        const ttsStatus = document.getElementById('tts-status');
-        
-        // Overlay elements
-        const gameOverlay = document.getElementById('game-overlay');
-        const overlayTitle = document.getElementById('overlay-title');
-        const overlayMessage = document.getElementById('overlay-message');
-        const overlayWordDisplay = document.getElementById('overlay-word');
-        const startGameButtonOverlay = document.getElementById('start-game-btn-overlay');
-        const overlayReturnBtn = document.getElementById('overlay-return-btn');
-        
-        const levelNextBtn = document.getElementById('level-next-btn');
-        const levelReturnBtn = document.getElementById('level-return-btn');
-        const levelSummaryList = document.getElementById('level-summary-list');
-        const subLevelDescriptionEl = document.getElementById('sub-level-description');
 
-        const GRID_SIZE = 15;
-        const GAME_SPEED = 250; 
-        const START_DELAY = 500; 
-        const END_LEVEL_DELAY = 500; 
-        const LEVEL_WORD_COUNT = 5;
-        
-        const DIFFICULTY_COLORS = {
-            'easy': { color: '#FFC107', shadow: '#FFB300' },
-            'medium': { color: '#4CAF50', shadow: '#388E3C' },
-            'hard': { color: '#2196F3', shadow: '#1565C0' }
-        };
-
+        // --- GAME DATA ---
         const WORDS = {
             'easy': [
-                [{ word: 'CAT', translation: 'แมว' }, { word: 'DOG', translation: 'สุนัข' }, { word: 'SUN', translation: 'อาทิตย์' }, { word: 'MAP', translation: 'แผนที่' }, { word: 'ZOO', translation: 'สวนสัตว์' }],
-                [{ word: 'FISH', translation: 'ปลา' }, { word: 'BIRD', translation: 'นก' }, { word: 'RAIN', translation: 'ฝน' }, { word: 'FIRE', translation: 'ไฟ' }, { word: 'TREE', translation: 'ต้นไม้' }],
-                [{ word: 'BALL', translation: 'ลูกบอล' }, { word: 'BOOK', translation: 'หนังสือ' }, { word: 'GAME', translation: 'เกม' }, { word: 'ROAD', translation: 'ถนน' }, { word: 'MOON', translation: 'ดวงจันทร์' }],
-                [{ word: 'FOUR', translation: 'สี่' }, { word: 'FIVE', translation: 'ห้า' }, { word: 'ZERO', translation: 'ศูนย์' }, { word: 'FAST', translation: 'เร็ว' }, { word: 'SLOW', translation: 'ช้า' }],
-                [{ word: 'GIRL', translation: 'เด็กหญิง' }, { word: 'BOY', translation: 'เด็กชาย' }, { word: 'KING', translation: 'พระราชา' }, { word: 'QUEEN', translation: 'พระราชินี' }, { word: 'WALL', translation: 'กำแพง' }],
-                [{ word: 'RICE', translation: 'ข้าว' }, { word: 'MEAT', translation: 'เนื้อ' }, { word: 'SOUP', translation: 'ซุป' }, { word: 'SALT', translation: 'เกลือ' }, { word: 'SUGAR', translation: 'น้ำตาล' }],
-                [{ word: 'HAND', translation: 'มือ' }, { word: 'FOOT', translation: 'เท้า' }, { word: 'EYE', translation: 'ตา' }, { word: 'NOSE', translation: 'จมูก' }, { word: 'EAR', translation: 'หู' }],
-                [{ word: 'COLD', translation: 'หนาว' }, { word: 'HOT', translation: 'ร้อน' }, { word: 'WET', translation: 'เปียก' }, { word: 'DRY', translation: 'แห้ง' }, { word: 'WIND', translation: 'ลม' }],
-                [{ word: 'FROG', translation: 'กบ' }, { word: 'SHIP', translation: 'เรือ' }, { word: 'BLUE', translation: 'สีน้ำเงิน' }, { word: 'PINK', translation: 'สีชมพู' }, { word: 'STAR', translation: 'ดาว' }],
-                [{ word: 'SMILE', translation: 'ยิ้ม' }, { word: 'LAUGH', translation: 'หัวเราะ' }, { word: 'SLEEP', translation: 'นอน' }, { word: 'DREAM', translation: 'ฝัน' }, { word: 'WAKE', translation: 'ตื่น' }],
+                [{ w: 'CAT', t: 'แมว' }, { w: 'DOG', t: 'สุนัข' }, { w: 'SUN', t: 'อาทิตย์' }, { w: 'MAP', t: 'แผนที่' }, { w: 'ZOO', t: 'สวนสัตว์' }],
+                [{ w: 'FISH', t: 'ปลา' }, { w: 'BIRD', t: 'นก' }, { w: 'RAIN', t: 'ฝน' }, { w: 'FIRE', t: 'ไฟ' }, { w: 'TREE', t: 'ต้นไม้' }],
+                [{ w: 'BALL', t: 'ลูกบอล' }, { w: 'BOOK', t: 'หนังสือ' }, { w: 'GAME', t: 'เกม' }, { w: 'ROAD', t: 'ถนน' }, { w: 'MOON', t: 'ดวงจันทร์' }],
+                [{ w: 'FOUR', t: 'สี่' }, { w: 'FIVE', t: 'ห้า' }, { w: 'ZERO', t: 'ศูนย์' }, { w: 'FAST', t: 'เร็ว' }, { w: 'SLOW', t: 'ช้า' }],
+                [{ w: 'GIRL', t: 'เด็กหญิง' }, { w: 'BOY', t: 'เด็กชาย' }, { w: 'KING', t: 'พระราชา' }, { w: 'QUEEN', t: 'พระราชินี' }, { w: 'WALL', t: 'กำแพง' }],
+                [{ w: 'RICE', t: 'ข้าว' }, { w: 'MEAT', t: 'เนื้อ' }, { w: 'SOUP', t: 'ซุป' }, { w: 'SALT', t: 'เกลือ' }, { w: 'SUGAR', t: 'น้ำตาล' }],
+                [{ w: 'HAND', t: 'มือ' }, { w: 'FOOT', t: 'เท้า' }, { w: 'EYE', t: 'ตา' }, { w: 'NOSE', t: 'จมูก' }, { w: 'EAR', t: 'หู' }],
+                [{ w: 'COLD', t: 'หนาว' }, { w: 'HOT', t: 'ร้อน' }, { w: 'WET', t: 'เปียก' }, { w: 'DRY', t: 'แห้ง' }, { w: 'WIND', t: 'ลม' }],
+                [{ w: 'FROG', t: 'กบ' }, { w: 'SHIP', t: 'เรือ' }, { w: 'BLUE', t: 'สีน้ำเงิน' }, { w: 'PINK', t: 'สีชมพู' }, { w: 'STAR', t: 'ดาว' }],
+                [{ w: 'SMILE', t: 'ยิ้ม' }, { w: 'LAUGH', t: 'หัวเราะ' }, { w: 'SLEEP', t: 'นอน' }, { w: 'DREAM', t: 'ฝัน' }, { w: 'WAKE', t: 'ตื่น' }]
             ],
             'medium': [
-                [{ word: 'ORANGE', translation: 'ส้ม' }, { word: 'TICKET', translation: 'ตั๋ว' }, { word: 'PURPLE', translation: 'สีม่วง' }, { word: 'FATHER', translation: 'พ่อ' }, { word: 'MOTHER', translation: 'แม่' }],
-                [{ word: 'SCHOOL', translation: 'โรงเรียน' }, { word: 'TRAVEL', translation: 'เดินทาง' }, { word: 'VACATION', translation: 'วันหยุด' }, { word: 'FRIEND', translation: 'เพื่อน' }, { word: 'FAMILY', translation: 'ครอบครัว' }],
-                [{ word: 'MORNING', translation: 'เช้า' }, { word: 'EVENING', translation: 'เย็น' }, { word: 'WEEKEND', translation: 'วันหยุดสุดสัปดาห์' }, { word: 'HISTORY', translation: 'ประวัติศาสตร์' }, { word: 'SCIENCE', translation: 'วิทยาศาสตร์' }],
-                [{ word: 'GARDEN', translation: 'สวน' }, { word: 'KITCHEN', translation: 'ห้องครัว' }, { word: 'WINDOW', translation: 'หน้าต่าง' }, { word: 'DOORWAY', translation: 'ทางเข้าประตู' }, { word: 'BUILDING', translation: 'ตึก' }],
-                [{ word: 'PICTURE', translation: 'รูปภาพ' }, { word: 'CAMERA', translation: 'กล้อง' }, { word: 'JOURNAL', translation: 'วารสาร' }, { word: 'PROJECT', translation: 'โครงการ' }, { word: 'SUCCESS', translation: 'ความสำเร็จ' }],
-                [{ word: 'HAPPEN', translation: 'เกิดขึ้น' }, { word: 'FINISH', translation: 'เสร็จสิ้น' }, { word: 'ACCEPT', translation: 'ยอมรับ' }, { word: 'BELIEVE', translation: 'เชื่อ' }, { word: 'DECIDE', translation: 'ตัดสินใจ' }],
-                [{ word: 'WEATHER', translation: 'อากาศ' }, { word: 'CLOUDY', translation: 'มีเมฆมาก' }, { word: 'SUNNY', translation: 'มีแดด' }, { word: 'STORMY', translation: 'มีพายุ' }, { word: 'FROZEN', translation: 'เยือกแข็ง' }],
-                [{ word: 'MONSTER', translation: 'สัตว์ประหลาด' }, { word: 'SECRET', translation: 'ความลับ' }, { word: 'PUZZLE', translation: 'ปริศนา' }, { word: 'GHOSTLY', translation: 'เหมือนผี' }, { word: 'MYSTERY', translation: 'ลึกลับ' }],
-                [{ word: 'BROTHER', translation: 'พี่/น้องชาย' }, { word: 'SISTER', translation: 'พี่/น้องสาว' }, { word: 'UNCLE', translation: 'ลุง/น้า/อา' }, { word: 'AUNT', translation: 'ป้า/น้า/อา' }, { word: 'COUSIN', translation: 'ลูกพี่ลูกน้อง' }],
-                [{ word: 'MOUNTAIN', translation: 'ภูเขา' }, { word: 'FOREST', translation: 'ป่า' }, { word: 'PLANET', translation: 'ดาวเคราะห์' }, { word: 'CASTLE', translation: 'ปราสาท' }, { word: 'ADVENT', translation: 'การมาถึง' }],
+                [{ w: 'ORANGE', t: 'ส้ม' }, { w: 'TICKET', t: 'ตั๋ว' }, { w: 'PURPLE', t: 'สีม่วง' }, { w: 'FATHER', t: 'พ่อ' }, { w: 'MOTHER', t: 'แม่' }],
+                [{ w: 'SCHOOL', t: 'โรงเรียน' }, { w: 'TRAVEL', t: 'เดินทาง' }, { w: 'VACATION', t: 'วันหยุด' }, { w: 'FRIEND', t: 'เพื่อน' }, { w: 'FAMILY', t: 'ครอบครัว' }],
+                [{ w: 'MORNING', t: 'เช้า' }, { w: 'EVENING', t: 'เย็น' }, { w: 'WEEKEND', t: 'วันหยุดสุดสัปดาห์' }, { w: 'HISTORY', t: 'ประวัติศาสตร์' }, { w: 'SCIENCE', t: 'วิทยาศาสตร์' }],
+                [{ w: 'GARDEN', t: 'สวน' }, { w: 'KITCHEN', t: 'ห้องครัว' }, { w: 'WINDOW', t: 'หน้าต่าง' }, { w: 'DOORWAY', t: 'ทางเข้าประตู' }, { w: 'BUILDING', t: 'ตึก' }],
+                [{ w: 'PICTURE', t: 'รูปภาพ' }, { w: 'CAMERA', t: 'กล้อง' }, { w: 'JOURNAL', t: 'วารสาร' }, { w: 'PROJECT', t: 'โครงการ' }, { w: 'SUCCESS', t: 'ความสำเร็จ' }],
+                [{ w: 'HAPPEN', t: 'เกิดขึ้น' }, { w: 'FINISH', t: 'เสร็จสิ้น' }, { w: 'ACCEPT', t: 'ยอมรับ' }, { w: 'BELIEVE', t: 'เชื่อ' }, { w: 'DECIDE', t: 'ตัดสินใจ' }],
+                [{ w: 'WEATHER', t: 'อากาศ' }, { w: 'CLOUDY', t: 'มีเมฆมาก' }, { w: 'SUNNY', t: 'มีแดด' }, { w: 'STORMY', t: 'มีพายุ' }, { w: 'FROZEN', t: 'เยือกแข็ง' }],
+                [{ w: 'MONSTER', t: 'สัตว์ประหลาด' }, { w: 'SECRET', t: 'ความลับ' }, { w: 'PUZZLE', t: 'ปริศนา' }, { w: 'GHOSTLY', t: 'เหมือนผี' }, { w: 'MYSTERY', t: 'ลึกลับ' }],
+                [{ w: 'BROTHER', t: 'พี่/น้องชาย' }, { w: 'SISTER', t: 'พี่/น้องสาว' }, { w: 'UNCLE', t: 'ลุง/น้า/อา' }, { w: 'AUNT', t: 'ป้า/น้า/อา' }, { w: 'COUSIN', t: 'ลูกพี่ลูกน้อง' }],
+                [{ w: 'MOUNTAIN', t: 'ภูเขา' }, { w: 'FOREST', t: 'ป่า' }, { w: 'PLANET', t: 'ดาวเคราะห์' }, { w: 'CASTLE', t: 'ปราสาท' }, { w: 'ADVENT', t: 'การมาถึง' }]
             ],
             'hard': [
-                [{ word: 'DICTATION', translation: 'การเขียนตามคำบอก' }, { word: 'AMAZEMENT', translation: 'ความประหลาดใจ' }, { word: 'ADVENTURE', translation: 'การผจญภัย' }, { word: 'TECHNOLOGY', translation: 'เทคโนโลยี' }, { word: 'RESTAURANT', translation: 'ร้านอาหาร' }],
-                [{ word: 'COMPUTER', translation: 'คอมพิวเตอร์' }, { word: 'TELEVISION', translation: 'โทรทัศน์' }, { word: 'KNOWLEDGE', translation: 'ความรู้' }, { word: 'DIFFICULT', translation: 'ยาก' }, { word: 'EXCELLENT', translation: 'ยอดเยี่ยม' }],
-                [{ word: 'COMMUNITY', translation: 'ชุมชน' }, { word: 'ECOLOGY', translation: 'นิเวศวิทยา' }, { word: 'EDUCATION', translation: 'การศึกษา' }, { word: 'IMAGINE', translation: 'จินตนาการ' }, { word: 'LANGUAGE', translation: 'ภาษา' }],
-                [{ word: 'IMPORTANT', translation: 'สำคัญ' }, { word: 'DIFFERENT', translation: 'แตกต่าง' }, { word: 'INTEREST', translation: 'ความสนใจ' }, { word: 'SUGGESTION', translation: 'ข้อเสนอแนะ' }, { word: 'GENERALLY', translation: 'โดยทั่วไป' }],
-                [{ word: 'CHOCOLATE', translation: 'ช็อกโกแลต' }, { word: 'CALCULATE', translation: 'คำนวณ' }, { word: 'DISCOVER', translation: 'ค้นพบ' }, { word: 'EXPLORER', translation: 'นักสำรวจ' }, { word: 'INNOVATE', translation: 'คิดค้น' }],
-                [{ word: 'ATTENTION', translation: 'ความสนใจ' }, { word: 'CAPABILITY', translation: 'ความสามารถ' }, { word: 'DEFINITION', translation: 'คำจำกัดความ' }, { word: 'EXPERIENCE', translation: 'ประสบการณ์' }, { word: 'GUARANTEE', translation: 'รับประกัน' }],
-                [{ word: 'PROFESSION', translation: 'อาชีพ' }, { word: 'VOLUNTEER', translation: 'อาสาสมัคร' }, { word: 'UNIVERSITY', translation: 'มหาวิทยาลัย' }, { word: 'APPRECIATE', translation: 'ซาบซึ้ง' }, { word: 'CEREMONY', translation: 'พิธี' }],
-                [{ word: 'CHAMPION', translation: 'แชมป์เปี้ยน' }, { word: 'DYNAMITE', translation: 'ระเบิดไดนาไมต์' }, { word: 'FANTASTIC', translation: 'มหัศจรรย์' }, { word: 'INVISIBLE', translation: 'ที่มองไม่เห็น' }, { word: 'MAGNITUDE', translation: 'ขนาด' }],
-                [{ word: 'TRANSPORT', translation: 'ขนส่ง' }, { word: 'COMPLEXITY', translation: 'ความซับซ้อน' }, { word: 'CHALLENGES', translation: 'ความท้าทาย' }, { word: 'DISCOVERY', translation: 'การค้นพบ' }, { word: 'STRUCTURE', translation: 'โครงสร้าง' }],
-                [{ word: 'UNBELIEVABLE', translation: 'ไม่น่าเชื่อ' }, { word: 'INFORMATION', translation: 'ข้อมูล' }, { word: 'CONGRATULATIONS', translation: 'ยินดีด้วย' }, { word: 'ENVIRONMENT', translation: 'สิ่งแวดล้อม' }, { word: 'OPPORTUNITY', translation: 'โอกาส' }],
-            ],
+                [{ w: 'DICTATION', t: 'เขียนตามคำบอก' }, { w: 'AMAZEMENT', t: 'ความประหลาดใจ' }, { w: 'ADVENTURE', t: 'การผจญภัย' }, { w: 'TECHNOLOGY', t: 'เทคโนโลยี' }, { w: 'RESTAURANT', t: 'ร้านอาหาร' }],
+                [{ w: 'COMPUTER', t: 'คอมพิวเตอร์' }, { w: 'TELEVISION', t: 'โทรทัศน์' }, { w: 'KNOWLEDGE', t: 'ความรู้' }, { w: 'DIFFICULT', t: 'ยาก' }, { w: 'EXCELLENT', t: 'ยอดเยี่ยม' }],
+                [{ w: 'COMMUNITY', t: 'ชุมชน' }, { w: 'ECOLOGY', t: 'นิเวศวิทยา' }, { w: 'EDUCATION', t: 'การศึกษา' }, { w: 'IMAGINE', t: 'จินตนาการ' }, { w: 'LANGUAGE', t: 'ภาษา' }],
+                [{ w: 'IMPORTANT', t: 'สำคัญ' }, { w: 'DIFFERENT', t: 'แตกต่าง' }, { w: 'INTEREST', t: 'ความสนใจ' }, { w: 'SUGGESTION', t: 'ข้อเสนอแนะ' }, { w: 'GENERALLY', t: 'โดยทั่วไป' }],
+                [{ w: 'CHOCOLATE', t: 'ช็อกโกแลต' }, { w: 'CALCULATE', t: 'คำนวณ' }, { w: 'DISCOVER', t: 'ค้นพบ' }, { w: 'EXPLORER', t: 'นักสำรวจ' }, { w: 'INNOVATE', t: 'คิดค้น' }],
+                [{ w: 'ATTENTION', t: 'ความสนใจ' }, { w: 'CAPABILITY', t: 'ความสามารถ' }, { w: 'DEFINITION', t: 'คำจำกัดความ' }, { w: 'EXPERIENCE', t: 'ประสบการณ์' }, { w: 'GUARANTEE', t: 'รับประกัน' }],
+                [{ w: 'PROFESSION', t: 'อาชีพ' }, { w: 'VOLUNTEER', t: 'อาสาสมัคร' }, { w: 'UNIVERSITY', t: 'มหาวิทยาลัย' }, { w: 'APPRECIATE', t: 'ซาบซึ้ง' }, { w: 'CEREMONY', t: 'พิธี' }],
+                [{ w: 'CHAMPION', t: 'แชมป์เปี้ยน' }, { w: 'DYNAMITE', t: 'ระเบิด' }, { w: 'FANTASTIC', t: 'มหัศจรรย์' }, { w: 'INVISIBLE', t: 'ที่มองไม่เห็น' }, { w: 'MAGNITUDE', t: 'ขนาด' }],
+                [{ w: 'TRANSPORT', t: 'ขนส่ง' }, { w: 'COMPLEXITY', t: 'ความซับซ้อน' }, { w: 'CHALLENGES', t: 'ความท้าทาย' }, { w: 'DISCOVERY', t: 'การค้นพบ' }, { w: 'STRUCTURE', t: 'โครงสร้าง' }],
+                [{ w: 'UNBELIEVABLE', t: 'ไม่น่าเชื่อ' }, { w: 'INFORMATION', t: 'ข้อมูล' }, { w: 'CONGRATULATIONS', t: 'ยินดีด้วย' }, { w: 'ENVIRONMENT', t: 'สิ่งแวดล้อม' }, { w: 'OPPORTUNITY', t: 'โอกาส' }]
+            ]
         };
 
-        const LEVEL_DESCRIPTIONS = {
-            'easy': 'ง่าย: เลือกเลเวลย่อย (3-5 อักษร)',
-            'medium': 'ปานกลาง: เลือกเลเวลย่อย (6-8 อักษร)',
-            'hard': 'ยาก: เลือกเลเวลย่อย (9-12 อักษร)'
+        // --- STATE ---
+        const GRID = 15;
+        let snake = [], dir = { x: 1, y: 0 }, nextDir = { x: 1, y: 0 };
+        let currentWord = '', currentWordObj = null, letterIdx = 0;
+        let levelData = [], levelIdx = 0, wordIdx = 0;
+        let letters = [], goldenFruit = null;
+        let score = 0, gameInterval = null, isPlaying = false;
+        let difficulty = 'easy';
+
+        // --- DOM ---
+        const els = {
+            screens: document.querySelectorAll('.screen'),
+            board: document.getElementById('game-board'),
+            subLevelArea: document.getElementById('sub-level-area'),
+            subLevelBtns: document.getElementById('sub-level-buttons'),
+            score: document.getElementById('score-val'),
+            target: document.getElementById('target-letter'),
+            wordProgress: document.getElementById('word-progress'),
+            overlay: document.getElementById('overlay'),
+            modalTitle: document.getElementById('modal-title'),
+            modalMsg: document.getElementById('modal-msg'),
+            modalBtn: document.getElementById('modal-btn'),
+            modalBackBtn: document.getElementById('modal-back-btn'),
+            summaryList: document.getElementById('summary-list'),
+            btnNextLevel: document.getElementById('btn-next-level')
         };
 
-        let snake = [];
-        let currentWordObj = {};
-        let currentLevelWordsList = []; 
-        let completedWordsInLevel = []; 
-        let currentWordIndexInLevel = 0; 
-        
-        let wordToSpell = '';
-        let currentMainLevel = 'easy'; 
-        let currentSubLevel = 1; 
-        let currentWordIndex = 0;
-        let letterPositions = []; 
-        let direction = 'RIGHT'; 
-        let gameInterval;
-        let isGameRunning = false;
-        let isHeadEaten = false; 
+        // --- LOGIC ---
+        function showScreen(id) {
+            els.screens.forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'flex';
+        }
 
-        function readWordAndTranslation(word) { 
-            if (!synth) return;
-            if (synth.speaking) {
-                synth.cancel();
+        function showSubLevels(diff) {
+            difficulty = diff;
+            els.subLevelArea.classList.remove('hidden');
+            els.subLevelBtns.innerHTML = '';
+            const colors = { easy: 'var(--color-easy)', medium: 'var(--color-medium)', hard: 'var(--color-hard)' };
+
+            for (let i = 0; i < 10; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'btn-3d';
+                btn.style.background = colors[diff];
+                btn.style.color = '#333';
+                btn.textContent = `Level ${i + 1}`;
+                btn.onclick = () => startLevel(i);
+                els.subLevelBtns.appendChild(btn);
             }
-            
-            const engUtterance = new SpeechSynthesisUtterance(word);
-            engUtterance.lang = 'en-US';
-            engUtterance.rate = 0.8; 
-
-            synth.speak(engUtterance);
-        }
-        
-        function generateSubLevelButtons() {
-            const mainLevels = ['easy', 'medium', 'hard'];
-            mainLevels.forEach(mainLevel => {
-                const container = document.getElementById(`sub-levels-${mainLevel}`);
-                container.querySelectorAll('.sub-level-btn').forEach(btn => btn.remove());
-                
-                const theme = DIFFICULTY_COLORS[mainLevel];
-
-                for (let i = 1; i <= 10; i++) {
-                    const btn = document.createElement('button');
-                    btn.className = 'sub-level-btn modal-btn';
-                    btn.dataset.mainLevel = mainLevel;
-                    btn.dataset.subLevel = i;
-                    btn.textContent = `เลเวล ${i}`;
-                    btn.addEventListener('click', () => setupGame(mainLevel, i));
-                    
-                    btn.style.backgroundColor = theme.color;
-                    btn.style.boxShadow = `0 4px 0 ${theme.shadow}`;
-                    
-                    container.appendChild(btn);
-                }
-            });
-        }
-        
-        function showSubLevels(mainLevel) {
-            document.querySelectorAll('.sub-level-container').forEach(container => {
-                container.classList.add('hidden');
-            });
-            document.getElementById(`sub-levels-${mainLevel}`).classList.remove('hidden');
-            
-            subLevelDescriptionEl.textContent = LEVEL_DESCRIPTIONS[mainLevel];
-            subLevelDescriptionEl.classList.remove('hidden');
         }
 
-        function setupGame(mainLevel, subLevel) {
-            currentMainLevel = mainLevel;
-            currentSubLevel = subLevel;
-
-            currentLevelWordsList = WORDS[mainLevel][subLevel - 1]; 
-            completedWordsInLevel = [];
-            currentWordIndexInLevel = 0;
-            
-            startNextWord();
+        function backToMain() {
+            showScreen('start-screen');
+            els.subLevelArea.classList.add('hidden');
+            els.overlay.classList.add('hidden');
         }
 
-        function startNextWord() {
-            if (currentWordIndexInLevel >= currentLevelWordsList.length) {
-                showLevelSummaryScreen();
+        function startLevel(idx) {
+            levelIdx = idx;
+            levelData = WORDS[difficulty][idx];
+            wordIdx = 0;
+            score = 0;
+            els.score.textContent = score;
+            prepareWord();
+        }
+
+        function prepareWord() {
+            if (wordIdx >= levelData.length) {
+                endLevel();
                 return;
             }
-            
-            currentWordObj = currentLevelWordsList[currentWordIndexInLevel];
-            wordToSpell = currentWordObj.word;
-            currentWordIndex = 0;
-            
-            // Initial snake position and direction
-            snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }]; 
-            direction = 'RIGHT'; 
-            letterPositions = [];
-            isGameRunning = false;
-            isHeadEaten = false; 
+            currentWordObj = levelData[wordIdx];
+            currentWord = currentWordObj.w;
+            letterIdx = 0;
 
-            const wordLetters = wordToSpell.split('');
-            
-            // Initialize occupied positions including the snake's body
-            const occupiedPositions = new Set(['5,5', '4,5']); 
-            
-            // Add cell directly in front of the head to occupied list (Request 1 fix from previous step)
-            const head = snake[0];
-            let nextX = head.x, nextY = head.y;
-            switch(direction) {
-                case 'UP': nextY--; break;
-                case 'DOWN': nextY++; break;
-                case 'LEFT': nextX--; break;
-                case 'RIGHT': nextX++; break;
-            }
-            // Check boundaries before adding 
-            if (nextX >= 0 && nextX < GRID_SIZE && nextY >= 0 && nextY < GRID_SIZE) {
-                occupiedPositions.add(`${nextX},${nextY}`); 
-            }
-            
-            // Generate letter positions
-            wordLetters.forEach(letter => {
-                let x, y, posKey;
+            // Show Overlay
+            showScreen('game-screen');
+            els.overlay.classList.remove('hidden');
+            els.modalTitle.textContent = `คำที่ ${wordIdx + 1}/${levelData.length}`;
+            els.modalMsg.innerHTML = `สะกดคำว่า: <strong style="font-size:1.5rem; color:var(--color-primary);">${currentWord}</strong><br>(${currentWordObj.t})`;
+            els.modalBtn.textContent = "เริ่มเกม";
+            els.modalBackBtn.classList.add('hidden');
+            els.modalBtn.onclick = initGame;
+
+            drawHUD();
+            drawBoard(); // Clear board visually
+        }
+
+        function initGame() {
+            els.overlay.classList.add('hidden');
+
+            // Spawn Logic (Fixing crash)
+            // Start at center, moving right
+            snake = [{ x: 5, y: 7 }, { x: 4, y: 7 }, { x: 3, y: 7 }];
+            dir = { x: 1, y: 0 };
+            nextDir = { x: 1, y: 0 };
+
+            spawnLetters();
+            goldenFruit = null;
+
+            if (gameInterval) clearInterval(gameInterval);
+            isPlaying = true;
+            gameInterval = setInterval(update, 200);
+
+            // Golden Fruit Timer
+            setTimeout(spawnGoldenFruit, Math.random() * 5000 + 5000);
+        }
+
+        function spawnLetters() {
+            letters = [];
+            const occupied = new Set(snake.map(s => `${s.x},${s.y}`));
+            // Reserve space in front of head to prevent instant eat/crash
+            occupied.add(`${snake[0].x + 1},${snake[0].y}`);
+
+            currentWord.split('').forEach(char => {
+                let pos;
                 do {
-                    x = Math.floor(Math.random() * GRID_SIZE);
-                    y = Math.floor(Math.random() * GRID_SIZE);
-                    posKey = `${x},${y}`;
-                } while (occupiedPositions.has(posKey));
-                
-                letterPositions.push({ x, y, letter });
-                occupiedPositions.add(posKey);
+                    pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+                } while (occupied.has(`${pos.x},${pos.y}`));
+                occupied.add(`${pos.x},${pos.y}`);
+                letters.push({ x: pos.x, y: pos.y, char: char });
             });
-            
-            showScreen('game-screen'); 
-            drawBoard(); 
-            updateDisplays(); 
-            
-            const levelTextMap = { 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
-            const progress = currentWordIndexInLevel + 1;
-            
-            // Show start overlay
-            overlayTitle.textContent = "พร้อมเริ่มเกมหรือไม่?";
-            overlayMessage.innerHTML = `ระดับ${levelTextMap[currentMainLevel]} เลเวล ${currentSubLevel} (${progress}/${LEVEL_WORD_COUNT}): คำศัพท์ที่ต้องสะกด: <strong id="overlay-word">${wordToSpell}</strong>`;
-            startGameButtonOverlay.textContent = `เริ่มเกม`;
-            startGameButtonOverlay.classList.remove('hidden');
-            overlayReturnBtn.classList.add('hidden');
-            showOverlay();
         }
 
-        function runGame() {
-            hideOverlay();
-            clearInterval(gameInterval);
-            
-            setTimeout(() => {
-                isGameRunning = true;
-                gameInterval = setInterval(updateGame, GAME_SPEED);
-            }, START_DELAY); 
-        }
-        
-        function showLevelSummaryScreen() {
-            showScreen('level-summary-screen');
-            levelSummaryList.innerHTML = '';
-            
-            completedWordsInLevel.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${item.word}</strong> / ${item.translation}`;
-                levelSummaryList.appendChild(li);
-            });
+        function spawnGoldenFruit() {
+            if (!isPlaying) return;
+            const occupied = new Set([...snake.map(s => `${s.x},${s.y}`), ...letters.map(l => `${l.x},${l.y}`)]);
+            let pos;
+            do {
+                pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+            } while (occupied.has(`${pos.x},${pos.y}`));
 
-            levelNextBtn.disabled = false; 
-            levelReturnBtn.disabled = false;
-            
-            ttsStatus.textContent = "รายการคำศัพท์ทั้งหมดในเลเวลนี้:";
+            goldenFruit = pos;
+            // Despawn after 6 seconds
+            setTimeout(() => { goldenFruit = null; }, 6000);
+            // Schedule next spawn
+            setTimeout(spawnGoldenFruit, Math.random() * 10000 + 10000);
         }
 
-        function showGameOver(title, message) {
-            isGameRunning = false;
-            clearInterval(gameInterval);
-            
-            overlayTitle.textContent = title;
-            overlayMessage.innerHTML = message;
-            
-            startGameButtonOverlay.textContent = "ลองใหม่";
-            startGameButtonOverlay.classList.remove('hidden');
-            overlayReturnBtn.classList.remove('hidden'); 
-            showOverlay();
-        }
+        function update() {
+            dir = nextDir;
+            const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
 
-        function updateDisplays() {
-            const collected = wordToSpell.substring(0, currentWordIndex);
-            const nextLetter = wordToSpell[currentWordIndex] || '✅';
-            
-            fullWordDisplay.textContent = wordToSpell; 
-            
-            collectedWordDisplay.textContent = collected;
-            nextLetterDisplay.textContent = nextLetter;
-        }
+            // Wall Collision
+            if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return gameOver();
+            // Self Collision
+            if (snake.some(s => s.x === head.x && s.y === head.y)) return gameOver();
 
-        // --- New Function: Word Complete Flash (Request 2) ---
-        function startWordCompleteFlash(callback) {
-            const flashDuration = 150; 
-            const cycles = 4; // 2 zoom in, 2 zoom out (total 2 full cycles)
-            let count = 0;
-            // Select all snake parts currently on the board
-            const allSnakeCells = gameBoard.querySelectorAll('.snake-head, .snake-body, .snake-tail');
-
-            function toggleFlash() {
-                if (count >= cycles) {
-                    allSnakeCells.forEach(cell => cell.classList.remove('zoom-flash'));
-                    callback();
-                    return;
-                }
-
-                if (count % 2 === 0) {
-                    // Flash ON (Zoom In)
-                    allSnakeCells.forEach(cell => cell.classList.add('zoom-flash'));
-                } else {
-                    // Flash OFF (Zoom Out/Normal)
-                    allSnakeCells.forEach(cell => cell.classList.remove('zoom-flash'));
-                }
-
-                count++;
-                setTimeout(toggleFlash, flashDuration);
-            }
-            
-            // Initial call to start the sequence
-            toggleFlash();
-        }
-
-
-        function updateGame() {
-            if (!isGameRunning) return;
-            
-            isHeadEaten = false; 
-
-            const head = { x: snake[0].x, y: snake[0].y };
-            
-            switch(direction) {
-                case 'UP': head.y--; break;
-                case 'DOWN': head.y++; break;
-                case 'LEFT': head.x--; break;
-                case 'RIGHT': head.x++; break;
-            }
-
-            if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-                showGameOver(`Game Over!`, `คุณชนกำแพง! 😭 (คำศัพท์: <strong>${wordToSpell}</strong>)`);
-                return;
-            }
-            if (snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
-                 showGameOver(`Game Over!`, `คุณชนตัวเอง! 😥 (คำศัพท์: <strong>${wordToSpell}</strong>)`);
-                return;
-            }
-            
             snake.unshift(head);
-            
-            let letterCollected = false;
-            const currentTargetLetter = wordToSpell[currentWordIndex];
 
-            const collectedLetterPieceIndex = letterPositions.findIndex(p => p.x === head.x && p.y === head.y);
-            
-            if (collectedLetterPieceIndex !== -1) {
-                const piece = letterPositions[collectedLetterPieceIndex];
+            // Check Letter Eat
+            const targetChar = currentWord[letterIdx];
+            const lIdx = letters.findIndex(l => l.x === head.x && l.y === head.y);
 
-                if (piece.letter === currentTargetLetter) {
-                    currentWordIndex++;
-                    letterPositions.splice(collectedLetterPieceIndex, 1);
-                    letterCollected = true;
-                    isHeadEaten = true; // Set flag for eating effect
+            let ate = false;
+            if (lIdx !== -1) {
+                if (letters[lIdx].char === targetChar) {
+                    // Correct
+                    audio.playEat();
+                    letters.splice(lIdx, 1);
+                    letterIdx++;
+                    score += 10;
+                    ate = true;
+                    if (letterIdx >= currentWord.length) {
+                        wordComplete();
+                        return;
+                    }
                 } else {
-                    showGameOver(`Game Over!`, `คุณเก็บตัวอักษรผิดตัว! ❌<br>เก็บ <strong>${piece.letter}</strong> แทนที่จะเป็น <strong>${currentTargetLetter}</strong>`);
+                    // Wrong Letter
+                    audio.playWrong();
+                    gameOver(`เก็บผิด! ต้องเก็บ <strong>${targetChar}</strong>`);
                     return;
                 }
             }
 
-            // --- Word Completion Logic (Request 2 Fix) ---
-            if (currentWordIndex === wordToSpell.length) {
-                // If the word is complete, the snake *must* consume the last letter and grow.
-                // letterCollected is guaranteed to be true here, so snake.pop() must be skipped.
-                // The head is now *on* the last letter.
-
-                clearInterval(gameInterval);
-                isGameRunning = false; 
-                
-                drawBoard(); // Draw the snake's final position with the last letter eaten
-                
-                // Start flash effect after a very short delay to ensure final position is drawn
-                setTimeout(() => {
-                    startWordCompleteFlash(() => {
-                        // After flash completes:
-                        readWordAndTranslation(wordToSpell); // Restore speech (Request 3)
-                        completedWordsInLevel.push(currentWordObj);
-                        currentWordIndexInLevel++; 
-                        
-                        setTimeout(() => {
-                            startNextWord(); 
-                        }, END_LEVEL_DELAY); 
-                    });
-                }, 10); // Minimal delay
-
-                return;
+            // Check Golden Fruit
+            if (goldenFruit && head.x === goldenFruit.x && head.y === goldenFruit.y) {
+                audio.playBonus();
+                score += 50;
+                goldenFruit = null;
+                // Grow extra segment
+                ate = true;
             }
 
+            if (!ate) snake.pop();
 
-            if (!letterCollected) {
-                snake.pop(); // Normal move: move forward, pop tail
-            }
-            
+            drawHUD();
             drawBoard();
-            updateDisplays();
+        }
+
+        function wordComplete() {
+            clearInterval(gameInterval);
+            isPlaying = false;
+            audio.playWin();
+            speak(currentWord);
+
+            setTimeout(() => {
+                wordIdx++;
+                prepareWord();
+            }, 1500);
+        }
+
+        function gameOver(msg = "ชนแล้ว!") {
+            clearInterval(gameInterval);
+            isPlaying = false;
+            audio.playGameOver();
+
+            els.overlay.classList.remove('hidden');
+            els.modalTitle.textContent = "Game Over";
+            els.modalMsg.innerHTML = msg;
+            els.modalBtn.textContent = "ลองใหม่";
+            els.modalBackBtn.classList.remove('hidden');
+            els.modalBtn.onclick = initGame;
+        }
+
+        function endLevel() {
+            showScreen('summary-screen');
+            els.summaryList.innerHTML = levelData.map(d => `<li>✅ <strong>${d.w}</strong> - ${d.t}</li>`).join('');
+
+            if (levelIdx < 9) {
+                els.btnNextLevel.style.display = 'block';
+                els.btnNextLevel.onclick = () => startLevel(levelIdx + 1);
+            } else {
+                els.btnNextLevel.style.display = 'none';
+            }
+        }
+
+        function speak(text) {
+            if (synth.speaking) synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US';
+            synth.speak(u);
+        }
+
+        // --- RENDER ---
+        function drawHUD() {
+            els.score.textContent = score;
+            els.target.textContent = currentWord[letterIdx] || '✅';
+            els.wordProgress.textContent = currentWord.split('').map((c, i) => i < letterIdx ? c : '_').join(' ');
         }
 
         function drawBoard() {
-            gameBoard.innerHTML = '';
-            
-            let cellsHTML = Array(GRID_SIZE * GRID_SIZE).fill().map((_, i) => {
-                const x = i % GRID_SIZE;
-                const y = Math.floor(i / GRID_SIZE);
-                return `<div class="cell" data-x="${x}" data-y="${y}"></div>`;
-            }).join('');
-            gameBoard.innerHTML = cellsHTML;
-
-            // Apply snake classes
-            snake.forEach((segment, index) => {
-                const cell = gameBoard.querySelector(`.cell[data-x="${segment.x}"][data-y="${segment.y}"]`);
-                if (cell) {
-                    cell.removeAttribute('data-dir'); 
-                    
-                    if (index === 0) {
-                        // Head
-                        const headClass = `snake-head${isHeadEaten ? ' eaten' : ''}`;
-                        cell.className = `cell ${headClass}`;
-                    } else if (index === snake.length - 1) {
-                        // Tail (Request 1 Fix)
-                        cell.className = 'cell snake-tail';
-                        
-                        // Determine tail direction (segment before the tail)
-                        const penultimate = snake[snake.length - 2];
-                        const tail = segment; 
-                        let tailDir = '';
-                        // Determine the direction from the penultimate segment to the tail segment (the direction the tail is pointing)
-                        if (tail.x < penultimate.x) tailDir = 'RIGHT'; 
-                        else if (tail.x > penultimate.x) tailDir = 'LEFT';
-                        else if (tail.y < penultimate.y) tailDir = 'DOWN';
-                        else if (tail.y > penultimate.y) tailDir = 'UP'; 
-                        
-                        cell.setAttribute('data-dir', tailDir);
-                    } else {
-                        // Body
-                        cell.className = 'cell snake-body';
-                    }
-                }
+            els.board.innerHTML = '';
+            // Draw Snake
+            snake.forEach((s, i) => {
+                const el = document.createElement('div');
+                el.style.gridColumnStart = s.x + 1;
+                el.style.gridRowStart = s.y + 1;
+                el.className = i === 0 ? 'cell snake-head' : (i === snake.length - 1 ? 'cell snake-tail' : 'cell snake-body');
+                els.board.appendChild(el);
             });
-
-            // Apply letter colors
-            const currentTargetLetter = wordToSpell[currentWordIndex];
-            letterPositions.forEach(p => {
-                const cell = gameBoard.querySelector(`.cell[data-x="${p.x}"][data-y="${p.y}"]`);
-                if (cell) {
-                    const isTarget = p.letter === currentTargetLetter;
-                    cell.className = `cell letter-piece${isTarget ? ' target' : ''}`;
-                    cell.textContent = p.letter;
-                }
+            // Draw Letters
+            letters.forEach(l => {
+                const el = document.createElement('div');
+                el.style.gridColumnStart = l.x + 1;
+                el.style.gridRowStart = l.y + 1;
+                el.className = `cell letter-piece ${l.char === currentWord[letterIdx] ? 'target' : ''}`;
+                el.textContent = l.char;
+                els.board.appendChild(el);
             });
-        }
-
-        function handleControls(newDirection) {
-            const isOpposite = (direction === 'UP' && newDirection === 'DOWN') ||
-                               (direction === 'DOWN' && newDirection === 'UP') ||
-                               (direction === 'LEFT' && newDirection === 'RIGHT') ||
-                               (direction === 'RIGHT' && newDirection === 'LEFT');
-            
-            if (!isOpposite && isGameRunning) {
-                direction = newDirection;
+            // Draw Golden Fruit
+            if (goldenFruit) {
+                const el = document.createElement('div');
+                el.style.gridColumnStart = goldenFruit.x + 1;
+                el.style.gridRowStart = goldenFruit.y + 1;
+                el.className = 'cell golden-fruit';
+                els.board.appendChild(el);
             }
         }
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.style.display = 'none'; 
-                s.classList.remove('active'); 
-            });
-            document.getElementById(id).style.display = 'flex'; 
-        }
-        
-        function showOverlay() {
-            gameOverlay.classList.remove('hidden');
-            gameOverlay.style.display = 'flex';
-        }
-
-        function hideOverlay() {
-            gameOverlay.classList.add('hidden');
-            gameOverlay.style.display = 'none';
-        }
-        
-        function goToNextLevel() {
-            let nextSubLevel = currentSubLevel + 1;
-            let nextMainLevel = currentMainLevel;
-
-            if (nextSubLevel > 10) {
-                alert(`🎉 คุณผ่านระดับ ${nextMainLevel} ทั้งหมด 10 เลเวลแล้ว!`);
-                returnToStartScreen();
-                return;
+        // --- INPUT ---
+        document.addEventListener('keydown', e => {
+            if (!isPlaying) return;
+            switch (e.key) {
+                case 'ArrowUp': if (dir.y !== 1) nextDir = { x: 0, y: -1 }; break;
+                case 'ArrowDown': if (dir.y !== -1) nextDir = { x: 0, y: 1 }; break;
+                case 'ArrowLeft': if (dir.x !== 1) nextDir = { x: -1, y: 0 }; break;
+                case 'ArrowRight': if (dir.x !== -1) nextDir = { x: 1, y: 0 }; break;
             }
-            
-            setupGame(nextMainLevel, nextSubLevel);
-        }
-
-        function returnToStartScreen() {
-            if (synth.speaking) {
-                synth.cancel();
-            }
-            showScreen('start-screen');
-            showSubLevels('easy');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            generateSubLevelButtons(); 
-
-            document.querySelectorAll('.main-difficulty-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => showSubLevels(e.target.dataset.level));
-            });
-            
-            startGameButtonOverlay.addEventListener('click', () => {
-                 if (overlayTitle.textContent.includes('Game Over')) {
-                    startNextWord();
-                } else {
-                    runGame();
-                }
-            });
-            
-            overlayReturnBtn.addEventListener('click', () => {
-                hideOverlay();
-                returnToStartScreen();
-            });
-
-            levelNextBtn.addEventListener('click', goToNextLevel);
-            levelReturnBtn.addEventListener('click', returnToStartScreen);
-
-            // Control bindings
-            document.querySelectorAll('.control-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => handleControls(e.target.dataset.direction));
-            });
-            document.addEventListener('keydown', (e) => {
-                if (isGameRunning) {
-                    switch(e.key) {
-                        case 'ArrowUp': handleControls('UP'); break;
-                        case 'ArrowDown': handleControls('DOWN'); break;
-                        case 'ArrowLeft': handleControls('LEFT'); break;
-                        case 'ArrowRight': handleControls('RIGHT'); break;
-                    }
-                }
-            });
-
-            showScreen('start-screen'); 
-            showSubLevels('easy'); 
         });
+
+        ['up', 'down', 'left', 'right'].forEach(d => {
+            document.getElementById(`ctrl-${d}`).addEventListener('click', () => {
+                if (!isPlaying) return;
+                if (d === 'up' && dir.y !== 1) nextDir = { x: 0, y: -1 };
+                if (d === 'down' && dir.y !== -1) nextDir = { x: 0, y: 1 };
+                if (d === 'left' && dir.x !== 1) nextDir = { x: -1, y: 0 };
+                if (d === 'right' && dir.x !== -1) nextDir = { x: 1, y: 0 };
+            });
+        });
+
     </script>
 </body>
+
 </html>
