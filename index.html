@@ -434,9 +434,12 @@
         <div id="start-screen" class="screen" style="display: flex;">
             <h2 style="color: var(--color-primary-dark);">เลือกความยาก</h2>
             <div style="width: 100%; max-width: 300px;">
-                <button class="btn-3d btn-easy" onclick="showSubLevels('easy')">ระดับ ง่าย (3-5 อักษร)</button>
-                <button class="btn-3d btn-medium" onclick="showSubLevels('medium')">ระดับ ปานกลาง (6-8 อักษร)</button>
-                <button class="btn-3d btn-hard" onclick="showSubLevels('hard')">ระดับ ยาก (9-12 อักษร)</button>
+                <button class="btn-3d btn-easy" onclick="unlockAudio(); showSubLevels('easy')">ระดับ ง่าย (3-5
+                    อักษร)</button>
+                <button class="btn-3d btn-medium" onclick="unlockAudio(); showSubLevels('medium')">ระดับ ปานกลาง (6-8
+                    อักษร)</button>
+                <button class="btn-3d btn-hard" onclick="unlockAudio(); showSubLevels('hard')">ระดับ ยาก (9-12
+                    อักษร)</button>
             </div>
 
             <div id="sub-level-area" class="hidden" style="width: 100%; margin-top: 20px;">
@@ -501,12 +504,21 @@
         // --- AUDIO SYSTEM (Web Audio API) ---
         class SoundManager {
             constructor() {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.ctx = null; // Lazy init
                 this.enabled = true;
             }
 
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
             playTone(freq, type, duration, vol = 0.1) {
-                if (!this.enabled) return;
+                if (!this.enabled || !this.ctx) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = type;
@@ -532,6 +544,16 @@
         }
         const audio = new SoundManager();
         const synth = window.speechSynthesis;
+
+        // Mobile Audio Unlock
+        function unlockAudio() {
+            audio.init();
+            // Unlock TTS for mobile by playing a silent utterance
+            if (synth && !synth.speaking) {
+                const u = new SpeechSynthesisUtterance('');
+                synth.speak(u);
+            }
+        }
 
         // --- GAME DATA ---
         const WORDS = {
