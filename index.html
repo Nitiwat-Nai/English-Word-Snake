@@ -768,7 +768,7 @@
 
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = true;
-            // แก้ไข: กำหนดความเร็วคงที่ 250 ms ตามที่ร้องขอ
+            // ความเร็วคงที่ 250 ms
             gameInterval = setInterval(update, 250); 
 
             // Golden Fruit Timer
@@ -852,16 +852,16 @@
         }
 
         function wordComplete() {
-            // Fix 2: Word is completed, snake head is on the last letter.
+            // Fix: Word is completed, snake head is on the last letter.
             clearInterval(gameInterval);
             isPlaying = false;
 
             // Start flash effect
             setTimeout(() => {
                 startWordCompleteFlash(() => {
-                    // After flash completes:
+                    // **แก้ไขส่วนนี้**: แปลงเป็นตัวพิมพ์เล็กก่อนพูด
                     audio.playWin();
-                    speak(currentWord); // Speak the word after the animation
+                    speak(currentWord.toLowerCase()); 
                     wordIdx++;
                     prepareWord();
                 });
@@ -897,9 +897,8 @@
                     ate = true;
                     isHeadEaten = true; // Set flag for eating effect
 
-                    drawHUD(); // Fix 3: Update display immediately
+                    drawHUD(); // Update display immediately
 
-                    // Fix 2: Word completion check
                     if (letterIdx >= currentWord.length) {
                         // Word is complete. The head is currently on the last letter piece.
                         drawBoard(isHeadEaten); // Draw final eating state
