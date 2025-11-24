@@ -59,7 +59,7 @@
 
         body {
             font-family: 'Sarabun', sans-serif;
-            /* เปลี่ยนสีพื้นหลังเป็นสีน้ำตาลอ่อน */
+            /* แก้ไข: เปลี่ยนสีพื้นหลังเป็นสีน้ำตาลอ่อน (ตามข้อ 5) */
             background: linear-gradient(135deg, #f0e68c 0%, #e0c598 100%);
             /* Light Brown/Khaki Gradient */
             color: var(--color-text-dark);
@@ -217,6 +217,13 @@
             /* IMPORTANT for rotation */
             transition: transform 0.1s;
             /* For smooth rotation and eating effect */
+        }
+        
+        /* แก้ไข: เพิ่ม Base style สำหรับลำตัวและหางงูเพื่อให้มองเห็น */
+        .snake-body, .snake-tail {
+            background: var(--color-snake-body);
+            border-radius: 4px;
+            z-index: 1;
         }
 
         /* --- Head Rotation & Eyes (Fix for Eye Direction) --- */
@@ -592,13 +599,12 @@
             if (synth.speaking) synth.cancel();
             const u = new SpeechSynthesisUtterance(text);
             u.lang = lang;
-            // ตั้งค่า Rate ให้ช้าลงเล็กน้อยสำหรับการอ่านภาษาอังกฤษเพื่อให้ออกเสียงเป็นคำ ไม่ใช่ตัวอักษร
+            // ตั้งค่า Rate ให้ช้าลงเล็กน้อยสำหรับการอ่านภาษาอังกฤษเพื่อให้ออกเสียงเป็นคำ ไม่ใช่ตัวอักษร (ตามข้อ 2)
             u.rate = (lang === 'en-US' ? 0.8 : 1.0); 
 
             if (callback && typeof callback === 'function') {
                 u.onend = callback;
             } else {
-                // If no callback, ensure it doesn't try to call non-function
                 u.onend = null; 
             }
 
@@ -660,7 +666,7 @@
         let currentWord = '', currentWordObj = null, letterIdx = 0;
         let levelData = [], levelIdx = 0, wordIdx = 0;
         let letters = [], goldenFruit = null;
-        // ปรับความเร็วเกมลง 50ms จาก 200ms เป็น 150ms
+        // แก้ไข: กำหนดความเร็วคงที่ตามที่ร้องขอ (150ms) (ตามข้อ 1. และข้อ 2.)
         const GAME_SPEED = 150; 
         let score = 0, gameInterval = null, isPlaying = false;
         let difficulty = 'easy';
@@ -710,7 +716,7 @@
         function backToMain() {
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = false;
-            // ยกเลิกการอ่านสรุปผล
+            // ยกเลิกการอ่านสรุปผล (ตามข้อ 4.)
             if (synth.speaking) synth.cancel(); 
             showScreen('start-screen');
             els.subLevelArea.classList.add('hidden');
@@ -855,7 +861,7 @@
             setTimeout(() => {
                 startWordCompleteFlash(() => {
                     audio.playWin();
-                    // ใช้ speak พร้อม callback เพื่อรอให้อ่านจบก่อนไปคำศัพท์ถัดไป
+                    // แก้ไข: ใช้ speak พร้อม callback เพื่อรอให้อ่านจบก่อนไปคำศัพท์ถัดไป (ตามข้อ 3.)
                     speak(currentWord, 'en-US', () => {
                         wordIdx++;
                         prepareWord(); // proceed to next word/modal after speech
@@ -949,6 +955,7 @@
                 const wordObj = data[current];
                 
                 // 1. English word
+                // (ตามข้อ 4.)
                 speak(wordObj.w, 'en-US', () => {
                     // 2. Thai translation
                     speak(wordObj.t, 'th-TH', () => {
@@ -966,12 +973,12 @@
             // แสดงรายการคำศัพท์ที่เก็บได้
             els.summaryList.innerHTML = levelData.map(d => `<li>✅ <strong>${d.w}</strong> - ${d.t}</li>`).join('');
 
-            // เริ่มอ่านคำศัพท์และคำแปล
+            // เริ่มอ่านคำศัพท์และคำแปล (ตามข้อ 4.)
             readSummary(levelData);
 
             if (levelIdx < 9) {
                 els.btnNextLevel.style.display = 'block';
-                // เมื่อกดปุ่มเล่นต่อ จะยกเลิกการอ่านสรุปผลทันที
+                // เมื่อกดปุ่มเล่นต่อ จะยกเลิกการอ่านสรุปผลทันที (ตามข้อ 4.)
                 els.btnNextLevel.onclick = () => { if(synth.speaking) synth.cancel(); startLevel(levelIdx + 1); };
             } else {
                 els.btnNextLevel.style.display = 'none';
