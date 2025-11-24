@@ -59,8 +59,9 @@
 
         body {
             font-family: 'Sarabun', sans-serif;
-            background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
-            /* Lush Green Gradient */
+            /* เปลี่ยนสีพื้นหลังเป็นสีน้ำตาลอ่อน */
+            background: linear-gradient(135deg, #f0e68c 0%, #e0c598 100%);
+            /* Light Brown/Khaki Gradient */
             color: var(--color-text-dark);
             margin: 0;
             padding: 0;
@@ -256,7 +257,6 @@
 
 
         /* Eyes for the snake head (FIXED POSITIONING) */
-        /* They are now positioned on the right side of the head, which will be the "front" when rotate(0deg) (RIGHT) */
         .snake-head::before,
         .snake-head::after {
             content: '';
@@ -266,42 +266,23 @@
             background: white;
             border-radius: 50%;
             border: 1px solid black;
-            /* Set common attributes for the 'front' side (right edge) */
-            right: 20%; 
+            right: 20%;
         }
 
         .snake-head::before {
-            /* Top eye when facing right */
             top: 25%;
         }
 
         .snake-head::after {
-            /* Bottom eye when facing right */
             bottom: 25%;
         }
-        
-        /* Flash Effect (Fix 2) */
-        .snake-body.flash-active, 
-        .snake-tail.flash-active { 
-            transform: scale(1.15); 
-            box-shadow: 0 0 15px white, 0 0 10px var(--color-accent); 
+
+        /* Flash Effect */
+        .snake-body.flash-active,
+        .snake-tail.flash-active {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px white, 0 0 10px var(--color-accent);
             transition: transform 0.1s;
-        }
-        
-        /* Head flash is handled by JS injecting a style block for scale and rotation */
-
-
-        .snake-body {
-            background: var(--color-snake-body);
-            border-radius: 30%;
-            transform: scale(0.9);
-            /* Slight gap look */
-        }
-
-        .snake-tail {
-            background: var(--color-snake-body);
-            border-radius: 50%;
-            transform: scale(0.7);
         }
 
         /* Letters */
@@ -383,12 +364,12 @@
             color: var(--color-primary);
             letter-spacing: 2px;
         }
-        
-        /* Fix 3 Styling: Highlight collected letters */
+
+        /* Styling: Highlight collected letters */
         .word-display .collected-char {
             color: var(--color-snake-head);
         }
-        
+
         .word-display .target-char {
             color: var(--color-letter-target);
         }
@@ -606,22 +587,31 @@
         const audio = new SoundManager();
         const synth = window.speechSynthesis;
 
+        // --- TTS (Text-to-Speech) Function (Revised) ---
+        function speak(text, lang = 'en-US', callback = null) {
+            if (synth.speaking) synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = lang;
+            // ตั้งค่า Rate ให้ช้าลงเล็กน้อยสำหรับการอ่านภาษาอังกฤษเพื่อให้ออกเสียงเป็นคำ ไม่ใช่ตัวอักษร
+            u.rate = (lang === 'en-US' ? 0.8 : 1.0); 
+
+            if (callback && typeof callback === 'function') {
+                u.onend = callback;
+            } else {
+                // If no callback, ensure it doesn't try to call non-function
+                u.onend = null; 
+            }
+
+            synth.speak(u);
+        }
+
         // Mobile Audio Unlock
         function unlockAudio() {
             audio.init();
-            // Unlock TTS for mobile by playing a silent utterance
             if (synth && !synth.speaking) {
-                const u = new SpeechSynthesisUtterance('');
-                synth.speak(u);
+                // เล่นเสียงที่ไม่มีตัวอักษรเพื่อปลดล็อค TTS
+                speak(''); 
             }
-        }
-        
-        function speak(text) {
-            if (synth.speaking) synth.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'en-US';
-            u.rate = 0.8; 
-            synth.speak(u);
         }
 
         // --- GAME DATA ---
@@ -670,9 +660,11 @@
         let currentWord = '', currentWordObj = null, letterIdx = 0;
         let levelData = [], levelIdx = 0, wordIdx = 0;
         let letters = [], goldenFruit = null;
+        // ปรับความเร็วเกมลง 50ms จาก 200ms เป็น 150ms
+        const GAME_SPEED = 150; 
         let score = 0, gameInterval = null, isPlaying = false;
         let difficulty = 'easy';
-        let isHeadEaten = false; // Flag for eating animation
+        let isHeadEaten = false; 
 
         // --- DOM ---
         const els = {
@@ -718,6 +710,8 @@
         function backToMain() {
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = false;
+            // ยกเลิกการอ่านสรุปผล
+            if (synth.speaking) synth.cancel(); 
             showScreen('start-screen');
             els.subLevelArea.classList.add('hidden');
             els.overlay.classList.add('hidden');
@@ -753,6 +747,9 @@
 
             drawHUD();
             drawBoard(); // Clear board visually
+            
+            // อ่านคำศัพท์เมื่อขึ้นหน้า modal 
+            speak(currentWord, 'en-US');
         }
 
         function initGame() {
@@ -768,7 +765,8 @@
 
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = true;
-            gameInterval = setInterval(update, 200);
+            // ใช้ความเร็วใหม่ 150ms
+            gameInterval = setInterval(update, GAME_SPEED); 
 
             // Golden Fruit Timer
             setTimeout(spawnGoldenFruit, Math.random() * 5000 + 5000);
@@ -804,18 +802,18 @@
             // Schedule next spawn
             setTimeout(spawnGoldenFruit, Math.random() * 10000 + 10000);
         }
-        
-        // --- Word Complete Flash Logic (Fix 2) ---
+
+        // --- Word Complete Flash Logic ---
         function startWordCompleteFlash(callback) {
-            const flashDuration = 100; // Faster flash for impact
-            const cycles = 4; // 2 zoom in, 2 zoom out (total 2 full cycles)
+            const flashDuration = 100;
+            const cycles = 4;
             let count = 0;
-            
+
             const allSnakeCells = els.board.querySelectorAll('.snake-head, .snake-body, .snake-tail');
-            
+
             // Remove the 'eaten' class which was applied just before stopping
             els.board.querySelector('.snake-head')?.classList.remove('eaten');
-            
+
             // Inject temporary CSS for head flash (scale and rotation)
             const flashStyle = document.createElement('style');
             flashStyle.id = 'flash-temp-style';
@@ -846,32 +844,31 @@
                 count++;
                 setTimeout(toggleFlash, flashDuration);
             }
-            
+
             toggleFlash();
         }
 
         function wordComplete() {
-            // Fix 2: Word is completed, snake head is on the last letter.
             clearInterval(gameInterval);
             isPlaying = false;
-            
-            // Start flash effect
+
             setTimeout(() => {
                 startWordCompleteFlash(() => {
-                    // After flash completes:
-                    audio.playWin(); 
-                    speak(currentWord); // Speak the word after the animation
-                    wordIdx++;
-                    prepareWord();
+                    audio.playWin();
+                    // ใช้ speak พร้อม callback เพื่อรอให้อ่านจบก่อนไปคำศัพท์ถัดไป
+                    speak(currentWord, 'en-US', () => {
+                        wordIdx++;
+                        prepareWord(); // proceed to next word/modal after speech
+                    });
                 });
-            }, 50); // Small delay to ensure final draw is complete
-            
+            }, 50);
+
             return;
         }
 
         function update() {
             dir = nextDir;
-            isHeadEaten = false; 
+            isHeadEaten = false;
             const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
 
             // Wall Collision
@@ -894,16 +891,14 @@
                     letterIdx++;
                     score += 10;
                     ate = true;
-                    isHeadEaten = true; // Set flag for eating effect
-                    
-                    drawHUD(); // Fix 3: Update display immediately
-                    
-                    // Fix 2: Word completion check
+                    isHeadEaten = true;
+
+                    drawHUD(); 
+
                     if (letterIdx >= currentWord.length) {
-                        // Word is complete. The head is currently on the last letter piece.
                         drawBoard(isHeadEaten); // Draw final eating state
                         wordComplete();
-                        return; 
+                        return;
                     }
                 } else {
                     // Wrong Letter
@@ -926,7 +921,7 @@
             if (!ate) snake.pop();
 
             drawHUD();
-            drawBoard(isHeadEaten); // Pass flag to draw head with eating animation
+            drawBoard(isHeadEaten); 
         }
 
         function gameOver(msg = "ชนแล้ว!") {
@@ -941,14 +936,43 @@
             els.modalBackBtn.classList.remove('hidden');
             els.modalBtn.onclick = initGame;
         }
+        
+        // ฟังก์ชันสำหรับอ่านสรุปผลคำศัพท์
+        function readSummary(data) {
+            if (synth.speaking) synth.cancel();
+            
+            let current = 0;
+            
+            function speakNext() {
+                if (current >= data.length) return;
+                
+                const wordObj = data[current];
+                
+                // 1. English word
+                speak(wordObj.w, 'en-US', () => {
+                    // 2. Thai translation
+                    speak(wordObj.t, 'th-TH', () => {
+                        current++;
+                        speakNext(); // Go to the next word
+                    });
+                });
+            }
+            
+            speakNext();
+        }
 
         function endLevel() {
             showScreen('summary-screen');
+            // แสดงรายการคำศัพท์ที่เก็บได้
             els.summaryList.innerHTML = levelData.map(d => `<li>✅ <strong>${d.w}</strong> - ${d.t}</li>`).join('');
+
+            // เริ่มอ่านคำศัพท์และคำแปล
+            readSummary(levelData);
 
             if (levelIdx < 9) {
                 els.btnNextLevel.style.display = 'block';
-                els.btnNextLevel.onclick = () => startLevel(levelIdx + 1);
+                // เมื่อกดปุ่มเล่นต่อ จะยกเลิกการอ่านสรุปผลทันที
+                els.btnNextLevel.onclick = () => { if(synth.speaking) synth.cancel(); startLevel(levelIdx + 1); };
             } else {
                 els.btnNextLevel.style.display = 'none';
             }
@@ -958,8 +982,8 @@
         function drawHUD() {
             els.score.textContent = score;
             els.target.textContent = currentWord[letterIdx] || '✅';
-            
-            // Fix 3: Display collected letters clearly
+
+            // Display collected letters clearly
             const wordDisplayHTML = currentWord.split('').map((c, i) => {
                 if (i < letterIdx) {
                     return `<span class="collected-char">${c}</span>`;
@@ -969,14 +993,14 @@
                     return `_`;
                 }
             }).join(' ');
-            
+
             els.wordProgress.innerHTML = wordDisplayHTML;
         }
 
         function drawBoard(isEating = false) {
             els.board.innerHTML = '';
-            
-            // Determine current direction string for CSS (Fix 1)
+
+            // Determine current direction string for CSS
             const currentDirString = dir.x === 1 ? 'RIGHT' : dir.x === -1 ? 'LEFT' : dir.y === -1 ? 'UP' : 'DOWN';
 
             // Draw Snake
@@ -984,11 +1008,11 @@
                 const el = document.createElement('div');
                 el.style.gridColumnStart = s.x + 1;
                 el.style.gridRowStart = s.y + 1;
-                
+
                 if (i === 0) {
-                    // Head: Apply eating class and direction for rotation (Fix 1)
-                    el.className = `cell snake-head${isEating ? ' eaten' : ''}`; 
-                    el.setAttribute('data-dir', currentDirString); 
+                    // Head: Apply eating class and direction for rotation
+                    el.className = `cell snake-head${isEating ? ' eaten' : ''}`;
+                    el.setAttribute('data-dir', currentDirString);
                 } else if (i === snake.length - 1) {
                     // Tail
                     el.className = 'cell snake-tail';
@@ -998,7 +1022,7 @@
                 }
                 els.board.appendChild(el);
             });
-            
+
             // Draw Letters
             letters.forEach(l => {
                 const el = document.createElement('div');
