@@ -101,7 +101,27 @@
             margin: 0;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             letter-spacing: 1px;
+            transition: transform 0.3s;
+            cursor: pointer; /* To indicate it's clickable */
         }
+        
+        /* --- Bot Mode Effect (New) --- */
+        .bot-active h1 {
+            animation: slowPulse 3s infinite ease-in-out;
+        }
+
+        @keyframes slowPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.03);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        /* ------------------------------- */
 
         .screen {
             padding: 1rem;
@@ -213,14 +233,10 @@
             z-index: 2;
             position: relative;
             transform-origin: center center;
-            /* IMPORTANT for rotation */
             transition: transform 0.1s;
-            /* For smooth rotation and eating effect */
         }
 
-        /* --- Head Rotation & Eyes (Fix for Eye Direction) --- */
-
-        /* Base Rotation for the entire head element */
+        /* --- Head Rotation & Eyes --- */
         .snake-head[data-dir="UP"] {
             transform: rotate(-90deg);
         }
@@ -256,7 +272,6 @@
 
 
         /* Eyes for the snake head (FIXED POSITIONING) */
-        /* They are now positioned on the right side of the head, which will be the "front" when rotate(0deg) (RIGHT) */
         .snake-head::before,
         .snake-head::after {
             content: '';
@@ -266,21 +281,18 @@
             background: white;
             border-radius: 50%;
             border: 1px solid black;
-            /* Set common attributes for the 'front' side (right edge) */
             right: 20%;
         }
 
         .snake-head::before {
-            /* Top eye when facing right */
             top: 25%;
         }
 
         .snake-head::after {
-            /* Bottom eye when facing right */
             bottom: 25%;
         }
 
-        /* Flash Effect (Fix 2) */
+        /* Flash Effect */
         .snake-body.flash-active,
         .snake-tail.flash-active {
             transform: scale(1.15);
@@ -288,14 +300,10 @@
             transition: transform 0.1s;
         }
 
-        /* Head flash is handled by JS injecting a style block for scale and rotation */
-
-
         .snake-body {
             background: var(--color-snake-body);
             border-radius: 30%;
             transform: scale(0.9);
-            /* Slight gap look */
         }
 
         .snake-tail {
@@ -384,7 +392,7 @@
             letter-spacing: 2px;
         }
 
-        /* Fix 3 Styling: Highlight collected letters */
+        /* Styling: Highlight collected letters */
         .word-display .collected-char {
             color: var(--color-snake-head);
         }
@@ -435,6 +443,12 @@
 
         #ctrl-right {
             grid-area: right;
+        }
+        
+        /* Hide controls when bot is active */
+        .bot-active .controls-area {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         /* --- Overlay --- */
@@ -489,11 +503,11 @@
     </style>
 </head>
 
-<body>
+<body id="game-body">
 
     <div class="container">
         <header>
-            <h1>Word Snake 🐍</h1>
+            <h1 id="game-title">Word Snake 🐍</h1>
         </header>
 
         <div id="start-screen" class="screen" style="display: flex;">
@@ -673,6 +687,7 @@
         let score = 0, gameInterval = null, isPlaying = false;
         let difficulty = 'easy';
         let isHeadEaten = false; // Flag for eating animation
+        let isBotActive = false; // Bot Mode Flag
 
         // --- DOM ---
         const els = {
@@ -689,8 +704,147 @@
             modalBtn: document.getElementById('modal-btn'),
             modalBackBtn: document.getElementById('modal-back-btn'),
             summaryList: document.getElementById('summary-list'),
-            btnNextLevel: document.getElementById('btn-next-level')
+            btnNextLevel: document.getElementById('btn-next-level'),
+            gameTitle: document.getElementById('game-title'), 
+            gameBody: document.getElementById('game-body')
         };
+
+        // --- BOT MODE LOGIC ---
+        function toggleBotMode() {
+            isBotActive = !isBotActive;
+            if (isBotActive) {
+                els.gameBody.classList.add('bot-active');
+                console.log("Bot Mode ACTIVATED!");
+            } else {
+                els.gameBody.classList.remove('bot-active');
+                console.log("Bot Mode DEACTIVATED!");
+            }
+        }
+        
+        /**
+         * Simple BFS (Breadth-First Search) to find the shortest path to a target.
+         * @param {object} start - current position {x, y}
+         * @param {object} target - target position {x, y}
+         * @param {Set<string>} occupied - set of coordinates ('x,y') to avoid (snake body, wrong letters)
+         * @returns {object | null} The next direction {x, y} to take, or null if no safe path.
+         */
+        function findShortestPath(start, target, occupied) {
+            if (!target) return null;
+
+            const queue = [{ pos: start, path: [] }];
+            const visited = new Set([`${start.x},${start.y}`]);
+            const directions = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }];
+
+            while (queue.length > 0) {
+                const { pos, path } = queue.shift();
+
+                for (const dir of directions) {
+                    const nextX = pos.x + dir.x;
+                    const nextY = pos.y + dir.y;
+                    const nextPosKey = `${nextX},${nextY}`;
+
+                    // Check bounds
+                    if (nextX < 0 || nextX >= GRID || nextY < 0 || nextY >= GRID) continue;
+
+                    if (nextX === target.x && nextY === target.y) {
+                        // Found the target! Return the first step (nextDir)
+                        if (path.length === 0) return dir;
+                        return path[0];
+                    }
+
+                    if (!visited.has(nextPosKey) && !occupied.has(nextPosKey)) {
+                        
+                        visited.add(nextPosKey);
+                        // Store the first direction taken to reach this path
+                        const nextStepDir = path.length === 0 ? dir : path[0];
+                        
+                        queue.push({ pos: { x: nextX, y: nextY }, path: [nextStepDir] });
+                    }
+                }
+            }
+            return null; // No path found
+        }
+        
+        function botMove() {
+            const head = snake[0];
+            const targetChar = currentWord[letterIdx];
+
+            // 1. Determine the occupied cells: Snake body + WRONG LETTERS
+            const occupied = new Set();
+            
+            // Add Snake Body (segments 1 to end)
+            // NOTE: We don't include the tail, as it will move away. 
+            // However, a simple BFS can still be fooled if the tail's position 
+            // is the *only* way out. For simplicity and general effectiveness, 
+            // we will mark the full body except the head.
+            for (let i = 1; i < snake.length; i++) {
+                occupied.add(`${snake[i].x},${snake[i].y}`);
+            }
+            
+            // *** FIX: Add Wrong Letter Pieces as obstacles ***
+            letters.forEach(l => {
+                // If it's not the target letter, treat it as an obstacle
+                if (l.char !== targetChar) { 
+                    occupied.add(`${l.x},${l.y}`);
+                }
+            });
+
+            // 2. Identify the target location
+            let target = null;
+            if (goldenFruit) {
+                target = goldenFruit; // Primary target: Golden Fruit
+            } else {
+                const targetLetterPiece = letters.find(l => l.char === targetChar);
+                if (targetLetterPiece) {
+                    target = targetLetterPiece; // Secondary target: Correct Letter
+                }
+            }
+            
+            let newDir = null;
+            if (target) {
+                newDir = findShortestPath(head, target, occupied);
+            }
+            
+            if (newDir) {
+                // Path found to target (Golden Fruit or Correct Letter)
+                if (!(dir.x === -newDir.x && dir.y === -newDir.y)) {
+                   nextDir = newDir;
+                }
+                return;
+            }
+            
+            // 3. Fallback: If no target or no clear path, try to move safely
+            
+            // Use a modified list of occupied cells for pathfinding, 
+            // considering the tail might be safe to move into (minus the body length effect).
+            // For simplicity, we stick to the original occupied set, but use a more basic survival move.
+            
+            const safeDirections = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }]
+                .filter(d => {
+                    // Check collision with walls, snake body, and now WRONG LETTERS
+                    const nextX = head.x + d.x;
+                    const nextY = head.y + d.y;
+                    const isOpposite = dir.x === -d.x && dir.y === -d.y;
+                    
+                    // Check if out of bounds or colliding with any occupied cell (body/wrong letters)
+                    const isCollision = nextX < 0 || nextX >= GRID || nextY < 0 || nextY >= GRID || occupied.has(`${nextX},${nextY}`);
+                    
+                    // We can move into the tail's position if the snake is not growing in this step
+                    const tail = snake[snake.length - 1];
+                    const isTail = !((lIdx !== -1) || goldenFruit) && nextX === tail.x && nextY === tail.y; // Check if next move is tail, AND we are NOT eating this turn.
+                    
+                    return !isOpposite && (!isCollision || isTail);
+                });
+
+            if (safeDirections.length > 0) {
+                // Choose the safest direction (e.g., the one that keeps the most open space, but here we just take the first safe one)
+                nextDir = safeDirections[0]; 
+            } else {
+                // If completely stuck (unavoidable collision), try the opposite direction (guaranteed death, but last resort)
+                nextDir = { x: -dir.x, y: -dir.y };
+            }
+        }
+
 
         // --- LOGIC ---
         function showScreen(id) {
@@ -771,8 +925,13 @@
             // ความเร็วคงที่ 250 ms
             gameInterval = setInterval(update, 250); 
 
-            // Golden Fruit Timer
-            setTimeout(spawnGoldenFruit, Math.random() * 5000 + 5000);
+            // Golden Fruit Timer (Start timer only if not in bot mode, or let bot handle the targeting)
+            if (!isBotActive) {
+                setTimeout(spawnGoldenFruit, Math.random() * 5000 + 5000);
+            } else {
+                // If bot is active, spawn golden fruit slightly sooner for a challenge/test
+                setTimeout(spawnGoldenFruit, Math.random() * 2000 + 3000);
+            }
         }
 
         function spawnLetters() {
@@ -793,6 +952,9 @@
 
         function spawnGoldenFruit() {
             if (!isPlaying) return;
+            // Clear current fruit first
+            goldenFruit = null; 
+            
             const occupied = new Set([...snake.map(s => `${s.x},${s.y}`), ...letters.map(l => `${l.x},${l.y}`)]);
             let pos;
             do {
@@ -800,13 +962,18 @@
             } while (occupied.has(`${pos.x},${pos.y}`));
 
             goldenFruit = pos;
+            
             // Despawn after 6 seconds
-            setTimeout(() => { goldenFruit = null; }, 6000);
-            // Schedule next spawn
+            const despawnTimer = setTimeout(() => { 
+                goldenFruit = null; 
+                drawBoard(); // Redraw to remove fruit
+            }, 6000);
+            
+            // Schedule next spawn (longer interval)
             setTimeout(spawnGoldenFruit, Math.random() * 10000 + 10000);
         }
 
-        // --- Word Complete Flash Logic (Fix 2) ---
+        // --- Word Complete Flash Logic ---
         function startWordCompleteFlash(callback) {
             const flashDuration = 100; // Faster flash for impact
             const cycles = 4; // 2 zoom in, 2 zoom out (total 2 full cycles)
@@ -859,7 +1026,7 @@
             // Start flash effect
             setTimeout(() => {
                 startWordCompleteFlash(() => {
-                    // **แก้ไขส่วนนี้**: แปลงเป็นตัวพิมพ์เล็กก่อนพูด
+                    // แก้ไข: แปลงเป็นตัวพิมพ์เล็กก่อนพูด
                     audio.playWin();
                     speak(currentWord.toLowerCase()); 
                     wordIdx++;
@@ -871,6 +1038,10 @@
         }
 
         function update() {
+            if (isBotActive) { // Bot plays first
+                botMove(); 
+            }
+            
             dir = nextDir;
             isHeadEaten = false;
             const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
@@ -878,8 +1049,9 @@
             // Wall Collision
             if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return gameOver();
             // Self Collision
-            if (snake.some(s => s.x === head.x && s.y === head.y)) return gameOver();
-
+            // Check only the body, not the tail (since it moves)
+            if (snake.slice(1, snake.length - 1).some(s => s.x === head.x && s.y === head.y)) return gameOver();
+            
             snake.unshift(head);
 
             // Check Letter Eat
@@ -906,7 +1078,7 @@
                         return;
                     }
                 } else {
-                    // Wrong Letter
+                    // Wrong Letter - THIS IS THE CASE WE WANT BOT TO AVOID
                     audio.playWrong();
                     gameOver(`เก็บผิด! ต้องเก็บ <strong>${targetChar}</strong>`);
                     return;
@@ -921,6 +1093,11 @@
                 // Grow extra segment
                 ate = true;
                 isHeadEaten = true;
+                
+                // If bot is active, spawn next fruit immediately
+                if (isBotActive) {
+                    setTimeout(spawnGoldenFruit, 1000); 
+                }
             }
 
             if (!ate) snake.pop();
@@ -959,7 +1136,7 @@
             els.score.textContent = score;
             els.target.textContent = currentWord[letterIdx] || '✅';
 
-            // Fix 3: Display collected letters clearly
+            // Display collected letters clearly
             const wordDisplayHTML = currentWord.split('').map((c, i) => {
                 if (i < letterIdx) {
                     return `<span class="collected-char">${c}</span>`;
@@ -976,7 +1153,7 @@
         function drawBoard(isEating = false) {
             els.board.innerHTML = '';
 
-            // Determine current direction string for CSS (Fix 1)
+            // Determine current direction string for CSS
             const currentDirString = dir.x === 1 ? 'RIGHT' : dir.x === -1 ? 'LEFT' : dir.y === -1 ? 'UP' : 'DOWN';
 
             // Draw Snake
@@ -986,7 +1163,7 @@
                 el.style.gridRowStart = s.y + 1;
 
                 if (i === 0) {
-                    // Head: Apply eating class and direction for rotation (Fix 1)
+                    // Head: Apply eating class and direction for rotation
                     el.className = `cell snake-head${isEating ? ' eaten' : ''}`;
                     el.setAttribute('data-dir', currentDirString);
                 } else if (i === snake.length - 1) {
@@ -1020,7 +1197,7 @@
 
         // --- INPUT ---
         document.addEventListener('keydown', e => {
-            if (!isPlaying) return;
+            if (!isPlaying || isBotActive) return; // Ignore input if bot is active
             switch (e.key) {
                 case 'ArrowUp': if (dir.y !== 1) nextDir = { x: 0, y: -1 }; break;
                 case 'ArrowDown': if (dir.y !== -1) nextDir = { x: 0, y: 1 }; break;
@@ -1031,13 +1208,16 @@
 
         ['up', 'down', 'left', 'right'].forEach(d => {
             document.getElementById(`ctrl-${d}`).addEventListener('click', () => {
-                if (!isPlaying) return;
+                if (!isPlaying || isBotActive) return; // Ignore input if bot is active
                 if (d === 'up' && dir.y !== 1) nextDir = { x: 0, y: -1 };
                 if (d === 'down' && dir.y !== -1) nextDir = { x: 0, y: 1 };
                 if (d === 'left' && dir.x !== 1) nextDir = { x: -1, y: 0 };
                 if (d === 'right' && dir.x !== -1) nextDir = { x: 1, y: 0 };
             });
         });
+        
+        // Double-click/tap event to toggle bot mode
+        els.gameTitle.addEventListener('dblclick', toggleBotMode);
 
     </script>
 </body>
