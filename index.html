@@ -67,7 +67,7 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            min-height: 100vh;
+            min-height: 10vh;
             overflow-x: hidden;
         }
 
@@ -102,10 +102,11 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             letter-spacing: 1px;
             transition: transform 0.3s;
-            cursor: pointer; /* To indicate it's clickable */
+            cursor: pointer;
+            /* To indicate it's clickable */
         }
-        
-        /* --- Bot Mode Effect (New) --- */
+
+        /* --- Bot Mode Effect --- */
         .bot-active h1 {
             animation: slowPulse 3s infinite ease-in-out;
         }
@@ -114,13 +115,16 @@
             0% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.03);
             }
+
             100% {
                 transform: scale(1);
             }
         }
+
         /* ------------------------------- */
 
         .screen {
@@ -428,6 +432,12 @@
             transform: translateY(6px);
             box-shadow: 0 0 0 var(--color-primary-dark);
         }
+        
+        /* New: Style for simulated button press for bot mode */
+        .ctrl-btn.pressed-sim {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 var(--color-primary-dark) !important;
+        }
 
         #ctrl-up {
             grid-area: up;
@@ -445,11 +455,8 @@
             grid-area: right;
         }
         
-        /* Hide controls when bot is active */
-        .bot-active .controls-area {
-            opacity: 0.5;
-            pointer-events: none;
-        }
+        /* Removed: .bot-active .controls-area { opacity: 0.5; pointer-events: none; } */
+
 
         /* --- Overlay --- */
         #overlay {
@@ -606,10 +613,18 @@
                 osc.stop(this.ctx.currentTime + duration);
             }
 
-            playEat() { this.playTone(600, 'sine', 0.1, 0.2); setTimeout(() => this.playTone(800, 'sine', 0.1, 0.2), 50); }
+            playEat() {
+                this.playTone(600, 'sine', 0.1, 0.2);
+                setTimeout(() => this.playTone(800, 'sine', 0.1, 0.2), 50);
+            }
             playMove() { /* Too repetitive, skipped */ }
-            playWrong() { this.playTone(150, 'sawtooth', 0.3, 0.3); }
-            playBonus() { this.playTone(1000, 'triangle', 0.1, 0.2); setTimeout(() => this.playTone(1500, 'triangle', 0.2, 0.2), 100); }
+            playWrong() {
+                this.playTone(150, 'sawtooth', 0.3, 0.3);
+            }
+            playBonus() {
+                this.playTone(1000, 'triangle', 0.1, 0.2);
+                setTimeout(() => this.playTone(1500, 'triangle', 0.2, 0.2), 100);
+            }
             playWin() {
                 [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'square', 0.2, 0.1), i * 100));
             }
@@ -641,53 +656,521 @@
         // --- GAME DATA ---
         const WORDS = {
             'easy': [
-                [{ w: 'CAT', t: 'แมว' }, { w: 'DOG', t: 'สุนัข' }, { w: 'SUN', t: 'อาทิตย์' }, { w: 'MAP', t: 'แผนที่' }, { w: 'ZOO', t: 'สวนสัตว์' }],
-                [{ w: 'FISH', t: 'ปลา' }, { w: 'BIRD', t: 'นก' }, { w: 'RAIN', t: 'ฝน' }, { w: 'FIRE', t: 'ไฟ' }, { w: 'TREE', t: 'ต้นไม้' }],
-                [{ w: 'BALL', t: 'ลูกบอล' }, { w: 'BOOK', t: 'หนังสือ' }, { w: 'GAME', t: 'เกม' }, { w: 'ROAD', t: 'ถนน' }, { w: 'MOON', t: 'ดวงจันทร์' }],
-                [{ w: 'FOUR', t: 'สี่' }, { w: 'FIVE', t: 'ห้า' }, { w: 'ZERO', t: 'ศูนย์' }, { w: 'FAST', t: 'เร็ว' }, { w: 'SLOW', t: 'ช้า' }],
-                [{ w: 'GIRL', t: 'เด็กหญิง' }, { w: 'BOY', t: 'เด็กชาย' }, { w: 'KING', t: 'พระราชา' }, { w: 'QUEEN', t: 'พระราชินี' }, { w: 'WALL', t: 'กำแพง' }],
-                [{ w: 'RICE', t: 'ข้าว' }, { w: 'MEAT', t: 'เนื้อ' }, { w: 'SOUP', t: 'ซุป' }, { w: 'SALT', t: 'เกลือ' }, { w: 'SUGAR', t: 'น้ำตาล' }],
-                [{ w: 'HAND', t: 'มือ' }, { w: 'FOOT', t: 'เท้า' }, { w: 'EYE', t: 'ตา' }, { w: 'NOSE', t: 'จมูก' }, { w: 'EAR', t: 'หู' }],
-                [{ w: 'COLD', t: 'หนาว' }, { w: 'HOT', t: 'ร้อน' }, { w: 'WET', t: 'เปียก' }, { w: 'DRY', t: 'แห้ง' }, { w: 'WIND', t: 'ลม' }],
-                [{ w: 'FROG', t: 'กบ' }, { w: 'SHIP', t: 'เรือ' }, { w: 'BLUE', t: 'สีน้ำเงิน' }, { w: 'PINK', t: 'สีชมพู' }, { w: 'STAR', t: 'ดาว' }],
-                [{ w: 'SMILE', t: 'ยิ้ม' }, { w: 'LAUGH', t: 'หัวเราะ' }, { w: 'SLEEP', t: 'นอน' }, { w: 'DREAM', t: 'ฝัน' }, { w: 'WAKE', t: 'ตื่น' }]
+                [{
+                    w: 'CAT',
+                    t: 'แมว'
+                }, {
+                    w: 'DOG',
+                    t: 'สุนัข'
+                }, {
+                    w: 'SUN',
+                    t: 'อาทิตย์'
+                }, {
+                    w: 'MAP',
+                    t: 'แผนที่'
+                }, {
+                    w: 'ZOO',
+                    t: 'สวนสัตว์'
+                }],
+                [{
+                    w: 'FISH',
+                    t: 'ปลา'
+                }, {
+                    w: 'BIRD',
+                    t: 'นก'
+                }, {
+                    w: 'RAIN',
+                    t: 'ฝน'
+                }, {
+                    w: 'FIRE',
+                    t: 'ไฟ'
+                }, {
+                    w: 'TREE',
+                    t: 'ต้นไม้'
+                }],
+                [{
+                    w: 'BALL',
+                    t: 'ลูกบอล'
+                }, {
+                    w: 'BOOK',
+                    t: 'หนังสือ'
+                }, {
+                    w: 'GAME',
+                    t: 'เกม'
+                }, {
+                    w: 'ROAD',
+                    t: 'ถนน'
+                }, {
+                    w: 'MOON',
+                    t: 'ดวงจันทร์'
+                }],
+                [{
+                    w: 'FOUR',
+                    t: 'สี่'
+                }, {
+                    w: 'FIVE',
+                    t: 'ห้า'
+                }, {
+                    w: 'ZERO',
+                    t: 'ศูนย์'
+                }, {
+                    w: 'FAST',
+                    t: 'เร็ว'
+                }, {
+                    w: 'SLOW',
+                    t: 'ช้า'
+                }],
+                [{
+                    w: 'GIRL',
+                    t: 'เด็กหญิง'
+                }, {
+                    w: 'BOY',
+                    t: 'เด็กชาย'
+                }, {
+                    w: 'KING',
+                    t: 'พระราชา'
+                }, {
+                    w: 'QUEEN',
+                    t: 'พระราชินี'
+                }, {
+                    w: 'WALL',
+                    t: 'กำแพง'
+                }],
+                [{
+                    w: 'RICE',
+                    t: 'ข้าว'
+                }, {
+                    w: 'MEAT',
+                    t: 'เนื้อ'
+                }, {
+                    w: 'SOUP',
+                    t: 'ซุป'
+                }, {
+                    w: 'SALT',
+                    t: 'เกลือ'
+                }, {
+                    w: 'SUGAR',
+                    t: 'น้ำตาล'
+                }],
+                [{
+                    w: 'HAND',
+                    t: 'มือ'
+                }, {
+                    w: 'FOOT',
+                    t: 'เท้า'
+                }, {
+                    w: 'EYE',
+                    t: 'ตา'
+                }, {
+                    w: 'NOSE',
+                    t: 'จมูก'
+                }, {
+                    w: 'EAR',
+                    t: 'หู'
+                }],
+                [{
+                    w: 'COLD',
+                    t: 'หนาว'
+                }, {
+                    w: 'HOT',
+                    t: 'ร้อน'
+                }, {
+                    w: 'WET',
+                    t: 'เปียก'
+                }, {
+                    w: 'DRY',
+                    t: 'แห้ง'
+                }, {
+                    w: 'WIND',
+                    t: 'ลม'
+                }],
+                [{
+                    w: 'FROG',
+                    t: 'กบ'
+                }, {
+                    w: 'SHIP',
+                    t: 'เรือ'
+                }, {
+                    w: 'BLUE',
+                    t: 'สีน้ำเงิน'
+                }, {
+                    w: 'PINK',
+                    t: 'สีชมพู'
+                }, {
+                    w: 'STAR',
+                    t: 'ดาว'
+                }],
+                [{
+                    w: 'SMILE',
+                    t: 'ยิ้ม'
+                }, {
+                    w: 'LAUGH',
+                    t: 'หัวเราะ'
+                }, {
+                    w: 'SLEEP',
+                    t: 'นอน'
+                }, {
+                    w: 'DREAM',
+                    t: 'ฝัน'
+                }, {
+                    w: 'WAKE',
+                    t: 'ตื่น'
+                }]
             ],
             'medium': [
-                [{ w: 'ORANGE', t: 'ส้ม' }, { w: 'TICKET', t: 'ตั๋ว' }, { w: 'PURPLE', t: 'สีม่วง' }, { w: 'FATHER', t: 'พ่อ' }, { w: 'MOTHER', t: 'แม่' }],
-                [{ w: 'SCHOOL', t: 'โรงเรียน' }, { w: 'TRAVEL', t: 'เดินทาง' }, { w: 'VACATION', t: 'วันหยุด' }, { w: 'FRIEND', t: 'เพื่อน' }, { w: 'FAMILY', t: 'ครอบครัว' }],
-                [{ w: 'MORNING', t: 'เช้า' }, { w: 'EVENING', t: 'เย็น' }, { w: 'WEEKEND', t: 'วันหยุดสุดสัปดาห์' }, { w: 'HISTORY', t: 'ประวัติศาสตร์' }, { w: 'SCIENCE', t: 'วิทยาศาสตร์' }],
-                [{ w: 'GARDEN', t: 'สวน' }, { w: 'KITCHEN', t: 'ห้องครัว' }, { w: 'WINDOW', t: 'หน้าต่าง' }, { w: 'DOORWAY', t: 'ทางเข้าประตู' }, { w: 'BUILDING', t: 'ตึก' }],
-                [{ w: 'PICTURE', t: 'รูปภาพ' }, { w: 'CAMERA', t: 'กล้อง' }, { w: 'JOURNAL', t: 'วารสาร' }, { w: 'PROJECT', t: 'โครงการ' }, { w: 'SUCCESS', t: 'ความสำเร็จ' }],
-                [{ w: 'HAPPEN', t: 'เกิดขึ้น' }, { w: 'FINISH', t: 'เสร็จสิ้น' }, { w: 'ACCEPT', t: 'ยอมรับ' }, { w: 'BELIEVE', t: 'เชื่อ' }, { w: 'DECIDE', t: 'ตัดสินใจ' }],
-                [{ w: 'WEATHER', t: 'อากาศ' }, { w: 'CLOUDY', t: 'มีเมฆมาก' }, { w: 'SUNNY', t: 'มีแดด' }, { w: 'STORMY', t: 'มีพายุ' }, { w: 'FROZEN', t: 'เยือกแข็ง' }],
-                [{ w: 'MONSTER', t: 'สัตว์ประหลาด' }, { w: 'SECRET', t: 'ความลับ' }, { w: 'PUZZLE', t: 'ปริศนา' }, { w: 'GHOSTLY', t: 'เหมือนผี' }, { w: 'MYSTERY', t: 'ลึกลับ' }],
-                [{ w: 'BROTHER', t: 'พี่/น้องชาย' }, { w: 'SISTER', t: 'พี่/น้องสาว' }, { w: 'UNCLE', t: 'ลุง/น้า/อา' }, { w: 'AUNT', t: 'ป้า/น้า/อา' }, { w: 'COUSIN', t: 'ลูกพี่ลูกน้อง' }],
-                [{ w: 'MOUNTAIN', t: 'ภูเขา' }, { w: 'FOREST', t: 'ป่า' }, { w: 'PLANET', t: 'ดาวเคราะห์' }, { w: 'CASTLE', t: 'ปราสาท' }, { w: 'ADVENT', t: 'การมาถึง' }]
+                [{
+                    w: 'ORANGE',
+                    t: 'ส้ม'
+                }, {
+                    w: 'TICKET',
+                    t: 'ตั๋ว'
+                }, {
+                    w: 'PURPLE',
+                    t: 'สีม่วง'
+                }, {
+                    w: 'FATHER',
+                    t: 'พ่อ'
+                }, {
+                    w: 'MOTHER',
+                    t: 'แม่'
+                }],
+                [{
+                    w: 'SCHOOL',
+                    t: 'โรงเรียน'
+                }, {
+                    w: 'TRAVEL',
+                    t: 'เดินทาง'
+                }, {
+                    w: 'VACATION',
+                    t: 'วันหยุด'
+                }, {
+                    w: 'FRIEND',
+                    t: 'เพื่อน'
+                }, {
+                    w: 'FAMILY',
+                    t: 'ครอบครัว'
+                }],
+                [{
+                    w: 'MORNING',
+                    t: 'เช้า'
+                }, {
+                    w: 'EVENING',
+                    t: 'เย็น'
+                }, {
+                    w: 'WEEKEND',
+                    t: 'วันหยุดสุดสัปดาห์'
+                }, {
+                    w: 'HISTORY',
+                    t: 'ประวัติศาสตร์'
+                }, {
+                    w: 'SCIENCE',
+                    t: 'วิทยาศาสตร์'
+                }],
+                [{
+                    w: 'GARDEN',
+                    t: 'สวน'
+                }, {
+                    w: 'KITCHEN',
+                    t: 'ห้องครัว'
+                }, {
+                    w: 'WINDOW',
+                    t: 'หน้าต่าง'
+                }, {
+                    w: 'DOORWAY',
+                    t: 'ทางเข้าประตู'
+                }, {
+                    w: 'BUILDING',
+                    t: 'ตึก'
+                }],
+                [{
+                    w: 'PICTURE',
+                    t: 'รูปภาพ'
+                }, {
+                    w: 'CAMERA',
+                    t: 'กล้อง'
+                }, {
+                    w: 'JOURNAL',
+                    t: 'วารสาร'
+                }, {
+                    w: 'PROJECT',
+                    t: 'โครงการ'
+                }, {
+                    w: 'SUCCESS',
+                    t: 'ความสำเร็จ'
+                }],
+                [{
+                    w: 'HAPPEN',
+                    t: 'เกิดขึ้น'
+                }, {
+                    w: 'FINISH',
+                    t: 'เสร็จสิ้น'
+                }, {
+                    w: 'ACCEPT',
+                    t: 'ยอมรับ'
+                }, {
+                    w: 'BELIEVE',
+                    t: 'เชื่อ'
+                }, {
+                    w: 'DECIDE',
+                    t: 'ตัดสินใจ'
+                }],
+                [{
+                    w: 'WEATHER',
+                    t: 'อากาศ'
+                }, {
+                    w: 'CLOUDY',
+                    t: 'มีเมฆมาก'
+                }, {
+                    w: 'SUNNY',
+                    t: 'มีแดด'
+                }, {
+                    w: 'STORMY',
+                    t: 'มีพายุ'
+                }, {
+                    w: 'FROZEN',
+                    t: 'เยือกแข็ง'
+                }],
+                [{
+                    w: 'MONSTER',
+                    t: 'สัตว์ประหลาด'
+                }, {
+                    w: 'SECRET',
+                    t: 'ความลับ'
+                }, {
+                    w: 'PUZZLE',
+                    t: 'ปริศนา'
+                }, {
+                    w: 'GHOSTLY',
+                    t: 'เหมือนผี'
+                }, {
+                    w: 'MYSTERY',
+                    t: 'ลึกลับ'
+                }],
+                [{
+                    w: 'BROTHER',
+                    t: 'พี่/น้องชาย'
+                }, {
+                    w: 'SISTER',
+                    t: 'พี่/น้องสาว'
+                }, {
+                    w: 'UNCLE',
+                    t: 'ลุง/น้า/อา'
+                }, {
+                    w: 'AUNT',
+                    t: 'ป้า/น้า/อา'
+                }, {
+                    w: 'COUSIN',
+                    t: 'ลูกพี่ลูกน้อง'
+                }],
+                [{
+                    w: 'MOUNTAIN',
+                    t: 'ภูเขา'
+                }, {
+                    w: 'FOREST',
+                    t: 'ป่า'
+                }, {
+                    w: 'PLANET',
+                    t: 'ดาวเคราะห์'
+                }, {
+                    w: 'CASTLE',
+                    t: 'ปราสาท'
+                }, {
+                    w: 'ADVENT',
+                    t: 'การมาถึง'
+                }]
             ],
             'hard': [
-                [{ w: 'DICTATION', t: 'เขียนตามคำบอก' }, { w: 'AMAZEMENT', t: 'ความประหลาดใจ' }, { w: 'ADVENTURE', t: 'การผจญภัย' }, { w: 'TECHNOLOGY', t: 'เทคโนโลยี' }, { w: 'RESTAURANT', t: 'ร้านอาหาร' }],
-                [{ w: 'COMPUTER', t: 'คอมพิวเตอร์' }, { w: 'TELEVISION', t: 'โทรทัศน์' }, { w: 'KNOWLEDGE', t: 'ความรู้' }, { w: 'DIFFICULT', t: 'ยาก' }, { w: 'EXCELLENT', t: 'ยอดเยี่ยม' }],
-                [{ w: 'COMMUNITY', t: 'ชุมชน' }, { w: 'ECOLOGY', t: 'นิเวศวิทยา' }, { w: 'EDUCATION', t: 'การศึกษา' }, { w: 'IMAGINE', t: 'จินตนาการ' }, { w: 'LANGUAGE', t: 'ภาษา' }],
-                [{ w: 'IMPORTANT', t: 'สำคัญ' }, { w: 'DIFFERENT', t: 'แตกต่าง' }, { w: 'INTEREST', t: 'ความสนใจ' }, { w: 'SUGGESTION', t: 'ข้อเสนอแนะ' }, { w: 'GENERALLY', t: 'โดยทั่วไป' }],
-                [{ w: 'CHOCOLATE', t: 'ช็อกโกแลต' }, { w: 'CALCULATE', t: 'คำนวณ' }, { w: 'DISCOVER', t: 'ค้นพบ' }, { w: 'EXPLORER', t: 'นักสำรวจ' }, { w: 'INNOVATE', t: 'คิดค้น' }],
-                [{ w: 'ATTENTION', t: 'ความสนใจ' }, { w: 'CAPABILITY', t: 'ความสามารถ' }, { w: 'DEFINITION', t: 'คำจำกัดความ' }, { w: 'EXPERIENCE', t: 'ประสบการณ์' }, { w: 'GUARANTEE', t: 'รับประกัน' }],
-                [{ w: 'PROFESSION', t: 'อาชีพ' }, { w: 'VOLUNTEER', t: 'อาสาสมัคร' }, { w: 'UNIVERSITY', t: 'มหาวิทยาลัย' }, { w: 'APPRECIATE', t: 'ซาบซึ้ง' }, { w: 'CEREMONY', t: 'พิธี' }],
-                [{ w: 'CHAMPION', t: 'แชมป์เปี้ยน' }, { w: 'DYNAMITE', t: 'ระเบิด' }, { w: 'FANTASTIC', t: 'มหัศจรรย์' }, { w: 'INVISIBLE', t: 'ที่มองไม่เห็น' }, { w: 'MAGNITUDE', t: 'ขนาด' }],
-                [{ w: 'TRANSPORT', t: 'ขนส่ง' }, { w: 'COMPLEXITY', t: 'ความซับซ้อน' }, { w: 'CHALLENGES', t: 'ความท้าทาย' }, { w: 'DISCOVERY', t: 'การค้นพบ' }, { w: 'STRUCTURE', t: 'โครงสร้าง' }],
-                [{ w: 'UNBELIEVABLE', t: 'ไม่น่าเชื่อ' }, { w: 'INFORMATION', t: 'ข้อมูล' }, { w: 'CONGRATULATIONS', t: 'ยินดีด้วย' }, { w: 'ENVIRONMENT', t: 'สิ่งแวดล้อม' }, { w: 'OPPORTUNITY', t: 'โอกาส' }]
+                [{
+                    w: 'DICTATION',
+                    t: 'เขียนตามคำบอก'
+                }, {
+                    w: 'AMAZEMENT',
+                    t: 'ความประหลาดใจ'
+                }, {
+                    w: 'ADVENTURE',
+                    t: 'การผจญภัย'
+                }, {
+                    w: 'TECHNOLOGY',
+                    t: 'เทคโนโลยี'
+                }, {
+                    w: 'RESTAURANT',
+                    t: 'ร้านอาหาร'
+                }],
+                [{
+                    w: 'COMPUTER',
+                    t: 'คอมพิวเตอร์'
+                }, {
+                    w: 'TELEVISION',
+                    t: 'โทรทัศน์'
+                }, {
+                    w: 'KNOWLEDGE',
+                    t: 'ความรู้'
+                }, {
+                    w: 'DIFFICULT',
+                    t: 'ยาก'
+                }, {
+                    w: 'EXCELLENT',
+                    t: 'ยอดเยี่ยม'
+                }],
+                [{
+                    w: 'COMMUNITY',
+                    t: 'ชุมชน'
+                }, {
+                    w: 'ECOLOGY',
+                    t: 'นิเวศวิทยา'
+                }, {
+                    w: 'EDUCATION',
+                    t: 'การศึกษา'
+                }, {
+                    w: 'IMAGINE',
+                    t: 'จินตนาการ'
+                }, {
+                    w: 'LANGUAGE',
+                    t: 'ภาษา'
+                }],
+                [{
+                    w: 'IMPORTANT',
+                    t: 'สำคัญ'
+                }, {
+                    w: 'DIFFERENT',
+                    t: 'แตกต่าง'
+                }, {
+                    w: 'INTEREST',
+                    t: 'ความสนใจ'
+                }, {
+                    w: 'SUGGESTION',
+                    t: 'ข้อเสนอแนะ'
+                }, {
+                    w: 'GENERALLY',
+                    t: 'โดยทั่วไป'
+                }],
+                [{
+                    w: 'CHOCOLATE',
+                    t: 'ช็อกโกแลต'
+                }, {
+                    w: 'CALCULATE',
+                    t: 'คำนวณ'
+                }, {
+                    w: 'DISCOVER',
+                    t: 'ค้นพบ'
+                }, {
+                    w: 'EXPLORER',
+                    t: 'นักสำรวจ'
+                }, {
+                    w: 'INNOVATE',
+                    t: 'คิดค้น'
+                }],
+                [{
+                    w: 'ATTENTION',
+                    t: 'ความสนใจ'
+                }, {
+                    w: 'CAPABILITY',
+                    t: 'ความสามารถ'
+                }, {
+                    w: 'DEFINITION',
+                    t: 'คำจำกัดความ'
+                }, {
+                    w: 'EXPERIENCE',
+                    t: 'ประสบการณ์'
+                }, {
+                    w: 'GUARANTEE',
+                    t: 'รับประกัน'
+                }],
+                [{
+                    w: 'PROFESSION',
+                    t: 'อาชีพ'
+                }, {
+                    w: 'VOLUNTEER',
+                    t: 'อาสาสมัคร'
+                }, {
+                    w: 'UNIVERSITY',
+                    t: 'มหาวิทยาลัย'
+                }, {
+                    w: 'APPRECIATE',
+                    t: 'ซาบซึ้ง'
+                }, {
+                    w: 'CEREMONY',
+                    t: 'พิธี'
+                }],
+                [{
+                    w: 'CHAMPION',
+                    t: 'แชมป์เปี้ยน'
+                }, {
+                    w: 'DYNAMITE',
+                    t: 'ระเบิด'
+                }, {
+                    w: 'FANTASTIC',
+                    t: 'มหัศจรรย์'
+                }, {
+                    w: 'INVISIBLE',
+                    t: 'ที่มองไม่เห็น'
+                }, {
+                    w: 'MAGNITUDE',
+                    t: 'ขนาด'
+                }],
+                [{
+                    w: 'TRANSPORT',
+                    t: 'ขนส่ง'
+                }, {
+                    w: 'COMPLEXITY',
+                    t: 'ความซับซ้อน'
+                }, {
+                    w: 'CHALLENGES',
+                    t: 'ความท้าทาย'
+                }, {
+                    w: 'DISCOVERY',
+                    t: 'การค้นพบ'
+                }, {
+                    w: 'STRUCTURE',
+                    t: 'โครงสร้าง'
+                }],
+                [{
+                    w: 'UNBELIEVABLE',
+                    t: 'ไม่น่าเชื่อ'
+                }, {
+                    w: 'INFORMATION',
+                    t: 'ข้อมูล'
+                }, {
+                    w: 'CONGRATULATIONS',
+                    t: 'ยินดีด้วย'
+                }, {
+                    w: 'ENVIRONMENT',
+                    t: 'สิ่งแวดล้อม'
+                }, {
+                    w: 'OPPORTUNITY',
+                    t: 'โอกาส'
+                }]
             ]
         };
 
         // --- STATE ---
         const GRID = 15;
-        let snake = [], dir = { x: 1, y: 0 }, nextDir = { x: 1, y: 0 };
-        let currentWord = '', currentWordObj = null, letterIdx = 0;
-        let levelData = [], levelIdx = 0, wordIdx = 0;
-        let letters = [], goldenFruit = null;
-        let score = 0, gameInterval = null, isPlaying = false;
+        let snake = [],
+            dir = {
+                x: 1,
+                y: 0
+            },
+            nextDir = {
+                x: 1,
+                y: 0
+            };
+        let currentWord = '',
+            currentWordObj = null,
+            letterIdx = 0;
+        let levelData = [],
+            levelIdx = 0,
+            wordIdx = 0;
+        let letters = [],
+            goldenFruit = null;
+        let score = 0,
+            gameInterval = null,
+            isPlaying = false;
         let difficulty = 'easy';
         let isHeadEaten = false; // Flag for eating animation
         let isBotActive = false; // Bot Mode Flag
+        let goldenFruitDespawnTimer = null; // NEW: Timer for golden fruit despawn
+        let lastPressedCtrl = null; // NEW: Global to track the last pressed button for bot visualization
+
 
         // --- DOM ---
         const els = {
@@ -705,7 +1188,7 @@
             modalBackBtn: document.getElementById('modal-back-btn'),
             summaryList: document.getElementById('summary-list'),
             btnNextLevel: document.getElementById('btn-next-level'),
-            gameTitle: document.getElementById('game-title'), 
+            gameTitle: document.getElementById('game-title'),
             gameBody: document.getElementById('game-body')
         };
 
@@ -717,10 +1200,15 @@
                 console.log("Bot Mode ACTIVATED!");
             } else {
                 els.gameBody.classList.remove('bot-active');
+                // Ensure button is released if bot mode is turned off mid-game
+                if (lastPressedCtrl) {
+                    lastPressedCtrl.classList.remove('pressed-sim');
+                    lastPressedCtrl = null;
+                }
                 console.log("Bot Mode DEACTIVATED!");
             }
         }
-        
+
         /**
          * Simple BFS (Breadth-First Search) to find the shortest path to a target.
          * @param {object} start - current position {x, y}
@@ -731,12 +1219,30 @@
         function findShortestPath(start, target, occupied) {
             if (!target) return null;
 
-            const queue = [{ pos: start, path: [] }];
+            const queue = [{
+                pos: start,
+                path: []
+            }];
             const visited = new Set([`${start.x},${start.y}`]);
-            const directions = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }];
+            const directions = [{
+                x: 0,
+                y: -1
+            }, {
+                x: 0,
+                y: 1
+            }, {
+                x: -1,
+                y: 0
+            }, {
+                x: 1,
+                y: 0
+            }];
 
             while (queue.length > 0) {
-                const { pos, path } = queue.shift();
+                const {
+                    pos,
+                    path
+                } = queue.shift();
 
                 for (const dir of directions) {
                     const nextX = pos.x + dir.x;
@@ -753,38 +1259,41 @@
                     }
 
                     if (!visited.has(nextPosKey) && !occupied.has(nextPosKey)) {
-                        
+
                         visited.add(nextPosKey);
                         // Store the first direction taken to reach this path
                         const nextStepDir = path.length === 0 ? dir : path[0];
-                        
-                        queue.push({ pos: { x: nextX, y: nextY }, path: [nextStepDir] });
+
+                        queue.push({
+                            pos: {
+                                x: nextX,
+                                y: nextY
+                            },
+                            path: [nextStepDir]
+                        });
                     }
                 }
             }
             return null; // No path found
         }
-        
+
         function botMove() {
             const head = snake[0];
             const targetChar = currentWord[letterIdx];
 
             // 1. Determine the occupied cells: Snake body + WRONG LETTERS
             const occupied = new Set();
-            
+
             // Add Snake Body (segments 1 to end)
-            // NOTE: We don't include the tail, as it will move away. 
-            // However, a simple BFS can still be fooled if the tail's position 
-            // is the *only* way out. For simplicity and general effectiveness, 
-            // we will mark the full body except the head.
+            // NOTE: We only include the body as obstacles, the tail will move away
             for (let i = 1; i < snake.length; i++) {
                 occupied.add(`${snake[i].x},${snake[i].y}`);
             }
-            
+
             // *** FIX: Add Wrong Letter Pieces as obstacles ***
             letters.forEach(l => {
                 // If it's not the target letter, treat it as an obstacle
-                if (l.char !== targetChar) { 
+                if (l.char !== targetChar) {
                     occupied.add(`${l.x},${l.y}`);
                 }
             });
@@ -799,49 +1308,88 @@
                     target = targetLetterPiece; // Secondary target: Correct Letter
                 }
             }
-            
+
             let newDir = null;
             if (target) {
                 newDir = findShortestPath(head, target, occupied);
             }
-            
+
             if (newDir) {
                 // Path found to target (Golden Fruit or Correct Letter)
                 if (!(dir.x === -newDir.x && dir.y === -newDir.y)) {
-                   nextDir = newDir;
+                    nextDir = newDir;
                 }
                 return;
             }
-            
+
             // 3. Fallback: If no target or no clear path, try to move safely
-            
-            // Use a modified list of occupied cells for pathfinding, 
-            // considering the tail might be safe to move into (minus the body length effect).
-            // For simplicity, we stick to the original occupied set, but use a more basic survival move.
-            
-            const safeDirections = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }]
+
+            const safeDirections = [{
+                x: 0,
+                y: -1
+            }, {
+                x: 0,
+                y: 1
+            }, {
+                x: -1,
+                y: 0
+            }, {
+                x: 1,
+                y: 0
+            }]
                 .filter(d => {
                     // Check collision with walls, snake body, and now WRONG LETTERS
                     const nextX = head.x + d.x;
                     const nextY = head.y + d.y;
                     const isOpposite = dir.x === -d.x && dir.y === -d.y;
-                    
+
                     // Check if out of bounds or colliding with any occupied cell (body/wrong letters)
                     const isCollision = nextX < 0 || nextX >= GRID || nextY < 0 || nextY >= GRID || occupied.has(`${nextX},${nextY}`);
-                    
-                    // We can move into the tail's position if the snake is not growing in this step
+
+                    // Check if we are eating something this turn (lIdx !== -1 or goldenFruit)
+                    const lIdx = letters.findIndex(l => l.x === head.x + d.x && l.y === head.y + d.y && l.char === targetChar);
+                    const willEat = (lIdx !== -1) || (goldenFruit && head.x + d.x === goldenFruit.x && head.y + d.y === goldenFruit.y);
+
+                    // We can move into the tail's position if the snake is NOT growing this step
                     const tail = snake[snake.length - 1];
-                    const isTail = !((lIdx !== -1) || goldenFruit) && nextX === tail.x && nextY === tail.y; // Check if next move is tail, AND we are NOT eating this turn.
-                    
+                    const isTail = !willEat && nextX === tail.x && nextY === tail.y;
+
                     return !isOpposite && (!isCollision || isTail);
                 });
 
             if (safeDirections.length > 0) {
-                // Choose the safest direction (e.g., the one that keeps the most open space, but here we just take the first safe one)
-                nextDir = safeDirections[0]; 
+                // Choose the first safe direction
+                nextDir = safeDirections[0];
             } else {
                 // If completely stuck (unavoidable collision), try the opposite direction (guaranteed death, but last resort)
-                nextDir = { x: -dir.x, y: -dir.y };
+                nextDir = {
+                    x: -dir.x,
+                    y: -dir.y
+                };
+            }
+        }
+
+        // NEW: Function to simulate control button press
+        function simulateControlPress(newDir) {
+            // 1. Release the previous button
+            if (lastPressedCtrl) {
+                lastPressedCtrl.classList.remove('pressed-sim');
+                lastPressedCtrl = null;
+            }
+
+            // 2. Determine which button to press
+            let ctrlId;
+            if (newDir.y === -1) ctrlId = 'ctrl-up';
+            else if (newDir.y === 1) ctrlId = 'ctrl-down';
+            else if (newDir.x === -1) ctrlId = 'ctrl-left';
+            else if (newDir.x === 1) ctrlId = 'ctrl-right';
+
+            // 3. Press the new button
+            if (ctrlId) {
+                lastPressedCtrl = document.getElementById(ctrlId);
+                if (lastPressedCtrl) {
+                    lastPressedCtrl.classList.add('pressed-sim');
+                }
             }
         }
 
@@ -856,7 +1404,11 @@
             difficulty = diff;
             els.subLevelArea.classList.remove('hidden');
             els.subLevelBtns.innerHTML = '';
-            const colors = { easy: 'var(--color-easy)', medium: 'var(--color-medium)', hard: 'var(--color-hard)' };
+            const colors = {
+                easy: 'var(--color-easy)',
+                medium: 'var(--color-medium)',
+                hard: 'var(--color-hard)'
+            };
 
             for (let i = 0; i < 10; i++) {
                 const btn = document.createElement('button');
@@ -872,6 +1424,16 @@
         function backToMain() {
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = false;
+            // Clear simulated button state
+            if (lastPressedCtrl) {
+                lastPressedCtrl.classList.remove('pressed-sim');
+                lastPressedCtrl = null;
+            }
+            // Clear golden fruit timer
+            if (goldenFruitDespawnTimer) {
+                clearTimeout(goldenFruitDespawnTimer);
+                goldenFruitDespawnTimer = null;
+            }
             showScreen('start-screen');
             els.subLevelArea.classList.add('hidden');
             els.overlay.classList.add('hidden');
@@ -912,26 +1474,49 @@
         function initGame() {
             els.overlay.classList.add('hidden');
 
+            // Clear simulated button state
+            if (lastPressedCtrl) {
+                lastPressedCtrl.classList.remove('pressed-sim');
+                lastPressedCtrl = null;
+            }
+
             // Spawn Logic 
-            snake = [{ x: 5, y: 7 }, { x: 4, y: 7 }, { x: 3, y: 7 }];
-            dir = { x: 1, y: 0 }; // Start moving RIGHT
-            nextDir = { x: 1, y: 0 };
+            snake = [{
+                x: 5,
+                y: 7
+            }, {
+                x: 4,
+                y: 7
+            }, {
+                x: 3,
+                y: 7
+            }];
+            dir = {
+                x: 1,
+                y: 0
+            }; // Start moving RIGHT
+            nextDir = {
+                x: 1,
+                y: 0
+            };
 
             spawnLetters();
             goldenFruit = null;
+            // Clear any lingering golden fruit timer
+            if (goldenFruitDespawnTimer) {
+                clearTimeout(goldenFruitDespawnTimer);
+                goldenFruitDespawnTimer = null;
+            }
 
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = true;
             // ความเร็วคงที่ 250 ms
-            gameInterval = setInterval(update, 250); 
+            gameInterval = setInterval(update, 250);
 
-            // Golden Fruit Timer (Start timer only if not in bot mode, or let bot handle the targeting)
-            if (!isBotActive) {
-                setTimeout(spawnGoldenFruit, Math.random() * 5000 + 5000);
-            } else {
-                // If bot is active, spawn golden fruit slightly sooner for a challenge/test
-                setTimeout(spawnGoldenFruit, Math.random() * 2000 + 3000);
-            }
+            // Golden Fruit Timer Setup
+            // If bot is active, spawn golden fruit slightly sooner for a challenge/test
+            const initialDelay = isBotActive ? (Math.random() * 2000 + 3000) : (Math.random() * 5000 + 5000);
+            setTimeout(spawnGoldenFruit, initialDelay);
         }
 
         function spawnLetters() {
@@ -943,32 +1528,44 @@
             currentWord.split('').forEach(char => {
                 let pos;
                 do {
-                    pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+                    pos = {
+                        x: Math.floor(Math.random() * GRID),
+                        y: Math.floor(Math.random() * GRID)
+                    };
                 } while (occupied.has(`${pos.x},${pos.y}`));
                 occupied.add(`${pos.x},${pos.y}`);
-                letters.push({ x: pos.x, y: pos.y, char: char });
+                letters.push({
+                    x: pos.x,
+                    y: pos.y,
+                    char: char
+                });
             });
         }
 
         function spawnGoldenFruit() {
             if (!isPlaying) return;
-            // Clear current fruit first
-            goldenFruit = null; 
-            
+            // Clear existing timers before spawning a new one
+            if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
+            goldenFruit = null; // Clear current fruit first
+
             const occupied = new Set([...snake.map(s => `${s.x},${s.y}`), ...letters.map(l => `${l.x},${l.y}`)]);
             let pos;
             do {
-                pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+                pos = {
+                    x: Math.floor(Math.random() * GRID),
+                    y: Math.floor(Math.random() * GRID)
+                };
             } while (occupied.has(`${pos.x},${pos.y}`));
 
             goldenFruit = pos;
-            
-            // Despawn after 6 seconds
-            const despawnTimer = setTimeout(() => { 
-                goldenFruit = null; 
+
+            // NEW: Despawn after exactly 3 seconds (3000ms)
+            goldenFruitDespawnTimer = setTimeout(() => {
+                goldenFruit = null;
                 drawBoard(); // Redraw to remove fruit
-            }, 6000);
-            
+                goldenFruitDespawnTimer = null; // Clear the timer ID
+            }, 3000); // FIXED 3 SECONDS
+
             // Schedule next spawn (longer interval)
             setTimeout(spawnGoldenFruit, Math.random() * 10000 + 10000);
         }
@@ -1022,13 +1619,24 @@
             // Fix: Word is completed, snake head is on the last letter.
             clearInterval(gameInterval);
             isPlaying = false;
+            
+            // Clear simulated button state
+            if (lastPressedCtrl) {
+                lastPressedCtrl.classList.remove('pressed-sim');
+                lastPressedCtrl = null;
+            }
+            // Clear golden fruit timer
+            if (goldenFruitDespawnTimer) {
+                clearTimeout(goldenFruitDespawnTimer);
+                goldenFruitDespawnTimer = null;
+            }
 
             // Start flash effect
             setTimeout(() => {
                 startWordCompleteFlash(() => {
                     // แก้ไข: แปลงเป็นตัวพิมพ์เล็กก่อนพูด
                     audio.playWin();
-                    speak(currentWord.toLowerCase()); 
+                    speak(currentWord.toLowerCase());
                     wordIdx++;
                     prepareWord();
                 });
@@ -1039,19 +1647,28 @@
 
         function update() {
             if (isBotActive) { // Bot plays first
-                botMove(); 
+                botMove();
             }
-            
+
             dir = nextDir;
+            
+            // NEW: Simulate control press if bot is active
+            if (isBotActive) {
+                simulateControlPress(dir);
+            }
+
             isHeadEaten = false;
-            const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+            const head = {
+                x: snake[0].x + dir.x,
+                y: snake[0].y + dir.y
+            };
 
             // Wall Collision
             if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return gameOver();
             // Self Collision
             // Check only the body, not the tail (since it moves)
             if (snake.slice(1, snake.length - 1).some(s => s.x === head.x && s.y === head.y)) return gameOver();
-            
+
             snake.unshift(head);
 
             // Check Letter Eat
@@ -1090,13 +1707,20 @@
                 audio.playBonus();
                 score += 50;
                 goldenFruit = null;
+
+                // NEW: Clear the despawn timer as the fruit was eaten
+                if (goldenFruitDespawnTimer) {
+                    clearTimeout(goldenFruitDespawnTimer);
+                    goldenFruitDespawnTimer = null;
+                }
+
                 // Grow extra segment
                 ate = true;
                 isHeadEaten = true;
-                
+
                 // If bot is active, spawn next fruit immediately
                 if (isBotActive) {
-                    setTimeout(spawnGoldenFruit, 1000); 
+                    setTimeout(spawnGoldenFruit, 1000);
                 }
             }
 
@@ -1110,6 +1734,17 @@
             clearInterval(gameInterval);
             isPlaying = false;
             audio.playGameOver();
+
+            // Clear simulated button state
+            if (lastPressedCtrl) {
+                lastPressedCtrl.classList.remove('pressed-sim');
+                lastPressedCtrl = null;
+            }
+            // Clear golden fruit timer
+            if (goldenFruitDespawnTimer) {
+                clearTimeout(goldenFruitDespawnTimer);
+                goldenFruitDespawnTimer = null;
+            }
 
             els.overlay.classList.remove('hidden');
             els.modalTitle.textContent = "Game Over";
@@ -1199,26 +1834,57 @@
         document.addEventListener('keydown', e => {
             if (!isPlaying || isBotActive) return; // Ignore input if bot is active
             switch (e.key) {
-                case 'ArrowUp': if (dir.y !== 1) nextDir = { x: 0, y: -1 }; break;
-                case 'ArrowDown': if (dir.y !== -1) nextDir = { x: 0, y: 1 }; break;
-                case 'ArrowLeft': if (dir.x !== 1) nextDir = { x: -1, y: 0 }; break;
-                case 'ArrowRight': if (dir.x !== -1) nextDir = { x: 1, y: 0 }; break;
+                case 'ArrowUp':
+                    if (dir.y !== 1) nextDir = {
+                        x: 0,
+                        y: -1
+                    };
+                    break;
+                case 'ArrowDown':
+                    if (dir.y !== -1) nextDir = {
+                        x: 0,
+                        y: 1
+                    };
+                    break;
+                case 'ArrowLeft':
+                    if (dir.x !== 1) nextDir = {
+                        x: -1,
+                        y: 0
+                    };
+                    break;
+                case 'ArrowRight':
+                    if (dir.x !== -1) nextDir = {
+                        x: 1,
+                        y: 0
+                    };
+                    break;
             }
         });
 
         ['up', 'down', 'left', 'right'].forEach(d => {
             document.getElementById(`ctrl-${d}`).addEventListener('click', () => {
                 if (!isPlaying || isBotActive) return; // Ignore input if bot is active
-                if (d === 'up' && dir.y !== 1) nextDir = { x: 0, y: -1 };
-                if (d === 'down' && dir.y !== -1) nextDir = { x: 0, y: 1 };
-                if (d === 'left' && dir.x !== 1) nextDir = { x: -1, y: 0 };
-                if (d === 'right' && dir.x !== -1) nextDir = { x: 1, y: 0 };
+                if (d === 'up' && dir.y !== 1) nextDir = {
+                    x: 0,
+                    y: -1
+                };
+                if (d === 'down' && dir.y !== -1) nextDir = {
+                    x: 0,
+                    y: 1
+                };
+                if (d === 'left' && dir.x !== 1) nextDir = {
+                    x: -1,
+                    y: 0
+                };
+                if (d === 'right' && dir.x !== -1) nextDir = {
+                    x: 1,
+                    y: 0
+                };
             });
         });
-        
+
         // Double-click/tap event to toggle bot mode
         els.gameTitle.addEventListener('dblclick', toggleBotMode);
-
     </script>
 </body>
 
