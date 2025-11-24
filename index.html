@@ -645,15 +645,26 @@
             }
         }
 
-        function speak(text) {
+        /**
+         * Plays a text via Text-to-Speech (TTS).
+         * @param {string} text The text to speak.
+         * @param {function} onEndCallback Callback function to execute after speech finishes or errors.
+         */
+        function speak(text, onEndCallback = () => {}) {
             if (synth.speaking) synth.cancel();
             const u = new SpeechSynthesisUtterance(text);
             u.lang = 'en-US';
             u.rate = 0.8;
+            
+            // Set callback for end and error events
+            u.onend = onEndCallback;
+            u.onerror = onEndCallback;
+            
             synth.speak(u);
         }
 
         // --- GAME DATA ---
+        // (*** WORDS data remains unchanged ***)
         const WORDS = {
             'easy': [
                 [{
@@ -1168,8 +1179,9 @@
         let difficulty = 'easy';
         let isHeadEaten = false; // Flag for eating animation
         let isBotActive = false; // Bot Mode Flag
-        let goldenFruitDespawnTimer = null; // NEW: Timer for golden fruit despawn
-        let lastPressedCtrl = null; // NEW: Global to track the last pressed button for bot visualization
+        let goldenFruitDespawnTimer = null; // Timer for golden fruit despawn (3s visibility)
+        let goldenFruitSpawnScheduler = null; // NEW: Timer for scheduling the next spawn (3s rest)
+        let lastPressedCtrl = null; // Global to track the last pressed button for bot visualization
 
 
         // --- DOM ---
@@ -1210,11 +1222,7 @@
         }
 
         /**
-         * Simple BFS (Breadth-First Search) to find the shortest path to a target.
-         * @param {object} start - current position {x, y}
-         * @param {object} target - target position {x, y}
-         * @param {Set<string>} occupied - set of coordinates ('x,y') to avoid (snake body, wrong letters)
-         * @returns {object | null} The next direction {x, y} to take, or null if no safe path.
+         * Simple BFS (Breadth-First Search) for Bot logic
          */
         function findShortestPath(start, target, occupied) {
             if (!target) return null;
@@ -1283,16 +1291,10 @@
 
             // 1. Determine the occupied cells: Snake body + WRONG LETTERS
             const occupied = new Set();
-
-            // Add Snake Body (segments 1 to end)
-            // NOTE: We only include the body as obstacles, the tail will move away
             for (let i = 1; i < snake.length; i++) {
                 occupied.add(`${snake[i].x},${snake[i].y}`);
             }
-
-            // *** FIX: Add Wrong Letter Pieces as obstacles ***
             letters.forEach(l => {
-                // If it's not the target letter, treat it as an obstacle
                 if (l.char !== targetChar) {
                     occupied.add(`${l.x},${l.y}`);
                 }
@@ -1315,7 +1317,7 @@
             }
 
             if (newDir) {
-                // Path found to target (Golden Fruit or Correct Letter)
+                // Path found to target
                 if (!(dir.x === -newDir.x && dir.y === -newDir.y)) {
                     nextDir = newDir;
                 }
@@ -1323,7 +1325,6 @@
             }
 
             // 3. Fallback: If no target or no clear path, try to move safely
-
             const safeDirections = [{
                 x: 0,
                 y: -1
@@ -1338,19 +1339,11 @@
                 y: 0
             }]
                 .filter(d => {
-                    // Check collision with walls, snake body, and now WRONG LETTERS
                     const nextX = head.x + d.x;
                     const nextY = head.y + d.y;
                     const isOpposite = dir.x === -d.x && dir.y === -d.y;
-
-                    // Check if out of bounds or colliding with any occupied cell (body/wrong letters)
                     const isCollision = nextX < 0 || nextX >= GRID || nextY < 0 || nextY >= GRID || occupied.has(`${nextX},${nextY}`);
-
-                    // Check if we are eating something this turn (lIdx !== -1 or goldenFruit)
-                    const lIdx = letters.findIndex(l => l.x === head.x + d.x && l.y === head.y + d.y && l.char === targetChar);
                     const willEat = (lIdx !== -1) || (goldenFruit && head.x + d.x === goldenFruit.x && head.y + d.y === goldenFruit.y);
-
-                    // We can move into the tail's position if the snake is NOT growing this step
                     const tail = snake[snake.length - 1];
                     const isTail = !willEat && nextX === tail.x && nextY === tail.y;
 
@@ -1358,10 +1351,8 @@
                 });
 
             if (safeDirections.length > 0) {
-                // Choose the first safe direction
                 nextDir = safeDirections[0];
             } else {
-                // If completely stuck (unavoidable collision), try the opposite direction (guaranteed death, but last resort)
                 nextDir = {
                     x: -dir.x,
                     y: -dir.y
@@ -1369,7 +1360,7 @@
             }
         }
 
-        // NEW: Function to simulate control button press
+        // Function to simulate control button press
         function simulateControlPress(newDir) {
             // 1. Release the previous button
             if (lastPressedCtrl) {
@@ -1424,15 +1415,16 @@
         function backToMain() {
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = false;
+            // Clear all golden fruit timers
+            if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
+            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
+            goldenFruitDespawnTimer = null;
+            goldenFruitSpawnScheduler = null;
+
             // Clear simulated button state
             if (lastPressedCtrl) {
                 lastPressedCtrl.classList.remove('pressed-sim');
                 lastPressedCtrl = null;
-            }
-            // Clear golden fruit timer
-            if (goldenFruitDespawnTimer) {
-                clearTimeout(goldenFruitDespawnTimer);
-                goldenFruitDespawnTimer = null;
             }
             showScreen('start-screen');
             els.subLevelArea.classList.add('hidden');
@@ -1502,21 +1494,20 @@
 
             spawnLetters();
             goldenFruit = null;
-            // Clear any lingering golden fruit timer
-            if (goldenFruitDespawnTimer) {
-                clearTimeout(goldenFruitDespawnTimer);
-                goldenFruitDespawnTimer = null;
-            }
+            
+            // Clear all golden fruit timers
+            if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
+            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
+            goldenFruitDespawnTimer = null;
+            goldenFruitSpawnScheduler = null;
 
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = true;
             // ความเร็วคงที่ 250 ms
             gameInterval = setInterval(update, 250);
 
-            // Golden Fruit Timer Setup
-            // If bot is active, spawn golden fruit slightly sooner for a challenge/test
-            const initialDelay = isBotActive ? (Math.random() * 2000 + 3000) : (Math.random() * 5000 + 5000);
-            setTimeout(spawnGoldenFruit, initialDelay);
+            // NEW: Start the recurring golden fruit cycle (3s rest, 3s visible)
+            scheduleNextGoldenFruit(); 
         }
 
         function spawnLetters() {
@@ -1541,10 +1532,22 @@
                 });
             });
         }
+        
+        /**
+         * Schedules the next attempt to spawn a golden fruit after a 3-second rest period.
+         */
+        function scheduleNextGoldenFruit() {
+            if (!isPlaying) return;
+            // Clear any pending schedule
+            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
+            // 3 seconds delay (rest period) before calling spawnGoldenFruit again
+            goldenFruitSpawnScheduler = setTimeout(spawnGoldenFruit, 3000); 
+        }
+
 
         function spawnGoldenFruit() {
             if (!isPlaying) return;
-            // Clear existing timers before spawning a new one
+            // Clear any lingering despawn timer before spawning
             if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
             goldenFruit = null; // Clear current fruit first
 
@@ -1558,16 +1561,18 @@
             } while (occupied.has(`${pos.x},${pos.y}`));
 
             goldenFruit = pos;
+            drawBoard(); // Draw the new fruit
 
-            // NEW: Despawn after exactly 3 seconds (3000ms)
+            // Set the 3-second DESPAWN timer
             goldenFruitDespawnTimer = setTimeout(() => {
                 goldenFruit = null;
                 drawBoard(); // Redraw to remove fruit
                 goldenFruitDespawnTimer = null; // Clear the timer ID
-            }, 3000); // FIXED 3 SECONDS
+                
+                // If it despawns naturally, schedule the next spawn cycle immediately
+                scheduleNextGoldenFruit(); 
 
-            // Schedule next spawn (longer interval)
-            setTimeout(spawnGoldenFruit, Math.random() * 10000 + 10000);
+            }, 3000); // FIXED 3 SECONDS appearance time
         }
 
         // --- Word Complete Flash Logic ---
@@ -1625,22 +1630,25 @@
                 lastPressedCtrl.classList.remove('pressed-sim');
                 lastPressedCtrl = null;
             }
-            // Clear golden fruit timer
-            if (goldenFruitDespawnTimer) {
-                clearTimeout(goldenFruitDespawnTimer);
-                goldenFruitDespawnTimer = null;
-            }
+            // Clear all golden fruit timers
+            if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
+            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
+            goldenFruitDespawnTimer = null;
+            goldenFruitSpawnScheduler = null;
 
             // Start flash effect
             setTimeout(() => {
                 startWordCompleteFlash(() => {
-                    // แก้ไข: แปลงเป็นตัวพิมพ์เล็กก่อนพูด
                     audio.playWin();
-                    speak(currentWord.toLowerCase());
-                    wordIdx++;
-                    prepareWord();
+                    
+                    // NEW: Wait for speech to finish before proceeding to the next word
+                    speak(currentWord.toLowerCase(), () => {
+                        // This callback runs ONLY after TTS finishes
+                        wordIdx++;
+                        prepareWord();
+                    });
                 });
-            }, 50); // Small delay to ensure final draw is complete
+            }, 50); 
 
             return;
         }
@@ -1666,7 +1674,6 @@
             // Wall Collision
             if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return gameOver();
             // Self Collision
-            // Check only the body, not the tail (since it moves)
             if (snake.slice(1, snake.length - 1).some(s => s.x === head.x && s.y === head.y)) return gameOver();
 
             snake.unshift(head);
@@ -1689,13 +1696,12 @@
                     drawHUD(); // Update display immediately
 
                     if (letterIdx >= currentWord.length) {
-                        // Word is complete. The head is currently on the last letter piece.
                         drawBoard(isHeadEaten); // Draw final eating state
                         wordComplete();
                         return;
                     }
                 } else {
-                    // Wrong Letter - THIS IS THE CASE WE WANT BOT TO AVOID
+                    // Wrong Letter
                     audio.playWrong();
                     gameOver(`เก็บผิด! ต้องเก็บ <strong>${targetChar}</strong>`);
                     return;
@@ -1713,15 +1719,13 @@
                     clearTimeout(goldenFruitDespawnTimer);
                     goldenFruitDespawnTimer = null;
                 }
+                
+                // NEW: Schedule the next spawn after the 3-second delay
+                scheduleNextGoldenFruit(); 
 
                 // Grow extra segment
                 ate = true;
                 isHeadEaten = true;
-
-                // If bot is active, spawn next fruit immediately
-                if (isBotActive) {
-                    setTimeout(spawnGoldenFruit, 1000);
-                }
             }
 
             if (!ate) snake.pop();
@@ -1735,15 +1739,16 @@
             isPlaying = false;
             audio.playGameOver();
 
+            // Clear all golden fruit timers
+            if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
+            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
+            goldenFruitDespawnTimer = null;
+            goldenFruitSpawnScheduler = null;
+            
             // Clear simulated button state
             if (lastPressedCtrl) {
                 lastPressedCtrl.classList.remove('pressed-sim');
                 lastPressedCtrl = null;
-            }
-            // Clear golden fruit timer
-            if (goldenFruitDespawnTimer) {
-                clearTimeout(goldenFruitDespawnTimer);
-                goldenFruitDespawnTimer = null;
             }
 
             els.overlay.classList.remove('hidden');
