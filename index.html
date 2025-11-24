@@ -267,7 +267,7 @@
             border-radius: 50%;
             border: 1px solid black;
             /* Set common attributes for the 'front' side (right edge) */
-            right: 20%; 
+            right: 20%;
         }
 
         .snake-head::before {
@@ -279,15 +279,15 @@
             /* Bottom eye when facing right */
             bottom: 25%;
         }
-        
+
         /* Flash Effect (Fix 2) */
-        .snake-body.flash-active, 
-        .snake-tail.flash-active { 
-            transform: scale(1.15); 
-            box-shadow: 0 0 15px white, 0 0 10px var(--color-accent); 
+        .snake-body.flash-active,
+        .snake-tail.flash-active {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px white, 0 0 10px var(--color-accent);
             transition: transform 0.1s;
         }
-        
+
         /* Head flash is handled by JS injecting a style block for scale and rotation */
 
 
@@ -383,12 +383,12 @@
             color: var(--color-primary);
             letter-spacing: 2px;
         }
-        
+
         /* Fix 3 Styling: Highlight collected letters */
         .word-display .collected-char {
             color: var(--color-snake-head);
         }
-        
+
         .word-display .target-char {
             color: var(--color-letter-target);
         }
@@ -510,7 +510,7 @@
             <div id="sub-level-area" class="hidden" style="width: 100%; margin-top: 20px;">
                 <h3 id="sub-level-title" style="margin: 0 0 10px 0;">เลือกด่าน</h3>
                 <div id="sub-level-buttons" class="sub-level-grid">
-                    </div>
+                </div>
                 <button class="btn-3d btn-danger" style="margin-top: 15px;" onclick="backToMain()">ย้อนกลับ</button>
             </div>
         </div>
@@ -615,12 +615,12 @@
                 synth.speak(u);
             }
         }
-        
+
         function speak(text) {
             if (synth.speaking) synth.cancel();
             const u = new SpeechSynthesisUtterance(text);
             u.lang = 'en-US';
-            u.rate = 0.8; 
+            u.rate = 0.8;
             synth.speak(u);
         }
 
@@ -768,7 +768,8 @@
 
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = true;
-            gameInterval = setInterval(update, 200);
+            // แก้ไข: กำหนดความเร็วคงที่ 250 ms ตามที่ร้องขอ
+            gameInterval = setInterval(update, 250); 
 
             // Golden Fruit Timer
             setTimeout(spawnGoldenFruit, Math.random() * 5000 + 5000);
@@ -804,18 +805,18 @@
             // Schedule next spawn
             setTimeout(spawnGoldenFruit, Math.random() * 10000 + 10000);
         }
-        
+
         // --- Word Complete Flash Logic (Fix 2) ---
         function startWordCompleteFlash(callback) {
             const flashDuration = 100; // Faster flash for impact
             const cycles = 4; // 2 zoom in, 2 zoom out (total 2 full cycles)
             let count = 0;
-            
+
             const allSnakeCells = els.board.querySelectorAll('.snake-head, .snake-body, .snake-tail');
-            
+
             // Remove the 'eaten' class which was applied just before stopping
             els.board.querySelector('.snake-head')?.classList.remove('eaten');
-            
+
             // Inject temporary CSS for head flash (scale and rotation)
             const flashStyle = document.createElement('style');
             flashStyle.id = 'flash-temp-style';
@@ -846,7 +847,7 @@
                 count++;
                 setTimeout(toggleFlash, flashDuration);
             }
-            
+
             toggleFlash();
         }
 
@@ -854,24 +855,24 @@
             // Fix 2: Word is completed, snake head is on the last letter.
             clearInterval(gameInterval);
             isPlaying = false;
-            
+
             // Start flash effect
             setTimeout(() => {
                 startWordCompleteFlash(() => {
                     // After flash completes:
-                    audio.playWin(); 
+                    audio.playWin();
                     speak(currentWord); // Speak the word after the animation
                     wordIdx++;
                     prepareWord();
                 });
             }, 50); // Small delay to ensure final draw is complete
-            
+
             return;
         }
 
         function update() {
             dir = nextDir;
-            isHeadEaten = false; 
+            isHeadEaten = false;
             const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
 
             // Wall Collision
@@ -895,15 +896,15 @@
                     score += 10;
                     ate = true;
                     isHeadEaten = true; // Set flag for eating effect
-                    
+
                     drawHUD(); // Fix 3: Update display immediately
-                    
+
                     // Fix 2: Word completion check
                     if (letterIdx >= currentWord.length) {
                         // Word is complete. The head is currently on the last letter piece.
                         drawBoard(isHeadEaten); // Draw final eating state
                         wordComplete();
-                        return; 
+                        return;
                     }
                 } else {
                     // Wrong Letter
@@ -958,7 +959,7 @@
         function drawHUD() {
             els.score.textContent = score;
             els.target.textContent = currentWord[letterIdx] || '✅';
-            
+
             // Fix 3: Display collected letters clearly
             const wordDisplayHTML = currentWord.split('').map((c, i) => {
                 if (i < letterIdx) {
@@ -969,13 +970,13 @@
                     return `_`;
                 }
             }).join(' ');
-            
+
             els.wordProgress.innerHTML = wordDisplayHTML;
         }
 
         function drawBoard(isEating = false) {
             els.board.innerHTML = '';
-            
+
             // Determine current direction string for CSS (Fix 1)
             const currentDirString = dir.x === 1 ? 'RIGHT' : dir.x === -1 ? 'LEFT' : dir.y === -1 ? 'UP' : 'DOWN';
 
@@ -984,11 +985,11 @@
                 const el = document.createElement('div');
                 el.style.gridColumnStart = s.x + 1;
                 el.style.gridRowStart = s.y + 1;
-                
+
                 if (i === 0) {
                     // Head: Apply eating class and direction for rotation (Fix 1)
-                    el.className = `cell snake-head${isEating ? ' eaten' : ''}`; 
-                    el.setAttribute('data-dir', currentDirString); 
+                    el.className = `cell snake-head${isEating ? ' eaten' : ''}`;
+                    el.setAttribute('data-dir', currentDirString);
                 } else if (i === snake.length - 1) {
                     // Tail
                     el.className = 'cell snake-tail';
@@ -998,7 +999,7 @@
                 }
                 els.board.appendChild(el);
             });
-            
+
             // Draw Letters
             letters.forEach(l => {
                 const el = document.createElement('div');
