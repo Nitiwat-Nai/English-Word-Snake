@@ -9,7 +9,7 @@
     <style>
         /* --- THEME & GLOBAL STYLES (Premium Jungle Theme) --- */
         :root {
-            /* Palette: Deep Jungle & Gold */
+            /* Jungle Theme Colors */
             --color-primary: #2E7D32;
             /* Rich Green */
             --color-primary-dark: #1B5E20;
@@ -59,15 +59,15 @@
 
         body {
             font-family: 'Sarabun', sans-serif;
-            background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
-            /* Lush Green Gradient */
+            background: linear-gradient(135deg, #f0e68c 0%, #e0c598 100%);
+            /* Light Brown/Khaki Gradient */
             color: var(--color-text-dark);
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            min-height: 10vh;
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
@@ -101,31 +101,7 @@
             margin: 0;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             letter-spacing: 1px;
-            transition: transform 0.3s;
-            cursor: pointer;
-            /* To indicate it's clickable */
         }
-
-        /* --- Bot Mode Effect --- */
-        .bot-active h1 {
-            animation: slowPulse 3s infinite ease-in-out;
-        }
-
-        @keyframes slowPulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.03);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        /* ------------------------------- */
 
         .screen {
             padding: 1rem;
@@ -237,10 +213,14 @@
             z-index: 2;
             position: relative;
             transform-origin: center center;
+            /* IMPORTANT for rotation */
             transition: transform 0.1s;
+            /* For smooth rotation and eating effect */
         }
 
-        /* --- Head Rotation & Eyes --- */
+        /* --- Head Rotation & Eyes (Fix for Eye Direction) --- */
+
+        /* Base Rotation for the entire head element */
         .snake-head[data-dir="UP"] {
             transform: rotate(-90deg);
         }
@@ -304,10 +284,14 @@
             transition: transform 0.1s;
         }
 
+        /* Head flash is handled by JS injecting a style block for scale and rotation */
+
+
         .snake-body {
             background: var(--color-snake-body);
             border-radius: 30%;
             transform: scale(0.9);
+            /* Slight gap look */
         }
 
         .snake-tail {
@@ -432,12 +416,6 @@
             transform: translateY(6px);
             box-shadow: 0 0 0 var(--color-primary-dark);
         }
-        
-        /* New: Style for simulated button press for bot mode */
-        .ctrl-btn.pressed-sim {
-            transform: translateY(6px);
-            box-shadow: 0 0 0 var(--color-primary-dark) !important;
-        }
 
         #ctrl-up {
             grid-area: up;
@@ -455,7 +433,17 @@
             grid-area: right;
         }
         
-        /* Removed: .bot-active .controls-area { opacity: 0.5; pointer-events: none; } */
+        /* Hide controls when bot is active */
+        .bot-active .controls-area {
+            /* Optional: visual cue that controls are automated */
+        }
+        
+        /* Highlight pressed button in bot mode */
+        .ctrl-btn.pressed-sim {
+             transform: translateY(6px);
+             box-shadow: 0 0 0 var(--color-primary-dark);
+             filter: brightness(0.8);
+        }
 
 
         /* --- Overlay --- */
@@ -645,11 +633,6 @@
             }
         }
 
-        /**
-         * Plays a text via Text-to-Speech (TTS).
-         * @param {string} text The text to speak.
-         * @param {function} onEndCallback Callback function to execute after speech finishes or errors.
-         */
         function speak(text, onEndCallback = () => {}) {
             if (synth.speaking) synth.cancel();
             const u = new SpeechSynthesisUtterance(text);
@@ -664,493 +647,42 @@
         }
 
         // --- GAME DATA ---
-        // (*** WORDS data remains unchanged ***)
         const WORDS = {
             'easy': [
-                [{
-                    w: 'CAT',
-                    t: 'แมว'
-                }, {
-                    w: 'DOG',
-                    t: 'สุนัข'
-                }, {
-                    w: 'SUN',
-                    t: 'อาทิตย์'
-                }, {
-                    w: 'MAP',
-                    t: 'แผนที่'
-                }, {
-                    w: 'ZOO',
-                    t: 'สวนสัตว์'
-                }],
-                [{
-                    w: 'FISH',
-                    t: 'ปลา'
-                }, {
-                    w: 'BIRD',
-                    t: 'นก'
-                }, {
-                    w: 'RAIN',
-                    t: 'ฝน'
-                }, {
-                    w: 'FIRE',
-                    t: 'ไฟ'
-                }, {
-                    w: 'TREE',
-                    t: 'ต้นไม้'
-                }],
-                [{
-                    w: 'BALL',
-                    t: 'ลูกบอล'
-                }, {
-                    w: 'BOOK',
-                    t: 'หนังสือ'
-                }, {
-                    w: 'GAME',
-                    t: 'เกม'
-                }, {
-                    w: 'ROAD',
-                    t: 'ถนน'
-                }, {
-                    w: 'MOON',
-                    t: 'ดวงจันทร์'
-                }],
-                [{
-                    w: 'FOUR',
-                    t: 'สี่'
-                }, {
-                    w: 'FIVE',
-                    t: 'ห้า'
-                }, {
-                    w: 'ZERO',
-                    t: 'ศูนย์'
-                }, {
-                    w: 'FAST',
-                    t: 'เร็ว'
-                }, {
-                    w: 'SLOW',
-                    t: 'ช้า'
-                }],
-                [{
-                    w: 'GIRL',
-                    t: 'เด็กหญิง'
-                }, {
-                    w: 'BOY',
-                    t: 'เด็กชาย'
-                }, {
-                    w: 'KING',
-                    t: 'พระราชา'
-                }, {
-                    w: 'QUEEN',
-                    t: 'พระราชินี'
-                }, {
-                    w: 'WALL',
-                    t: 'กำแพง'
-                }],
-                [{
-                    w: 'RICE',
-                    t: 'ข้าว'
-                }, {
-                    w: 'MEAT',
-                    t: 'เนื้อ'
-                }, {
-                    w: 'SOUP',
-                    t: 'ซุป'
-                }, {
-                    w: 'SALT',
-                    t: 'เกลือ'
-                }, {
-                    w: 'SUGAR',
-                    t: 'น้ำตาล'
-                }],
-                [{
-                    w: 'HAND',
-                    t: 'มือ'
-                }, {
-                    w: 'FOOT',
-                    t: 'เท้า'
-                }, {
-                    w: 'EYE',
-                    t: 'ตา'
-                }, {
-                    w: 'NOSE',
-                    t: 'จมูก'
-                }, {
-                    w: 'EAR',
-                    t: 'หู'
-                }],
-                [{
-                    w: 'COLD',
-                    t: 'หนาว'
-                }, {
-                    w: 'HOT',
-                    t: 'ร้อน'
-                }, {
-                    w: 'WET',
-                    t: 'เปียก'
-                }, {
-                    w: 'DRY',
-                    t: 'แห้ง'
-                }, {
-                    w: 'WIND',
-                    t: 'ลม'
-                }],
-                [{
-                    w: 'FROG',
-                    t: 'กบ'
-                }, {
-                    w: 'SHIP',
-                    t: 'เรือ'
-                }, {
-                    w: 'BLUE',
-                    t: 'สีน้ำเงิน'
-                }, {
-                    w: 'PINK',
-                    t: 'สีชมพู'
-                }, {
-                    w: 'STAR',
-                    t: 'ดาว'
-                }],
-                [{
-                    w: 'SMILE',
-                    t: 'ยิ้ม'
-                }, {
-                    w: 'LAUGH',
-                    t: 'หัวเราะ'
-                }, {
-                    w: 'SLEEP',
-                    t: 'นอน'
-                }, {
-                    w: 'DREAM',
-                    t: 'ฝัน'
-                }, {
-                    w: 'WAKE',
-                    t: 'ตื่น'
-                }]
+                [{ w: 'CAT', t: 'แมว' }, { w: 'DOG', t: 'สุนัข' }, { w: 'SUN', t: 'อาทิตย์' }, { w: 'MAP', t: 'แผนที่' }, { w: 'ZOO', t: 'สวนสัตว์' }],
+                [{ w: 'FISH', t: 'ปลา' }, { w: 'BIRD', t: 'นก' }, { w: 'RAIN', t: 'ฝน' }, { w: 'FIRE', t: 'ไฟ' }, { w: 'TREE', t: 'ต้นไม้' }],
+                [{ w: 'BALL', t: 'ลูกบอล' }, { w: 'BOOK', t: 'หนังสือ' }, { w: 'GAME', t: 'เกม' }, { w: 'ROAD', t: 'ถนน' }, { w: 'MOON', t: 'ดวงจันทร์' }],
+                [{ w: 'FOUR', t: 'สี่' }, { w: 'FIVE', t: 'ห้า' }, { w: 'ZERO', t: 'ศูนย์' }, { w: 'FAST', t: 'เร็ว' }, { w: 'SLOW', t: 'ช้า' }],
+                [{ w: 'GIRL', t: 'เด็กหญิง' }, { w: 'BOY', t: 'เด็กชาย' }, { w: 'KING', t: 'พระราชา' }, { w: 'QUEEN', t: 'พระราชินี' }, { w: 'WALL', t: 'กำแพง' }],
+                [{ w: 'RICE', t: 'ข้าว' }, { w: 'MEAT', t: 'เนื้อ' }, { w: 'SOUP', t: 'ซุป' }, { w: 'SALT', t: 'เกลือ' }, { w: 'SUGAR', t: 'น้ำตาล' }],
+                [{ w: 'HAND', t: 'มือ' }, { w: 'FOOT', t: 'เท้า' }, { w: 'EYE', t: 'ตา' }, { w: 'NOSE', t: 'จมูก' }, { w: 'EAR', t: 'หู' }],
+                [{ w: 'COLD', t: 'หนาว' }, { w: 'HOT', t: 'ร้อน' }, { w: 'WET', t: 'เปียก' }, { w: 'DRY', t: 'แห้ง' }, { w: 'WIND', t: 'ลม' }],
+                [{ w: 'FROG', t: 'กบ' }, { w: 'SHIP', t: 'เรือ' }, { w: 'BLUE', t: 'สีน้ำเงิน' }, { w: 'PINK', t: 'สีชมพู' }, { w: 'STAR', t: 'ดาว' }],
+                [{ w: 'SMILE', t: 'ยิ้ม' }, { w: 'LAUGH', t: 'หัวเราะ' }, { w: 'SLEEP', t: 'นอน' }, { w: 'DREAM', t: 'ฝัน' }, { w: 'WAKE', t: 'ตื่น' }]
             ],
             'medium': [
-                [{
-                    w: 'ORANGE',
-                    t: 'ส้ม'
-                }, {
-                    w: 'TICKET',
-                    t: 'ตั๋ว'
-                }, {
-                    w: 'PURPLE',
-                    t: 'สีม่วง'
-                }, {
-                    w: 'FATHER',
-                    t: 'พ่อ'
-                }, {
-                    w: 'MOTHER',
-                    t: 'แม่'
-                }],
-                [{
-                    w: 'SCHOOL',
-                    t: 'โรงเรียน'
-                }, {
-                    w: 'TRAVEL',
-                    t: 'เดินทาง'
-                }, {
-                    w: 'VACATION',
-                    t: 'วันหยุด'
-                }, {
-                    w: 'FRIEND',
-                    t: 'เพื่อน'
-                }, {
-                    w: 'FAMILY',
-                    t: 'ครอบครัว'
-                }],
-                [{
-                    w: 'MORNING',
-                    t: 'เช้า'
-                }, {
-                    w: 'EVENING',
-                    t: 'เย็น'
-                }, {
-                    w: 'WEEKEND',
-                    t: 'วันหยุดสุดสัปดาห์'
-                }, {
-                    w: 'HISTORY',
-                    t: 'ประวัติศาสตร์'
-                }, {
-                    w: 'SCIENCE',
-                    t: 'วิทยาศาสตร์'
-                }],
-                [{
-                    w: 'GARDEN',
-                    t: 'สวน'
-                }, {
-                    w: 'KITCHEN',
-                    t: 'ห้องครัว'
-                }, {
-                    w: 'WINDOW',
-                    t: 'หน้าต่าง'
-                }, {
-                    w: 'DOORWAY',
-                    t: 'ทางเข้าประตู'
-                }, {
-                    w: 'BUILDING',
-                    t: 'ตึก'
-                }],
-                [{
-                    w: 'PICTURE',
-                    t: 'รูปภาพ'
-                }, {
-                    w: 'CAMERA',
-                    t: 'กล้อง'
-                }, {
-                    w: 'JOURNAL',
-                    t: 'วารสาร'
-                }, {
-                    w: 'PROJECT',
-                    t: 'โครงการ'
-                }, {
-                    w: 'SUCCESS',
-                    t: 'ความสำเร็จ'
-                }],
-                [{
-                    w: 'HAPPEN',
-                    t: 'เกิดขึ้น'
-                }, {
-                    w: 'FINISH',
-                    t: 'เสร็จสิ้น'
-                }, {
-                    w: 'ACCEPT',
-                    t: 'ยอมรับ'
-                }, {
-                    w: 'BELIEVE',
-                    t: 'เชื่อ'
-                }, {
-                    w: 'DECIDE',
-                    t: 'ตัดสินใจ'
-                }],
-                [{
-                    w: 'WEATHER',
-                    t: 'อากาศ'
-                }, {
-                    w: 'CLOUDY',
-                    t: 'มีเมฆมาก'
-                }, {
-                    w: 'SUNNY',
-                    t: 'มีแดด'
-                }, {
-                    w: 'STORMY',
-                    t: 'มีพายุ'
-                }, {
-                    w: 'FROZEN',
-                    t: 'เยือกแข็ง'
-                }],
-                [{
-                    w: 'MONSTER',
-                    t: 'สัตว์ประหลาด'
-                }, {
-                    w: 'SECRET',
-                    t: 'ความลับ'
-                }, {
-                    w: 'PUZZLE',
-                    t: 'ปริศนา'
-                }, {
-                    w: 'GHOSTLY',
-                    t: 'เหมือนผี'
-                }, {
-                    w: 'MYSTERY',
-                    t: 'ลึกลับ'
-                }],
-                [{
-                    w: 'BROTHER',
-                    t: 'พี่/น้องชาย'
-                }, {
-                    w: 'SISTER',
-                    t: 'พี่/น้องสาว'
-                }, {
-                    w: 'UNCLE',
-                    t: 'ลุง/น้า/อา'
-                }, {
-                    w: 'AUNT',
-                    t: 'ป้า/น้า/อา'
-                }, {
-                    w: 'COUSIN',
-                    t: 'ลูกพี่ลูกน้อง'
-                }],
-                [{
-                    w: 'MOUNTAIN',
-                    t: 'ภูเขา'
-                }, {
-                    w: 'FOREST',
-                    t: 'ป่า'
-                }, {
-                    w: 'PLANET',
-                    t: 'ดาวเคราะห์'
-                }, {
-                    w: 'CASTLE',
-                    t: 'ปราสาท'
-                }, {
-                    w: 'ADVENT',
-                    t: 'การมาถึง'
-                }]
+                [{ w: 'ORANGE', t: 'ส้ม' }, { w: 'TICKET', t: 'ตั๋ว' }, { w: 'PURPLE', t: 'สีม่วง' }, { w: 'FATHER', t: 'พ่อ' }, { w: 'MOTHER', t: 'แม่' }],
+                [{ w: 'SCHOOL', t: 'โรงเรียน' }, { w: 'TRAVEL', t: 'เดินทาง' }, { w: 'VACATION', t: 'วันหยุด' }, { w: 'FRIEND', t: 'เพื่อน' }, { w: 'FAMILY', t: 'ครอบครัว' }],
+                [{ w: 'MORNING', t: 'เช้า' }, { w: 'EVENING', t: 'เย็น' }, { w: 'WEEKEND', t: 'วันหยุดสุดสัปดาห์' }, { w: 'HISTORY', t: 'ประวัติศาสตร์' }, { w: 'SCIENCE', t: 'วิทยาศาสตร์' }],
+                [{ w: 'GARDEN', t: 'สวน' }, { w: 'KITCHEN', t: 'ห้องครัว' }, { w: 'WINDOW', t: 'หน้าต่าง' }, { w: 'DOORWAY', t: 'ทางเข้าประตู' }, { w: 'BUILDING', t: 'ตึก' }],
+                [{ w: 'PICTURE', t: 'รูปภาพ' }, { w: 'CAMERA', t: 'กล้อง' }, { w: 'JOURNAL', t: 'วารสาร' }, { w: 'PROJECT', t: 'โครงการ' }, { w: 'SUCCESS', t: 'ความสำเร็จ' }],
+                [{ w: 'HAPPEN', t: 'เกิดขึ้น' }, { w: 'FINISH', t: 'เสร็จสิ้น' }, { w: 'ACCEPT', t: 'ยอมรับ' }, { w: 'BELIEVE', t: 'เชื่อ' }, { w: 'DECIDE', t: 'ตัดสินใจ' }],
+                [{ w: 'WEATHER', t: 'อากาศ' }, { w: 'CLOUDY', t: 'มีเมฆมาก' }, { w: 'SUNNY', t: 'มีแดด' }, { w: 'STORMY', t: 'มีพายุ' }, { w: 'FROZEN', t: 'เยือกแข็ง' }],
+                [{ w: 'MONSTER', t: 'สัตว์ประหลาด' }, { w: 'SECRET', t: 'ความลับ' }, { w: 'PUZZLE', t: 'ปริศนา' }, { w: 'GHOSTLY', t: 'เหมือนผี' }, { w: 'MYSTERY', t: 'ลึกลับ' }],
+                [{ w: 'BROTHER', t: 'พี่/น้องชาย' }, { w: 'SISTER', t: 'พี่/น้องสาว' }, { w: 'UNCLE', t: 'ลุง/น้า/อา' }, { w: 'AUNT', t: 'ป้า/น้า/อา' }, { w: 'COUSIN', t: 'ลูกพี่ลูกน้อง' }],
+                [{ w: 'MOUNTAIN', t: 'ภูเขา' }, { w: 'FOREST', t: 'ป่า' }, { w: 'PLANET', t: 'ดาวเคราะห์' }, { w: 'CASTLE', t: 'ปราสาท' }, { w: 'ADVENT', t: 'การมาถึง' }]
             ],
             'hard': [
-                [{
-                    w: 'DICTATION',
-                    t: 'เขียนตามคำบอก'
-                }, {
-                    w: 'AMAZEMENT',
-                    t: 'ความประหลาดใจ'
-                }, {
-                    w: 'ADVENTURE',
-                    t: 'การผจญภัย'
-                }, {
-                    w: 'TECHNOLOGY',
-                    t: 'เทคโนโลยี'
-                }, {
-                    w: 'RESTAURANT',
-                    t: 'ร้านอาหาร'
-                }],
-                [{
-                    w: 'COMPUTER',
-                    t: 'คอมพิวเตอร์'
-                }, {
-                    w: 'TELEVISION',
-                    t: 'โทรทัศน์'
-                }, {
-                    w: 'KNOWLEDGE',
-                    t: 'ความรู้'
-                }, {
-                    w: 'DIFFICULT',
-                    t: 'ยาก'
-                }, {
-                    w: 'EXCELLENT',
-                    t: 'ยอดเยี่ยม'
-                }],
-                [{
-                    w: 'COMMUNITY',
-                    t: 'ชุมชน'
-                }, {
-                    w: 'ECOLOGY',
-                    t: 'นิเวศวิทยา'
-                }, {
-                    w: 'EDUCATION',
-                    t: 'การศึกษา'
-                }, {
-                    w: 'IMAGINE',
-                    t: 'จินตนาการ'
-                }, {
-                    w: 'LANGUAGE',
-                    t: 'ภาษา'
-                }],
-                [{
-                    w: 'IMPORTANT',
-                    t: 'สำคัญ'
-                }, {
-                    w: 'DIFFERENT',
-                    t: 'แตกต่าง'
-                }, {
-                    w: 'INTEREST',
-                    t: 'ความสนใจ'
-                }, {
-                    w: 'SUGGESTION',
-                    t: 'ข้อเสนอแนะ'
-                }, {
-                    w: 'GENERALLY',
-                    t: 'โดยทั่วไป'
-                }],
-                [{
-                    w: 'CHOCOLATE',
-                    t: 'ช็อกโกแลต'
-                }, {
-                    w: 'CALCULATE',
-                    t: 'คำนวณ'
-                }, {
-                    w: 'DISCOVER',
-                    t: 'ค้นพบ'
-                }, {
-                    w: 'EXPLORER',
-                    t: 'นักสำรวจ'
-                }, {
-                    w: 'INNOVATE',
-                    t: 'คิดค้น'
-                }],
-                [{
-                    w: 'ATTENTION',
-                    t: 'ความสนใจ'
-                }, {
-                    w: 'CAPABILITY',
-                    t: 'ความสามารถ'
-                }, {
-                    w: 'DEFINITION',
-                    t: 'คำจำกัดความ'
-                }, {
-                    w: 'EXPERIENCE',
-                    t: 'ประสบการณ์'
-                }, {
-                    w: 'GUARANTEE',
-                    t: 'รับประกัน'
-                }],
-                [{
-                    w: 'PROFESSION',
-                    t: 'อาชีพ'
-                }, {
-                    w: 'VOLUNTEER',
-                    t: 'อาสาสมัคร'
-                }, {
-                    w: 'UNIVERSITY',
-                    t: 'มหาวิทยาลัย'
-                }, {
-                    w: 'APPRECIATE',
-                    t: 'ซาบซึ้ง'
-                }, {
-                    w: 'CEREMONY',
-                    t: 'พิธี'
-                }],
-                [{
-                    w: 'CHAMPION',
-                    t: 'แชมป์เปี้ยน'
-                }, {
-                    w: 'DYNAMITE',
-                    t: 'ระเบิด'
-                }, {
-                    w: 'FANTASTIC',
-                    t: 'มหัศจรรย์'
-                }, {
-                    w: 'INVISIBLE',
-                    t: 'ที่มองไม่เห็น'
-                }, {
-                    w: 'MAGNITUDE',
-                    t: 'ขนาด'
-                }],
-                [{
-                    w: 'TRANSPORT',
-                    t: 'ขนส่ง'
-                }, {
-                    w: 'COMPLEXITY',
-                    t: 'ความซับซ้อน'
-                }, {
-                    w: 'CHALLENGES',
-                    t: 'ความท้าทาย'
-                }, {
-                    w: 'DISCOVERY',
-                    t: 'การค้นพบ'
-                }, {
-                    w: 'STRUCTURE',
-                    t: 'โครงสร้าง'
-                }],
-                [{
-                    w: 'UNBELIEVABLE',
-                    t: 'ไม่น่าเชื่อ'
-                }, {
-                    w: 'INFORMATION',
-                    t: 'ข้อมูล'
-                }, {
-                    w: 'CONGRATULATIONS',
-                    t: 'ยินดีด้วย'
-                }, {
-                    w: 'ENVIRONMENT',
-                    t: 'สิ่งแวดล้อม'
-                }, {
-                    w: 'OPPORTUNITY',
-                    t: 'โอกาส'
-                }]
+                [{ w: 'DICTATION', t: 'เขียนตามคำบอก' }, { w: 'AMAZEMENT', t: 'ความประหลาดใจ' }, { w: 'ADVENTURE', t: 'การผจญภัย' }, { w: 'TECHNOLOGY', t: 'เทคโนโลยี' }, { w: 'RESTAURANT', t: 'ร้านอาหาร' }],
+                [{ w: 'COMPUTER', t: 'คอมพิวเตอร์' }, { w: 'TELEVISION', t: 'โทรทัศน์' }, { w: 'KNOWLEDGE', t: 'ความรู้' }, { w: 'DIFFICULT', t: 'ยาก' }, { w: 'EXCELLENT', t: 'ยอดเยี่ยม' }],
+                [{ w: 'COMMUNITY', t: 'ชุมชน' }, { w: 'ECOLOGY', t: 'นิเวศวิทยา' }, { w: 'EDUCATION', t: 'การศึกษา' }, { w: 'IMAGINE', t: 'จินตนาการ' }, { w: 'LANGUAGE', t: 'ภาษา' }],
+                [{ w: 'IMPORTANT', t: 'สำคัญ' }, { w: 'DIFFERENT', t: 'แตกต่าง' }, { w: 'INTEREST', t: 'ความสนใจ' }, { w: 'SUGGESTION', t: 'ข้อเสนอแนะ' }, { w: 'GENERALLY', t: 'โดยทั่วไป' }],
+                [{ w: 'CHOCOLATE', t: 'ช็อกโกแลต' }, { w: 'CALCULATE', t: 'คำนวณ' }, { w: 'DISCOVER', t: 'ค้นพบ' }, { w: 'EXPLORER', t: 'นักสำรวจ' }, { w: 'INNOVATE', t: 'คิดค้น' }],
+                [{ w: 'ATTENTION', t: 'ความสนใจ' }, { w: 'CAPABILITY', t: 'ความสามารถ' }, { w: 'DEFINITION', t: 'คำจำกัดความ' }, { w: 'EXPERIENCE', t: 'ประสบการณ์' }, { w: 'GUARANTEE', t: 'รับประกัน' }],
+                [{ w: 'PROFESSION', t: 'อาชีพ' }, { w: 'VOLUNTEER', t: 'อาสาสมัคร' }, { w: 'UNIVERSITY', t: 'มหาวิทยาลัย' }, { w: 'APPRECIATE', t: 'ซาบซึ้ง' }, { w: 'CEREMONY', t: 'พิธี' }],
+                [{ w: 'CHAMPION', t: 'แชมป์เปี้ยน' }, { w: 'DYNAMITE', t: 'ระเบิด' }, { w: 'FANTASTIC', t: 'มหัศจรรย์' }, { w: 'INVISIBLE', t: 'ที่มองไม่เห็น' }, { w: 'MAGNITUDE', t: 'ขนาด' }],
+                [{ w: 'TRANSPORT', t: 'ขนส่ง' }, { w: 'COMPLEXITY', t: 'ความซับซ้อน' }, { w: 'CHALLENGES', t: 'ความท้าทาย' }, { w: 'DISCOVERY', t: 'การค้นพบ' }, { w: 'STRUCTURE', t: 'โครงสร้าง' }],
+                [{ w: 'UNBELIEVABLE', t: 'ไม่น่าเชื่อ' }, { w: 'INFORMATION', t: 'ข้อมูล' }, { w: 'CONGRATULATIONS', t: 'ยินดีด้วย' }, { w: 'ENVIRONMENT', t: 'สิ่งแวดล้อม' }, { w: 'OPPORTUNITY', t: 'โอกาส' }]
             ]
         };
 
@@ -1179,8 +711,8 @@
         let difficulty = 'easy';
         let isHeadEaten = false; // Flag for eating animation
         let isBotActive = false; // Bot Mode Flag
-        let goldenFruitDespawnTimer = null; // Timer for golden fruit despawn (3s visibility)
-        let goldenFruitSpawnScheduler = null; // NEW: Timer for scheduling the next spawn (3s rest)
+        let goldenFruitDespawnTimer = null; // Timer for golden fruit despawn
+        let goldenFruitSpawnScheduler = null; // Timer for scheduling next spawn
         let lastPressedCtrl = null; // Global to track the last pressed button for bot visualization
 
 
@@ -1212,7 +744,6 @@
                 console.log("Bot Mode ACTIVATED!");
             } else {
                 els.gameBody.classList.remove('bot-active');
-                // Ensure button is released if bot mode is turned off mid-game
                 if (lastPressedCtrl) {
                     lastPressedCtrl.classList.remove('pressed-sim');
                     lastPressedCtrl = null;
@@ -1222,7 +753,7 @@
         }
 
         /**
-         * Simple BFS (Breadth-First Search) for Bot logic
+         * Simple BFS (Breadth-First Search) to find the shortest path to a target.
          */
         function findShortestPath(start, target, occupied) {
             if (!target) return null;
@@ -1257,21 +788,16 @@
                     const nextY = pos.y + dir.y;
                     const nextPosKey = `${nextX},${nextY}`;
 
-                    // Check bounds
                     if (nextX < 0 || nextX >= GRID || nextY < 0 || nextY >= GRID) continue;
 
                     if (nextX === target.x && nextY === target.y) {
-                        // Found the target! Return the first step (nextDir)
                         if (path.length === 0) return dir;
                         return path[0];
                     }
 
                     if (!visited.has(nextPosKey) && !occupied.has(nextPosKey)) {
-
                         visited.add(nextPosKey);
-                        // Store the first direction taken to reach this path
                         const nextStepDir = path.length === 0 ? dir : path[0];
-
                         queue.push({
                             pos: {
                                 x: nextX,
@@ -1282,25 +808,25 @@
                     }
                 }
             }
-            return null; // No path found
+            return null; 
         }
 
         function botMove() {
             const head = snake[0];
             const targetChar = currentWord[letterIdx];
 
-            // 1. Determine the occupied cells: Snake body + WRONG LETTERS
             const occupied = new Set();
+            // Add Snake Body
             for (let i = 1; i < snake.length; i++) {
                 occupied.add(`${snake[i].x},${snake[i].y}`);
             }
+            // Add Wrong Letter Pieces as obstacles
             letters.forEach(l => {
                 if (l.char !== targetChar) {
                     occupied.add(`${l.x},${l.y}`);
                 }
             });
 
-            // 2. Identify the target location
             let target = null;
             if (goldenFruit) {
                 target = goldenFruit; // Primary target: Golden Fruit
@@ -1317,14 +843,13 @@
             }
 
             if (newDir) {
-                // Path found to target
                 if (!(dir.x === -newDir.x && dir.y === -newDir.y)) {
                     nextDir = newDir;
                 }
                 return;
             }
 
-            // 3. Fallback: If no target or no clear path, try to move safely
+            // Fallback: Move safely
             const safeDirections = [{
                 x: 0,
                 y: -1
@@ -1343,6 +868,8 @@
                     const nextY = head.y + d.y;
                     const isOpposite = dir.x === -d.x && dir.y === -d.y;
                     const isCollision = nextX < 0 || nextX >= GRID || nextY < 0 || nextY >= GRID || occupied.has(`${nextX},${nextY}`);
+                    
+                    const lIdx = letters.findIndex(l => l.x === head.x + d.x && l.y === head.y + d.y && l.char === targetChar);
                     const willEat = (lIdx !== -1) || (goldenFruit && head.x + d.x === goldenFruit.x && head.y + d.y === goldenFruit.y);
                     const tail = snake[snake.length - 1];
                     const isTail = !willEat && nextX === tail.x && nextY === tail.y;
@@ -1360,22 +887,19 @@
             }
         }
 
-        // Function to simulate control button press
+        // Simulate control button press
         function simulateControlPress(newDir) {
-            // 1. Release the previous button
             if (lastPressedCtrl) {
                 lastPressedCtrl.classList.remove('pressed-sim');
                 lastPressedCtrl = null;
             }
 
-            // 2. Determine which button to press
             let ctrlId;
             if (newDir.y === -1) ctrlId = 'ctrl-up';
             else if (newDir.y === 1) ctrlId = 'ctrl-down';
             else if (newDir.x === -1) ctrlId = 'ctrl-left';
             else if (newDir.x === 1) ctrlId = 'ctrl-right';
 
-            // 3. Press the new button
             if (ctrlId) {
                 lastPressedCtrl = document.getElementById(ctrlId);
                 if (lastPressedCtrl) {
@@ -1415,13 +939,11 @@
         function backToMain() {
             if (gameInterval) clearInterval(gameInterval);
             isPlaying = false;
-            // Clear all golden fruit timers
             if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
             if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
             goldenFruitDespawnTimer = null;
             goldenFruitSpawnScheduler = null;
 
-            // Clear simulated button state
             if (lastPressedCtrl) {
                 lastPressedCtrl.classList.remove('pressed-sim');
                 lastPressedCtrl = null;
@@ -1466,7 +988,6 @@
         function initGame() {
             els.overlay.classList.add('hidden');
 
-            // Clear simulated button state
             if (lastPressedCtrl) {
                 lastPressedCtrl.classList.remove('pressed-sim');
                 lastPressedCtrl = null;
@@ -1486,7 +1007,7 @@
             dir = {
                 x: 1,
                 y: 0
-            }; // Start moving RIGHT
+            }; 
             nextDir = {
                 x: 1,
                 y: 0
@@ -1495,7 +1016,6 @@
             spawnLetters();
             goldenFruit = null;
             
-            // Clear all golden fruit timers
             if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
             if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
             goldenFruitDespawnTimer = null;
@@ -1506,14 +1026,13 @@
             // ความเร็วคงที่ 250 ms
             gameInterval = setInterval(update, 250);
 
-            // NEW: Start the recurring golden fruit cycle (3s rest, 3s visible)
-            scheduleNextGoldenFruit(); 
+            // NEW: Schedule the FIRST golden fruit after 5 seconds
+            scheduleNextGoldenFruit();
         }
 
         function spawnLetters() {
             letters = [];
             const occupied = new Set(snake.map(s => `${s.x},${s.y}`));
-            // Reserve space in front of head to prevent instant eat/crash
             occupied.add(`${snake[0].x + 1},${snake[0].y}`);
 
             currentWord.split('').forEach(char => {
@@ -1534,14 +1053,14 @@
         }
         
         /**
-         * Schedules the next attempt to spawn a golden fruit after a 3-second rest period.
+         * Schedules the next attempt to spawn a golden fruit after a 5-second rest period.
          */
         function scheduleNextGoldenFruit() {
             if (!isPlaying) return;
             // Clear any pending schedule
             if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
-            // 3 seconds delay (rest period) before calling spawnGoldenFruit again
-            goldenFruitSpawnScheduler = setTimeout(spawnGoldenFruit, 3000); 
+            // 5 seconds delay (rest period) before calling spawnGoldenFruit again
+            goldenFruitSpawnScheduler = setTimeout(spawnGoldenFruit, 5000); 
         }
 
 
@@ -1563,7 +1082,7 @@
             goldenFruit = pos;
             drawBoard(); // Draw the new fruit
 
-            // Set the 3-second DESPAWN timer
+            // Set the 5-second DESPAWN timer
             goldenFruitDespawnTimer = setTimeout(() => {
                 goldenFruit = null;
                 drawBoard(); // Redraw to remove fruit
@@ -1572,21 +1091,18 @@
                 // If it despawns naturally, schedule the next spawn cycle immediately
                 scheduleNextGoldenFruit(); 
 
-            }, 3000); // FIXED 3 SECONDS appearance time
+            }, 5000); // FIXED 5 SECONDS appearance time
         }
 
         // --- Word Complete Flash Logic ---
         function startWordCompleteFlash(callback) {
-            const flashDuration = 100; // Faster flash for impact
-            const cycles = 4; // 2 zoom in, 2 zoom out (total 2 full cycles)
+            const flashDuration = 100; 
+            const cycles = 4; 
             let count = 0;
 
             const allSnakeCells = els.board.querySelectorAll('.snake-head, .snake-body, .snake-tail');
-
-            // Remove the 'eaten' class which was applied just before stopping
             els.board.querySelector('.snake-head')?.classList.remove('eaten');
 
-            // Inject temporary CSS for head flash (scale and rotation)
             const flashStyle = document.createElement('style');
             flashStyle.id = 'flash-temp-style';
             flashStyle.textContent = `
@@ -1606,10 +1122,8 @@
                 }
 
                 if (count % 2 === 0) {
-                    // Flash ON (Zoom In)
                     allSnakeCells.forEach(cell => cell.classList.add('flash-active'));
                 } else {
-                    // Flash OFF (Zoom Out/Normal)
                     allSnakeCells.forEach(cell => cell.classList.remove('flash-active'));
                 }
 
@@ -1621,7 +1135,6 @@
         }
 
         function wordComplete() {
-            // Fix: Word is completed, snake head is on the last letter.
             clearInterval(gameInterval);
             isPlaying = false;
             
@@ -1641,7 +1154,7 @@
                 startWordCompleteFlash(() => {
                     audio.playWin();
                     
-                    // NEW: Wait for speech to finish before proceeding to the next word
+                    // Wait for speech to finish before proceeding to the next word
                     speak(currentWord.toLowerCase(), () => {
                         // This callback runs ONLY after TTS finishes
                         wordIdx++;
@@ -1660,7 +1173,6 @@
 
             dir = nextDir;
             
-            // NEW: Simulate control press if bot is active
             if (isBotActive) {
                 simulateControlPress(dir);
             }
@@ -1691,9 +1203,9 @@
                     letterIdx++;
                     score += 10;
                     ate = true;
-                    isHeadEaten = true; // Set flag for eating effect
+                    isHeadEaten = true; 
 
-                    drawHUD(); // Update display immediately
+                    drawHUD(); 
 
                     if (letterIdx >= currentWord.length) {
                         drawBoard(isHeadEaten); // Draw final eating state
@@ -1714,13 +1226,13 @@
                 score += 50;
                 goldenFruit = null;
 
-                // NEW: Clear the despawn timer as the fruit was eaten
+                // Clear the despawn timer as the fruit was eaten
                 if (goldenFruitDespawnTimer) {
                     clearTimeout(goldenFruitDespawnTimer);
                     goldenFruitDespawnTimer = null;
                 }
                 
-                // NEW: Schedule the next spawn after the 3-second delay
+                // Schedule the next spawn after the 5-second delay
                 scheduleNextGoldenFruit(); 
 
                 // Grow extra segment
@@ -1731,7 +1243,7 @@
             if (!ate) snake.pop();
 
             drawHUD();
-            drawBoard(isHeadEaten); // Pass flag to draw head with eating animation
+            drawBoard(isHeadEaten); 
         }
 
         function gameOver(msg = "ชนแล้ว!") {
