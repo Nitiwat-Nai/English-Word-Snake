@@ -497,43 +497,73 @@
             synth.speak(u);
         }
 
-        // --- DATA ---
+        // --- DATA (UPDATED) ---
         const WORDS = {
             'easy': [
-                [{ w: 'CAT', t: 'แมว' }, { w: 'DOG', t: 'สุนัข' }, { w: 'SUN', t: 'อาทิตย์' }],
-                [{ w: 'FISH', t: 'ปลา' }, { w: 'BIRD', t: 'นก' }, { w: 'RAIN', t: 'ฝน' }],
-                [{ w: 'BALL', t: 'ลูกบอล' }, { w: 'BOOK', t: 'หนังสือ' }, { w: 'GAME', t: 'เกม' }],
-                [{ w: 'FOUR', t: 'สี่' }, { w: 'FIVE', t: 'ห้า' }, { w: 'ZERO', t: 'ศูนย์' }],
-                [{ w: 'GIRL', t: 'เด็กหญิง' }, { w: 'BOY', t: 'เด็กชาย' }, { w: 'KING', t: 'พระราชา' }],
-                [{ w: 'RICE', t: 'ข้าว' }, { w: 'MEAT', t: 'เนื้อ' }, { w: 'SOUP', t: 'ซุป' }],
-                [{ w: 'HAND', t: 'มือ' }, { w: 'FOOT', t: 'เท้า' }, { w: 'EYE', t: 'ตา' }],
-                [{ w: 'COLD', t: 'หนาว' }, { w: 'HOT', t: 'ร้อน' }, { w: 'WET', t: 'เปียก' }],
-                [{ w: 'FROG', t: 'กบ' }, { w: 'SHIP', t: 'เรือ' }, { w: 'BLUE', t: 'สีน้ำเงิน' }],
-                [{ w: 'SMILE', t: 'ยิ้ม' }, { w: 'LAUGH', t: 'หัวเราะ' }, { w: 'SLEEP', t: 'นอน' }]
+                // Level 1: Basic Animals & Nature
+                [{ w: 'CAT', t: 'แมว' }, { w: 'DOG', t: 'สุนัข' }, { w: 'SUN', t: 'อาทิตย์' }, { w: 'ANT', t: 'มด' }, { w: 'COW', t: 'วัว' }],
+                // Level 2: Nature & Weather
+                [{ w: 'FISH', t: 'ปลา' }, { w: 'BIRD', t: 'นก' }, { w: 'RAIN', t: 'ฝน' }, { w: 'WIND', t: 'ลม' }, { w: 'MOON', t: 'พระจันทร์' }],
+                // Level 3: Play & Objects
+                [{ w: 'BALL', t: 'ลูกบอล' }, { w: 'BOOK', t: 'หนังสือ' }, { w: 'GAME', t: 'เกม' }, { w: 'TOY', t: 'ของเล่น' }, { w: 'DOLL', t: 'ตุ๊กตา' }],
+                // Level 4: Numbers
+                [{ w: 'FOUR', t: 'สี่' }, { w: 'FIVE', t: 'ห้า' }, { w: 'ZERO', t: 'ศูนย์' }, { w: 'ONE', t: 'หนึ่ง' }, { w: 'NINE', t: 'เก้า' }],
+                // Level 5: People
+                [{ w: 'GIRL', t: 'เด็กหญิง' }, { w: 'BOY', t: 'เด็กชาย' }, { w: 'KING', t: 'พระราชา' }, { w: 'MAN', t: 'ผู้ชาย' }, { w: 'BABY', t: 'เด็กทารก' }],
+                // Level 6: Food
+                [{ w: 'RICE', t: 'ข้าว' }, { w: 'MEAT', t: 'เนื้อ' }, { w: 'SOUP', t: 'ซุป' }, { w: 'EGG', t: 'ไข่' }, { w: 'MILK', t: 'นม' }],
+                // Level 7: Body Parts
+                [{ w: 'HAND', t: 'มือ' }, { w: 'FOOT', t: 'เท้า' }, { w: 'EYE', t: 'ตา' }, { w: 'NOSE', t: 'จมูก' }, { w: 'EAR', t: 'หู' }],
+                // Level 8: Sensation
+                [{ w: 'COLD', t: 'หนาว' }, { w: 'HOT', t: 'ร้อน' }, { w: 'WET', t: 'เปียก' }, { w: 'DRY', t: 'แห้ง' }, { w: 'SAD', t: 'เศร้า' }],
+                // Level 9: Mixed Objects
+                [{ w: 'FROG', t: 'กบ' }, { w: 'SHIP', t: 'เรือ' }, { w: 'BLUE', t: 'สีน้ำเงิน' }, { w: 'CAR', t: 'รถยนต์' }, { w: 'RED', t: 'สีแดง' }],
+                // Level 10: Actions
+                [{ w: 'SMILE', t: 'ยิ้ม' }, { w: 'LAUGH', t: 'หัวเราะ' }, { w: 'SLEEP', t: 'นอน' }, { w: 'WALK', t: 'เดิน' }, { w: 'RUN', t: 'วิ่ง' }]
             ],
             'medium': [
-                [{ w: 'ORANGE', t: 'ส้ม' }, { w: 'TICKET', t: 'ตั๋ว' }, { w: 'PURPLE', t: 'สีม่วง' }],
-                [{ w: 'SCHOOL', t: 'โรงเรียน' }, { w: 'TRAVEL', t: 'เดินทาง' }, { w: 'FRIEND', t: 'เพื่อน' }],
-                [{ w: 'MORNING', t: 'เช้า' }, { w: 'EVENING', t: 'เย็น' }, { w: 'WEEKEND', t: 'วันหยุด' }],
-                [{ w: 'GARDEN', t: 'สวน' }, { w: 'KITCHEN', t: 'ห้องครัว' }, { w: 'WINDOW', t: 'หน้าต่าง' }],
-                [{ w: 'PICTURE', t: 'รูปภาพ' }, { w: 'CAMERA', t: 'กล้อง' }, { w: 'JOURNAL', t: 'วารสาร' }],
-                [{ w: 'HAPPEN', t: 'เกิดขึ้น' }, { w: 'FINISH', t: 'เสร็จสิ้น' }, { w: 'ACCEPT', t: 'ยอมรับ' }],
-                [{ w: 'WEATHER', t: 'อากาศ' }, { w: 'CLOUDY', t: 'มีเมฆมาก' }, { w: 'SUNNY', t: 'มีแดด' }],
-                [{ w: 'MONSTER', t: 'สัตว์ประหลาด' }, { w: 'SECRET', t: 'ความลับ' }, { w: 'PUZZLE', t: 'ปริศนา' }],
-                [{ w: 'BROTHER', t: 'พี่/น้องชาย' }, { w: 'SISTER', t: 'พี่/น้องสาว' }, { w: 'UNCLE', t: 'ลุง/น้า/อา' }],
-                [{ w: 'MOUNTAIN', t: 'ภูเขา' }, { w: 'FOREST', t: 'ป่า' }, { w: 'PLANET', t: 'ดาวเคราะห์' }]
+                // Level 1: Colors & Items
+                [{ w: 'ORANGE', t: 'ส้ม' }, { w: 'TICKET', t: 'ตั๋ว' }, { w: 'PURPLE', t: 'สีม่วง' }, { w: 'YELLOW', t: 'สีเหลือง' }, { w: 'BASKET', t: 'ตะกร้า' }],
+                // Level 2: Places
+                [{ w: 'SCHOOL', t: 'โรงเรียน' }, { w: 'TRAVEL', t: 'เดินทาง' }, { w: 'FRIEND', t: 'เพื่อน' }, { w: 'OFFICE', t: 'สำนักงาน' }, { w: 'MARKET', t: 'ตลาด' }],
+                // Level 3: Time
+                [{ w: 'MORNING', t: 'เช้า' }, { w: 'EVENING', t: 'เย็น' }, { w: 'WEEKEND', t: 'วันหยุด' }, { w: 'MINUTE', t: 'นาที' }, { w: 'SUMMER', t: 'ฤดูร้อน' }],
+                // Level 4: House
+                [{ w: 'GARDEN', t: 'สวน' }, { w: 'KITCHEN', t: 'ห้องครัว' }, { w: 'WINDOW', t: 'หน้าต่าง' }, { w: 'TOILET', t: 'ห้องน้ำ' }, { w: 'GARAGE', t: 'โรงรถ' }],
+                // Level 5: Hobbies
+                [{ w: 'PICTURE', t: 'รูปภาพ' }, { w: 'CAMERA', t: 'กล้อง' }, { w: 'JOURNAL', t: 'วารสาร' }, { w: 'GUITAR', t: 'กีตาร์' }, { w: 'PENCIL', t: 'ดินสอ' }],
+                // Level 6: Verbs
+                [{ w: 'HAPPEN', t: 'เกิดขึ้น' }, { w: 'FINISH', t: 'เสร็จสิ้น' }, { w: 'ACCEPT', t: 'ยอมรับ' }, { w: 'LISTEN', t: 'ฟัง' }, { w: 'REPAIR', t: 'ซ่อมแซม' }],
+                // Level 7: Weather
+                [{ w: 'WEATHER', t: 'อากาศ' }, { w: 'CLOUDY', t: 'มีเมฆมาก' }, { w: 'SUNNY', t: 'มีแดด' }, { w: 'STORMY', t: 'มีพายุ' }, { w: 'WINDY', t: 'ลมแรง' }],
+                // Level 8: Fantasy
+                [{ w: 'MONSTER', t: 'สัตว์ประหลาด' }, { w: 'SECRET', t: 'ความลับ' }, { w: 'PUZZLE', t: 'ปริศนา' }, { w: 'LEGEND', t: 'ตำนาน' }, { w: 'SPIRIT', t: 'วิญญาณ' }],
+                // Level 9: Family
+                [{ w: 'BROTHER', t: 'พี่/น้องชาย' }, { w: 'SISTER', t: 'พี่/น้องสาว' }, { w: 'UNCLE', t: 'ลุง/น้า/อา' }, { w: 'FATHER', t: 'พ่อ' }, { w: 'MOTHER', t: 'แม่' }],
+                // Level 10: Nature Landscapes
+                [{ w: 'MOUNTAIN', t: 'ภูเขา' }, { w: 'FOREST', t: 'ป่า' }, { w: 'PLANET', t: 'ดาวเคราะห์' }, { w: 'DESERT', t: 'ทะเลทราย' }, { w: 'ISLAND', t: 'เกาะ' }]
             ],
             'hard': [
-                [{ w: 'DICTATION', t: 'เขียนตามคำบอก' }, { w: 'AMAZEMENT', t: 'ความประหลาดใจ' }, { w: 'ADVENTURE', t: 'การผจญภัย' }],
-                [{ w: 'COMPUTER', t: 'คอมพิวเตอร์' }, { w: 'TELEVISION', t: 'โทรทัศน์' }, { w: 'KNOWLEDGE', t: 'ความรู้' }],
-                [{ w: 'COMMUNITY', t: 'ชุมชน' }, { w: 'ECOLOGY', t: 'นิเวศวิทยา' }, { w: 'EDUCATION', t: 'การศึกษา' }],
-                [{ w: 'IMPORTANT', t: 'สำคัญ' }, { w: 'DIFFERENT', t: 'แตกต่าง' }, { w: 'INTEREST', t: 'ความสนใจ' }],
-                [{ w: 'CHOCOLATE', t: 'ช็อกโกแลต' }, { w: 'CALCULATE', t: 'คำนวณ' }, { w: 'DISCOVER', t: 'ค้นพบ' }],
-                [{ w: 'ATTENTION', t: 'ความสนใจ' }, { w: 'CAPABILITY', t: 'ความสามารถ' }, { w: 'DEFINITION', t: 'คำจำกัดความ' }],
-                [{ w: 'PROFESSION', t: 'อาชีพ' }, { w: 'VOLUNTEER', t: 'อาสาสมัคร' }, { w: 'UNIVERSITY', t: 'มหาวิทยาลัย' }],
-                [{ w: 'CHAMPION', t: 'แชมป์เปี้ยน' }, { w: 'DYNAMITE', t: 'ระเบิด' }, { w: 'FANTASTIC', t: 'มหัศจรรย์' }],
-                [{ w: 'TRANSPORT', t: 'ขนส่ง' }, { w: 'COMPLEXITY', t: 'ความซับซ้อน' }, { w: 'CHALLENGES', t: 'ความท้าทาย' }],
-                [{ w: 'UNBELIEVABLE', t: 'ไม่น่าเชื่อ' }, { w: 'INFORMATION', t: 'ข้อมูล' }, { w: 'CONGRATULATIONS', t: 'ยินดีด้วย' }]
+                // Level 1: Adventure
+                [{ w: 'DICTATION', t: 'เขียนตามคำบอก' }, { w: 'AMAZEMENT', t: 'ความประหลาดใจ' }, { w: 'ADVENTURE', t: 'การผจญภัย' }, { w: 'CHALLENGE', t: 'ความท้าทาย' }, { w: 'PASSENGER', t: 'ผู้โดยสาร' }],
+                // Level 2: Technology
+                [{ w: 'COMPUTER', t: 'คอมพิวเตอร์' }, { w: 'TELEVISION', t: 'โทรทัศน์' }, { w: 'KNOWLEDGE', t: 'ความรู้' }, { w: 'TECHNOLOGY', t: 'เทคโนโลยี' }, { w: 'SATELLITE', t: 'ดาวเทียม' }],
+                // Level 3: Society
+                [{ w: 'COMMUNITY', t: 'ชุมชน' }, { w: 'ECOLOGY', t: 'นิเวศวิทยา' }, { w: 'EDUCATION', t: 'การศึกษา' }, { w: 'DEMOCRACY', t: 'ประชาธิปไตย' }, { w: 'ELECTION', t: 'การเลือกตั้ง' }],
+                // Level 4: Descriptions
+                [{ w: 'IMPORTANT', t: 'สำคัญ' }, { w: 'DIFFERENT', t: 'แตกต่าง' }, { w: 'INTEREST', t: 'ความสนใจ' }, { w: 'BEAUTIFUL', t: 'สวยงาม' }, { w: 'DANGEROUS', t: 'อันตราย' }],
+                // Level 5: Science & Sweet
+                [{ w: 'CHOCOLATE', t: 'ช็อกโกแลต' }, { w: 'CALCULATE', t: 'คำนวณ' }, { w: 'DISCOVER', t: 'ค้นพบ' }, { w: 'EXPERIMENT', t: 'การทดลอง' }, { w: 'INFLUENCE', t: 'อิทธิพล' }],
+                // Level 6: Concepts
+                [{ w: 'ATTENTION', t: 'ความสนใจ' }, { w: 'CAPABILITY', t: 'ความสามารถ' }, { w: 'DEFINITION', t: 'คำจำกัดความ' }, { w: 'ATMOSPHERE', t: 'บรรยากาศ' }, { w: 'BACKGROUND', t: 'พื้นหลัง' }],
+                // Level 7: Career & Life
+                [{ w: 'PROFESSION', t: 'อาชีพ' }, { w: 'VOLUNTEER', t: 'อาสาสมัคร' }, { w: 'UNIVERSITY', t: 'มหาวิทยาลัย' }, { w: 'GOVERNMENT', t: 'รัฐบาล' }, { w: 'LEADERSHIP', t: 'ความเป็นผู้นำ' }],
+                // Level 8: Celebrations
+                [{ w: 'CHAMPION', t: 'แชมป์เปี้ยน' }, { w: 'DYNAMITE', t: 'ระเบิด' }, { w: 'FANTASTIC', t: 'มหัศจรรย์' }, { w: 'WONDERFUL', t: 'ยอดเยี่ยม' }, { w: 'CELEBRATE', t: 'เฉลิมฉลอง' }],
+                // Level 9: Complexity
+                [{ w: 'TRANSPORT', t: 'ขนส่ง' }, { w: 'COMPLEXITY', t: 'ความซับซ้อน' }, { w: 'CHALLENGES', t: 'ความท้าทาย' }, { w: 'GENERATION', t: 'รุ่นคน' }, { w: 'LITERATURE', t: 'วรรณกรรม' }],
+                // Level 10: Final Boss
+                [{ w: 'UNBELIEVABLE', t: 'ไม่น่าเชื่อ' }, { w: 'INFORMATION', t: 'ข้อมูล' }, { w: 'CONGRATULATIONS', t: 'ยินดีด้วย' }, { w: 'ENTHUSIASTIC', t: 'กระตือรือร้น' }, { w: 'RELATIONSHIP', t: 'ความสัมพันธ์' }]
             ]
         };
 
