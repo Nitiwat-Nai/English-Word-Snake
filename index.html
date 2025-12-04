@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>English Word Snake Game 🐍 (Premium Jungle)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -11,37 +11,23 @@
         :root {
             /* Jungle Theme Colors */
             --color-primary: #2E7D32;
-            /* Rich Green */
             --color-primary-dark: #1B5E20;
             --color-accent: #FFD700;
-            /* Gold */
-            --color-accent-shadow: #C6A700;
-
             --color-bg: #E8F5E9;
-            /* Very light green bg */
             --color-card-bg: #FFFFFF;
             --color-text-dark: #1A3C34;
-            /* Dark Jungle Green Text */
             --color-text-light: #FFFFFF;
 
             /* Snake Colors */
             --color-snake-head: #00695C;
-            /* Teal Head */
             --color-snake-body: #4DB6AC;
-            /* Teal Body */
-
-            /* Game Board */
             --color-board-bg: #F1F8E9;
             --color-board-border: #33691E;
 
             /* Letter Colors */
             --color-letter-target: #D32F2F;
-            /* Red */
             --color-letter-non-target: #FFECB3;
-            /* Pale Yellow */
             --color-letter-text: #3E2723;
-
-            /* Special Item */
             --color-golden-fruit: #FFD700;
 
             /* Difficulty Colors */
@@ -49,18 +35,35 @@
             --color-medium: #66BB6A;
             --color-hard: #42A5F5;
 
-            /* Grid Size */
+            /* Default Grid Settings (Will be responsive) */
             --grid-size: 15;
-            --cell-size: 25px;
+            --cell-size: 24px; /* Slightly smaller default for better fit */
+            --control-size: 60px;
+        }
 
-            /* Controls */
-            --control-size: 65px;
+        /* --- RESPONSIVE FIXES --- */
+        @media (max-width: 450px) {
+            :root {
+                --cell-size: 20px; /* ลดขนาดช่องสำหรับมือถือ */
+                --control-size: 55px;
+            }
+            .hud-panel {
+                padding: 5px 15px;
+            }
+            header h1 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            :root {
+                --cell-size: 18px; /* สำหรับจอเล็กมาก */
+            }
         }
 
         body {
             font-family: 'Sarabun', sans-serif;
             background: linear-gradient(135deg, #f0e68c 0%, #e0c598 100%);
-            /* Light Brown/Khaki Gradient */
             color: var(--color-text-dark);
             margin: 0;
             padding: 0;
@@ -69,13 +72,14 @@
             align-items: flex-start;
             min-height: 100vh;
             overflow-x: hidden;
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior: none;
         }
 
         .container {
             width: 100%;
             max-width: 500px;
             background-color: rgba(255, 255, 255, 0.95);
-            /* Glass-ish opaque */
             box-shadow: 0 20px 50px rgba(0, 50, 0, 0.3);
             min-height: 100vh;
             display: flex;
@@ -87,20 +91,38 @@
         header {
             background: linear-gradient(to right, var(--color-primary-dark), var(--color-primary));
             color: var(--color-text-light);
-            padding: 1.2rem;
+            padding: 1rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
             margin-bottom: 1rem;
             position: relative;
             z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         header h1 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             margin: 0;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             letter-spacing: 1px;
+        }
+
+        /* Pause Button */
+        #btn-pause {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
 
         .screen {
@@ -116,15 +138,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* --- Buttons --- */
@@ -142,6 +157,9 @@
             margin-bottom: 10px;
             position: relative;
             overflow: hidden;
+            /* Disable selection */
+            user-select: none; 
+            -webkit-user-select: none;
         }
 
         .btn-3d:active {
@@ -149,32 +167,11 @@
             box-shadow: 0 0 0 transparent !important;
         }
 
-        /* Difficulty Buttons */
-        .btn-easy {
-            background: var(--color-easy);
-            box-shadow: 0 5px 0 #FFB300;
-            color: #3E2723;
-        }
-
-        .btn-medium {
-            background: var(--color-medium);
-            box-shadow: 0 5px 0 #388E3C;
-        }
-
-        .btn-hard {
-            background: var(--color-hard);
-            box-shadow: 0 5px 0 #1565C0;
-        }
-
-        .btn-primary {
-            background: var(--color-primary);
-            box-shadow: 0 5px 0 var(--color-primary-dark);
-        }
-
-        .btn-danger {
-            background: #E53935;
-            box-shadow: 0 5px 0 #C62828;
-        }
+        .btn-easy { background: var(--color-easy); box-shadow: 0 5px 0 #FFB300; color: #3E2723; }
+        .btn-medium { background: var(--color-medium); box-shadow: 0 5px 0 #388E3C; }
+        .btn-hard { background: var(--color-hard); box-shadow: 0 5px 0 #1565C0; }
+        .btn-primary { background: var(--color-primary); box-shadow: 0 5px 0 var(--color-primary-dark); }
+        .btn-danger { background: #E53935; box-shadow: 0 5px 0 #C62828; }
 
         /* --- Game Board --- */
         .game-container {
@@ -186,7 +183,6 @@
             border: 6px solid var(--color-board-border);
             border-radius: 10px;
             background-color: var(--color-board-bg);
-            /* Subtle grid pattern */
             background-image:
                 linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
@@ -194,6 +190,7 @@
             margin: 10px auto;
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
             position: relative;
+            touch-action: none; /* Important for swipe */
         }
 
         .cell {
@@ -213,104 +210,57 @@
             z-index: 2;
             position: relative;
             transform-origin: center center;
-            /* IMPORTANT for rotation */
-            transition: transform 0.1s;
-            /* For smooth rotation and eating effect */
-        }
-
-        /* --- Head Rotation & Eyes (Fix for Eye Direction) --- */
-
-        /* Base Rotation for the entire head element */
-        .snake-head[data-dir="UP"] {
-            transform: rotate(-90deg);
-        }
-
-        .snake-head[data-dir="DOWN"] {
-            transform: rotate(90deg);
-        }
-
-        .snake-head[data-dir="LEFT"] {
-            transform: rotate(180deg);
-        }
-
-        .snake-head[data-dir="RIGHT"] {
-            transform: rotate(0deg);
-        }
-
-        /* Eating Effect (Combined with rotation) */
-        .snake-head.eaten[data-dir="UP"] {
-            transform: rotate(-90deg) scale(1.3);
-        }
-
-        .snake-head.eaten[data-dir="DOWN"] {
-            transform: rotate(90deg) scale(1.3);
-        }
-
-        .snake-head.eaten[data-dir="LEFT"] {
-            transform: rotate(180deg) scale(1.3);
-        }
-
-        .snake-head.eaten[data-dir="RIGHT"] {
-            transform: rotate(0deg) scale(1.3);
-        }
-
-
-        /* Eyes for the snake head (FIXED POSITIONING) */
-        .snake-head::before,
-        .snake-head::after {
-            content: '';
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: white;
-            border-radius: 50%;
-            border: 1px solid black;
-            right: 20%;
-        }
-
-        .snake-head::before {
-            top: 25%;
-        }
-
-        .snake-head::after {
-            bottom: 25%;
-        }
-
-        /* Flash Effect */
-        .snake-body.flash-active,
-        .snake-tail.flash-active {
-            transform: scale(1.15);
-            box-shadow: 0 0 15px white, 0 0 10px var(--color-accent);
             transition: transform 0.1s;
         }
 
-        /* Head flash is handled by JS injecting a style block for scale and rotation */
+        /* Rotation */
+        .snake-head[data-dir="UP"] { transform: rotate(-90deg); }
+        .snake-head[data-dir="DOWN"] { transform: rotate(90deg); }
+        .snake-head[data-dir="LEFT"] { transform: rotate(180deg); }
+        .snake-head[data-dir="RIGHT"] { transform: rotate(0deg); }
 
+        /* Eating Effect */
+        .snake-head.eaten[data-dir="UP"] { transform: rotate(-90deg) scale(1.3); }
+        .snake-head.eaten[data-dir="DOWN"] { transform: rotate(90deg) scale(1.3); }
+        .snake-head.eaten[data-dir="LEFT"] { transform: rotate(180deg) scale(1.3); }
+        .snake-head.eaten[data-dir="RIGHT"] { transform: rotate(0deg) scale(1.3); }
+
+        /* Eyes */
+        .snake-head::before, .snake-head::after {
+            content: ''; position: absolute; width: 4px; height: 4px;
+            background: white; border-radius: 50%; border: 1px solid black; right: 20%;
+        }
+        .snake-head::before { top: 25%; }
+        .snake-head::after { bottom: 25%; }
 
         .snake-body {
             background: var(--color-snake-body);
             border-radius: 30%;
             transform: scale(0.9);
-            /* Slight gap look */
         }
-
         .snake-tail {
             background: var(--color-snake-body);
             border-radius: 50%;
             transform: scale(0.7);
         }
 
+        /* Flash Effect */
+        .snake-body.flash-active, .snake-tail.flash-active {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px white, 0 0 10px var(--color-accent);
+            transition: transform 0.1s;
+        }
+
         /* Letters */
         .letter-piece {
             font-weight: 900;
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Scaled down slightly */
             border-radius: 50%;
             color: var(--color-letter-text);
             background: var(--color-letter-non-target);
             box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
         }
-
         .letter-piece.target {
             background: var(--color-letter-target);
             color: white;
@@ -318,84 +268,43 @@
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.15);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
 
-        /* Golden Fruit */
         .golden-fruit {
             background: var(--color-golden-fruit);
             border-radius: 50%;
             box-shadow: 0 0 10px var(--color-golden-fruit);
             animation: spin 2s linear infinite;
         }
-
-        .golden-fruit::after {
-            content: '⭐';
-            font-size: 12px;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+        .golden-fruit::after { content: '⭐'; font-size: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- HUD --- */
         .hud-panel {
             background: rgba(255, 255, 255, 0.8);
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            width: 90%;
-            margin-bottom: 10px;
+            width: 95%;
+            margin-bottom: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .score-display {
-            font-weight: 900;
-            color: var(--color-primary-dark);
-            font-size: 1.2rem;
-        }
-
-        .word-display {
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: var(--color-primary);
-            letter-spacing: 2px;
-        }
-
-        /* Styling: Highlight collected letters */
-        .word-display .collected-char {
-            color: var(--color-snake-head);
-        }
-
-        .word-display .target-char {
-            color: var(--color-letter-target);
-        }
+        .score-display { font-weight: 900; color: var(--color-primary-dark); font-size: 1.2rem; }
+        .word-display { font-size: 1.3rem; font-weight: 900; color: var(--color-primary); letter-spacing: 2px; }
+        .word-display .collected-char { color: var(--color-snake-head); }
+        .word-display .target-char { color: var(--color-letter-target); }
 
         /* --- Controls --- */
         .controls-area {
             display: grid;
-            grid-template-areas:
-                ". up ."
-                "left down right";
-            gap: 10px;
+            grid-template-areas: ". up ." "left down right";
+            gap: 8px;
             margin-top: 10px;
         }
 
@@ -410,90 +319,57 @@
             box-shadow: 0 6px 0 var(--color-primary-dark), 0 10px 10px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             transition: transform 0.1s;
+            /* Disable selection */
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
-        .ctrl-btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 0 0 var(--color-primary-dark);
-        }
-
-        #ctrl-up {
-            grid-area: up;
-        }
-
-        #ctrl-left {
-            grid-area: left;
-        }
-
-        #ctrl-down {
-            grid-area: down;
-        }
-
-        #ctrl-right {
-            grid-area: right;
-        }
+        .ctrl-btn:active { transform: translateY(6px); box-shadow: 0 0 0 var(--color-primary-dark); }
+        #ctrl-up { grid-area: up; }
+        #ctrl-left { grid-area: left; }
+        #ctrl-down { grid-area: down; }
+        #ctrl-right { grid-area: right; }
         
-        /* Hide controls when bot is active */
-        .bot-active .controls-area {
-            /* Optional: visual cue that controls are automated */
-        }
-        
-        /* Highlight pressed button in bot mode */
-        .ctrl-btn.pressed-sim {
-             transform: translateY(6px);
-             box-shadow: 0 0 0 var(--color-primary-dark);
-             filter: brightness(0.8);
-        }
-
+        /* Bot Mode Visuals */
+        .ctrl-btn.pressed-sim { transform: translateY(6px); box-shadow: 0 0 0 var(--color-primary-dark); filter: brightness(0.8); }
 
         /* --- Overlay --- */
         #overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
+            display: flex; justify-content: center; align-items: center; z-index: 100;
         }
 
         .modal {
-            background: white;
-            padding: 2rem;
-            border-radius: 20px;
-            width: 80%;
-            max-width: 350px;
-            text-align: center;
+            background: white; padding: 2rem; border-radius: 20px;
+            width: 80%; max-width: 350px; text-align: center;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes popIn {
-            from {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        /* Sub-level Grid */
-        .sub-level-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
+        .hidden { display: none !important; }
+        
+        .sub-level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        
+        /* Pause Overlay Text */
+        #pause-indicator {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            pointer-events: none;
+            display: none;
+            z-index: 50;
         }
     </style>
 </head>
@@ -503,25 +379,27 @@
     <div class="container">
         <header>
             <h1 id="game-title">Word Snake 🐍</h1>
+            <button id="btn-pause" onclick="togglePause()" class="hidden">❚❚</button>
         </header>
 
         <div id="start-screen" class="screen" style="display: flex;">
             <h2 style="color: var(--color-primary-dark);">เลือกความยาก</h2>
             <div style="width: 100%; max-width: 300px;">
-                <button class="btn-3d btn-easy" onclick="unlockAudio(); showSubLevels('easy')">ระดับ ง่าย (3-5
-                    อักษร)</button>
-                <button class="btn-3d btn-medium" onclick="unlockAudio(); showSubLevels('medium')">ระดับ ปานกลาง (6-8
-                    อักษร)</button>
-                <button class="btn-3d btn-hard" onclick="unlockAudio(); showSubLevels('hard')">ระดับ ยาก (9-12
-                    อักษร)</button>
+                <button class="btn-3d btn-easy" onclick="unlockAudio(); showSubLevels('easy')">ระดับ ง่าย (ช้า)</button>
+                <button class="btn-3d btn-medium" onclick="unlockAudio(); showSubLevels('medium')">ระดับ ปานกลาง (ปกติ)</button>
+                <button class="btn-3d btn-hard" onclick="unlockAudio(); showSubLevels('hard')">ระดับ ยาก (เร็ว)</button>
             </div>
 
             <div id="sub-level-area" class="hidden" style="width: 100%; margin-top: 20px;">
                 <h3 id="sub-level-title" style="margin: 0 0 10px 0;">เลือกด่าน</h3>
-                <div id="sub-level-buttons" class="sub-level-grid">
-                </div>
+                <div id="sub-level-buttons" class="sub-level-grid"></div>
                 <button class="btn-3d btn-danger" style="margin-top: 15px;" onclick="backToMain()">ย้อนกลับ</button>
             </div>
+            
+            <p style="margin-top:20px; font-size:0.8rem; color:#666;">
+                *แตะหน้าจอ 2 ครั้งที่ชื่อเกมเพื่อเปิด/ปิด Bot<br>
+                *ปัดหน้าจอเพื่อบังคับทิศทาง
+            </p>
         </div>
 
         <div id="game-screen" class="screen">
@@ -540,7 +418,9 @@
             <div id="word-progress" class="word-display">_ _ _</div>
             <div style="font-size: 0.9rem; color: #555; margin-bottom: 5px;">คำศัพท์ที่สะสม</div>
 
-            <div id="game-board" class="game-container"></div>
+            <div id="game-board" class="game-container">
+                <div id="pause-indicator">PAUSED</div>
+            </div>
 
             <div class="controls-area">
                 <button id="ctrl-up" class="ctrl-btn">⬆️</button>
@@ -552,8 +432,7 @@
 
         <div id="summary-screen" class="screen">
             <h2 style="color: var(--color-primary);">🎉 จบเลเวล!</h2>
-            <div
-                style="background: white; padding: 15px; border-radius: 10px; width: 100%; margin-bottom: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);">
+            <div style="background: white; padding: 15px; border-radius: 10px; width: 100%; margin-bottom: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); max-height: 250px; overflow-y: auto;">
                 <ul id="summary-list" style="list-style: none; padding: 0; text-align: left;"></ul>
             </div>
             <button class="btn-3d btn-primary" id="btn-next-level">ด่านต่อไป</button>
@@ -566,27 +445,19 @@
                 <p id="modal-msg">คำศัพท์: CAT</p>
                 <button id="modal-btn" class="btn-3d btn-primary">เริ่มเกม</button>
                 <button id="modal-back-btn" class="btn-3d btn-danger hidden" onclick="backToMain()">ออก</button>
+                <button id="modal-resume-btn" class="btn-3d btn-medium hidden" onclick="togglePause()">เล่นต่อ</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- AUDIO SYSTEM (Web Audio API) ---
+        // --- AUDIO SYSTEM ---
         class SoundManager {
-            constructor() {
-                this.ctx = null; // Lazy init
-                this.enabled = true;
-            }
-
+            constructor() { this.ctx = null; this.enabled = true; }
             init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
+                if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+                if (this.ctx.state === 'suspended') { this.ctx.resume(); }
             }
-
             playTone(freq, type, duration, vol = 0.1) {
                 if (!this.enabled || !this.ctx) return;
                 const osc = this.ctx.createOscillator();
@@ -600,123 +471,104 @@
                 osc.start();
                 osc.stop(this.ctx.currentTime + duration);
             }
-
-            playEat() {
-                this.playTone(600, 'sine', 0.1, 0.2);
-                setTimeout(() => this.playTone(800, 'sine', 0.1, 0.2), 50);
-            }
-            playMove() { /* Too repetitive, skipped */ }
-            playWrong() {
-                this.playTone(150, 'sawtooth', 0.3, 0.3);
-            }
-            playBonus() {
-                this.playTone(1000, 'triangle', 0.1, 0.2);
-                setTimeout(() => this.playTone(1500, 'triangle', 0.2, 0.2), 100);
-            }
-            playWin() {
-                [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'square', 0.2, 0.1), i * 100));
-            }
-            playGameOver() {
-                [400, 300, 200, 100].forEach((f, i) => setTimeout(() => this.playTone(f, 'sawtooth', 0.3, 0.2), i * 150));
-            }
+            playEat() { this.playTone(600, 'sine', 0.1, 0.2); setTimeout(() => this.playTone(800, 'sine', 0.1, 0.2), 50); }
+            playWrong() { this.playTone(150, 'sawtooth', 0.3, 0.3); }
+            playBonus() { this.playTone(1000, 'triangle', 0.1, 0.2); setTimeout(() => this.playTone(1500, 'triangle', 0.2, 0.2), 100); }
+            playWin() { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'square', 0.2, 0.1), i * 100)); }
+            playGameOver() { [400, 300, 200, 100].forEach((f, i) => setTimeout(() => this.playTone(f, 'sawtooth', 0.3, 0.2), i * 150)); }
         }
         const audio = new SoundManager();
         const synth = window.speechSynthesis;
 
-        // Mobile Audio Unlock
         function unlockAudio() {
             audio.init();
-            // Unlock TTS for mobile by playing a silent utterance
-            if (synth && !synth.speaking) {
-                const u = new SpeechSynthesisUtterance('');
-                synth.speak(u);
-            }
+            if (synth && !synth.speaking) { const u = new SpeechSynthesisUtterance(''); synth.speak(u); }
         }
 
+        // IMPROVED: TTS with timeout fail-safe
         function speak(text, onEndCallback = () => {}) {
             if (synth.speaking) synth.cancel();
             const u = new SpeechSynthesisUtterance(text);
             u.lang = 'en-US';
             u.rate = 0.8;
             
-            // Set callback for end and error events
-            u.onend = onEndCallback;
-            u.onerror = onEndCallback;
+            let finished = false;
+            const finishOnce = () => {
+                if(!finished) {
+                    finished = true;
+                    onEndCallback();
+                }
+            };
+
+            u.onend = finishOnce;
+            u.onerror = finishOnce;
+            
+            // Fail-safe: If not finished in 2 seconds, force finish
+            setTimeout(finishOnce, 2000);
             
             synth.speak(u);
         }
 
-        // --- GAME DATA ---
+        // --- DATA ---
         const WORDS = {
             'easy': [
-                [{ w: 'CAT', t: 'แมว' }, { w: 'DOG', t: 'สุนัข' }, { w: 'SUN', t: 'อาทิตย์' }, { w: 'MAP', t: 'แผนที่' }, { w: 'ZOO', t: 'สวนสัตว์' }],
-                [{ w: 'FISH', t: 'ปลา' }, { w: 'BIRD', t: 'นก' }, { w: 'RAIN', t: 'ฝน' }, { w: 'FIRE', t: 'ไฟ' }, { w: 'TREE', t: 'ต้นไม้' }],
-                [{ w: 'BALL', t: 'ลูกบอล' }, { w: 'BOOK', t: 'หนังสือ' }, { w: 'GAME', t: 'เกม' }, { w: 'ROAD', t: 'ถนน' }, { w: 'MOON', t: 'ดวงจันทร์' }],
-                [{ w: 'FOUR', t: 'สี่' }, { w: 'FIVE', t: 'ห้า' }, { w: 'ZERO', t: 'ศูนย์' }, { w: 'FAST', t: 'เร็ว' }, { w: 'SLOW', t: 'ช้า' }],
-                [{ w: 'GIRL', t: 'เด็กหญิง' }, { w: 'BOY', t: 'เด็กชาย' }, { w: 'KING', t: 'พระราชา' }, { w: 'QUEEN', t: 'พระราชินี' }, { w: 'WALL', t: 'กำแพง' }],
-                [{ w: 'RICE', t: 'ข้าว' }, { w: 'MEAT', t: 'เนื้อ' }, { w: 'SOUP', t: 'ซุป' }, { w: 'SALT', t: 'เกลือ' }, { w: 'SUGAR', t: 'น้ำตาล' }],
-                [{ w: 'HAND', t: 'มือ' }, { w: 'FOOT', t: 'เท้า' }, { w: 'EYE', t: 'ตา' }, { w: 'NOSE', t: 'จมูก' }, { w: 'EAR', t: 'หู' }],
-                [{ w: 'COLD', t: 'หนาว' }, { w: 'HOT', t: 'ร้อน' }, { w: 'WET', t: 'เปียก' }, { w: 'DRY', t: 'แห้ง' }, { w: 'WIND', t: 'ลม' }],
-                [{ w: 'FROG', t: 'กบ' }, { w: 'SHIP', t: 'เรือ' }, { w: 'BLUE', t: 'สีน้ำเงิน' }, { w: 'PINK', t: 'สีชมพู' }, { w: 'STAR', t: 'ดาว' }],
-                [{ w: 'SMILE', t: 'ยิ้ม' }, { w: 'LAUGH', t: 'หัวเราะ' }, { w: 'SLEEP', t: 'นอน' }, { w: 'DREAM', t: 'ฝัน' }, { w: 'WAKE', t: 'ตื่น' }]
+                [{ w: 'CAT', t: 'แมว' }, { w: 'DOG', t: 'สุนัข' }, { w: 'SUN', t: 'อาทิตย์' }],
+                [{ w: 'FISH', t: 'ปลา' }, { w: 'BIRD', t: 'นก' }, { w: 'RAIN', t: 'ฝน' }],
+                [{ w: 'BALL', t: 'ลูกบอล' }, { w: 'BOOK', t: 'หนังสือ' }, { w: 'GAME', t: 'เกม' }],
+                [{ w: 'FOUR', t: 'สี่' }, { w: 'FIVE', t: 'ห้า' }, { w: 'ZERO', t: 'ศูนย์' }],
+                [{ w: 'GIRL', t: 'เด็กหญิง' }, { w: 'BOY', t: 'เด็กชาย' }, { w: 'KING', t: 'พระราชา' }],
+                [{ w: 'RICE', t: 'ข้าว' }, { w: 'MEAT', t: 'เนื้อ' }, { w: 'SOUP', t: 'ซุป' }],
+                [{ w: 'HAND', t: 'มือ' }, { w: 'FOOT', t: 'เท้า' }, { w: 'EYE', t: 'ตา' }],
+                [{ w: 'COLD', t: 'หนาว' }, { w: 'HOT', t: 'ร้อน' }, { w: 'WET', t: 'เปียก' }],
+                [{ w: 'FROG', t: 'กบ' }, { w: 'SHIP', t: 'เรือ' }, { w: 'BLUE', t: 'สีน้ำเงิน' }],
+                [{ w: 'SMILE', t: 'ยิ้ม' }, { w: 'LAUGH', t: 'หัวเราะ' }, { w: 'SLEEP', t: 'นอน' }]
             ],
             'medium': [
-                [{ w: 'ORANGE', t: 'ส้ม' }, { w: 'TICKET', t: 'ตั๋ว' }, { w: 'PURPLE', t: 'สีม่วง' }, { w: 'FATHER', t: 'พ่อ' }, { w: 'MOTHER', t: 'แม่' }],
-                [{ w: 'SCHOOL', t: 'โรงเรียน' }, { w: 'TRAVEL', t: 'เดินทาง' }, { w: 'VACATION', t: 'วันหยุด' }, { w: 'FRIEND', t: 'เพื่อน' }, { w: 'FAMILY', t: 'ครอบครัว' }],
-                [{ w: 'MORNING', t: 'เช้า' }, { w: 'EVENING', t: 'เย็น' }, { w: 'WEEKEND', t: 'วันหยุดสุดสัปดาห์' }, { w: 'HISTORY', t: 'ประวัติศาสตร์' }, { w: 'SCIENCE', t: 'วิทยาศาสตร์' }],
-                [{ w: 'GARDEN', t: 'สวน' }, { w: 'KITCHEN', t: 'ห้องครัว' }, { w: 'WINDOW', t: 'หน้าต่าง' }, { w: 'DOORWAY', t: 'ทางเข้าประตู' }, { w: 'BUILDING', t: 'ตึก' }],
-                [{ w: 'PICTURE', t: 'รูปภาพ' }, { w: 'CAMERA', t: 'กล้อง' }, { w: 'JOURNAL', t: 'วารสาร' }, { w: 'PROJECT', t: 'โครงการ' }, { w: 'SUCCESS', t: 'ความสำเร็จ' }],
-                [{ w: 'HAPPEN', t: 'เกิดขึ้น' }, { w: 'FINISH', t: 'เสร็จสิ้น' }, { w: 'ACCEPT', t: 'ยอมรับ' }, { w: 'BELIEVE', t: 'เชื่อ' }, { w: 'DECIDE', t: 'ตัดสินใจ' }],
-                [{ w: 'WEATHER', t: 'อากาศ' }, { w: 'CLOUDY', t: 'มีเมฆมาก' }, { w: 'SUNNY', t: 'มีแดด' }, { w: 'STORMY', t: 'มีพายุ' }, { w: 'FROZEN', t: 'เยือกแข็ง' }],
-                [{ w: 'MONSTER', t: 'สัตว์ประหลาด' }, { w: 'SECRET', t: 'ความลับ' }, { w: 'PUZZLE', t: 'ปริศนา' }, { w: 'GHOSTLY', t: 'เหมือนผี' }, { w: 'MYSTERY', t: 'ลึกลับ' }],
-                [{ w: 'BROTHER', t: 'พี่/น้องชาย' }, { w: 'SISTER', t: 'พี่/น้องสาว' }, { w: 'UNCLE', t: 'ลุง/น้า/อา' }, { w: 'AUNT', t: 'ป้า/น้า/อา' }, { w: 'COUSIN', t: 'ลูกพี่ลูกน้อง' }],
-                [{ w: 'MOUNTAIN', t: 'ภูเขา' }, { w: 'FOREST', t: 'ป่า' }, { w: 'PLANET', t: 'ดาวเคราะห์' }, { w: 'CASTLE', t: 'ปราสาท' }, { w: 'ADVENT', t: 'การมาถึง' }]
+                [{ w: 'ORANGE', t: 'ส้ม' }, { w: 'TICKET', t: 'ตั๋ว' }, { w: 'PURPLE', t: 'สีม่วง' }],
+                [{ w: 'SCHOOL', t: 'โรงเรียน' }, { w: 'TRAVEL', t: 'เดินทาง' }, { w: 'FRIEND', t: 'เพื่อน' }],
+                [{ w: 'MORNING', t: 'เช้า' }, { w: 'EVENING', t: 'เย็น' }, { w: 'WEEKEND', t: 'วันหยุด' }],
+                [{ w: 'GARDEN', t: 'สวน' }, { w: 'KITCHEN', t: 'ห้องครัว' }, { w: 'WINDOW', t: 'หน้าต่าง' }],
+                [{ w: 'PICTURE', t: 'รูปภาพ' }, { w: 'CAMERA', t: 'กล้อง' }, { w: 'JOURNAL', t: 'วารสาร' }],
+                [{ w: 'HAPPEN', t: 'เกิดขึ้น' }, { w: 'FINISH', t: 'เสร็จสิ้น' }, { w: 'ACCEPT', t: 'ยอมรับ' }],
+                [{ w: 'WEATHER', t: 'อากาศ' }, { w: 'CLOUDY', t: 'มีเมฆมาก' }, { w: 'SUNNY', t: 'มีแดด' }],
+                [{ w: 'MONSTER', t: 'สัตว์ประหลาด' }, { w: 'SECRET', t: 'ความลับ' }, { w: 'PUZZLE', t: 'ปริศนา' }],
+                [{ w: 'BROTHER', t: 'พี่/น้องชาย' }, { w: 'SISTER', t: 'พี่/น้องสาว' }, { w: 'UNCLE', t: 'ลุง/น้า/อา' }],
+                [{ w: 'MOUNTAIN', t: 'ภูเขา' }, { w: 'FOREST', t: 'ป่า' }, { w: 'PLANET', t: 'ดาวเคราะห์' }]
             ],
             'hard': [
-                [{ w: 'DICTATION', t: 'เขียนตามคำบอก' }, { w: 'AMAZEMENT', t: 'ความประหลาดใจ' }, { w: 'ADVENTURE', t: 'การผจญภัย' }, { w: 'TECHNOLOGY', t: 'เทคโนโลยี' }, { w: 'RESTAURANT', t: 'ร้านอาหาร' }],
-                [{ w: 'COMPUTER', t: 'คอมพิวเตอร์' }, { w: 'TELEVISION', t: 'โทรทัศน์' }, { w: 'KNOWLEDGE', t: 'ความรู้' }, { w: 'DIFFICULT', t: 'ยาก' }, { w: 'EXCELLENT', t: 'ยอดเยี่ยม' }],
-                [{ w: 'COMMUNITY', t: 'ชุมชน' }, { w: 'ECOLOGY', t: 'นิเวศวิทยา' }, { w: 'EDUCATION', t: 'การศึกษา' }, { w: 'IMAGINE', t: 'จินตนาการ' }, { w: 'LANGUAGE', t: 'ภาษา' }],
-                [{ w: 'IMPORTANT', t: 'สำคัญ' }, { w: 'DIFFERENT', t: 'แตกต่าง' }, { w: 'INTEREST', t: 'ความสนใจ' }, { w: 'SUGGESTION', t: 'ข้อเสนอแนะ' }, { w: 'GENERALLY', t: 'โดยทั่วไป' }],
-                [{ w: 'CHOCOLATE', t: 'ช็อกโกแลต' }, { w: 'CALCULATE', t: 'คำนวณ' }, { w: 'DISCOVER', t: 'ค้นพบ' }, { w: 'EXPLORER', t: 'นักสำรวจ' }, { w: 'INNOVATE', t: 'คิดค้น' }],
-                [{ w: 'ATTENTION', t: 'ความสนใจ' }, { w: 'CAPABILITY', t: 'ความสามารถ' }, { w: 'DEFINITION', t: 'คำจำกัดความ' }, { w: 'EXPERIENCE', t: 'ประสบการณ์' }, { w: 'GUARANTEE', t: 'รับประกัน' }],
-                [{ w: 'PROFESSION', t: 'อาชีพ' }, { w: 'VOLUNTEER', t: 'อาสาสมัคร' }, { w: 'UNIVERSITY', t: 'มหาวิทยาลัย' }, { w: 'APPRECIATE', t: 'ซาบซึ้ง' }, { w: 'CEREMONY', t: 'พิธี' }],
-                [{ w: 'CHAMPION', t: 'แชมป์เปี้ยน' }, { w: 'DYNAMITE', t: 'ระเบิด' }, { w: 'FANTASTIC', t: 'มหัศจรรย์' }, { w: 'INVISIBLE', t: 'ที่มองไม่เห็น' }, { w: 'MAGNITUDE', t: 'ขนาด' }],
-                [{ w: 'TRANSPORT', t: 'ขนส่ง' }, { w: 'COMPLEXITY', t: 'ความซับซ้อน' }, { w: 'CHALLENGES', t: 'ความท้าทาย' }, { w: 'DISCOVERY', t: 'การค้นพบ' }, { w: 'STRUCTURE', t: 'โครงสร้าง' }],
-                [{ w: 'UNBELIEVABLE', t: 'ไม่น่าเชื่อ' }, { w: 'INFORMATION', t: 'ข้อมูล' }, { w: 'CONGRATULATIONS', t: 'ยินดีด้วย' }, { w: 'ENVIRONMENT', t: 'สิ่งแวดล้อม' }, { w: 'OPPORTUNITY', t: 'โอกาส' }]
+                [{ w: 'DICTATION', t: 'เขียนตามคำบอก' }, { w: 'AMAZEMENT', t: 'ความประหลาดใจ' }, { w: 'ADVENTURE', t: 'การผจญภัย' }],
+                [{ w: 'COMPUTER', t: 'คอมพิวเตอร์' }, { w: 'TELEVISION', t: 'โทรทัศน์' }, { w: 'KNOWLEDGE', t: 'ความรู้' }],
+                [{ w: 'COMMUNITY', t: 'ชุมชน' }, { w: 'ECOLOGY', t: 'นิเวศวิทยา' }, { w: 'EDUCATION', t: 'การศึกษา' }],
+                [{ w: 'IMPORTANT', t: 'สำคัญ' }, { w: 'DIFFERENT', t: 'แตกต่าง' }, { w: 'INTEREST', t: 'ความสนใจ' }],
+                [{ w: 'CHOCOLATE', t: 'ช็อกโกแลต' }, { w: 'CALCULATE', t: 'คำนวณ' }, { w: 'DISCOVER', t: 'ค้นพบ' }],
+                [{ w: 'ATTENTION', t: 'ความสนใจ' }, { w: 'CAPABILITY', t: 'ความสามารถ' }, { w: 'DEFINITION', t: 'คำจำกัดความ' }],
+                [{ w: 'PROFESSION', t: 'อาชีพ' }, { w: 'VOLUNTEER', t: 'อาสาสมัคร' }, { w: 'UNIVERSITY', t: 'มหาวิทยาลัย' }],
+                [{ w: 'CHAMPION', t: 'แชมป์เปี้ยน' }, { w: 'DYNAMITE', t: 'ระเบิด' }, { w: 'FANTASTIC', t: 'มหัศจรรย์' }],
+                [{ w: 'TRANSPORT', t: 'ขนส่ง' }, { w: 'COMPLEXITY', t: 'ความซับซ้อน' }, { w: 'CHALLENGES', t: 'ความท้าทาย' }],
+                [{ w: 'UNBELIEVABLE', t: 'ไม่น่าเชื่อ' }, { w: 'INFORMATION', t: 'ข้อมูล' }, { w: 'CONGRATULATIONS', t: 'ยินดีด้วย' }]
             ]
         };
 
-        // --- STATE ---
+        // --- STATE & VARIABLES ---
         const GRID = 15;
-        let snake = [],
-            dir = {
-                x: 1,
-                y: 0
-            },
-            nextDir = {
-                x: 1,
-                y: 0
-            };
-        let currentWord = '',
-            currentWordObj = null,
-            letterIdx = 0;
-        let levelData = [],
-            levelIdx = 0,
-            wordIdx = 0;
-        let letters = [],
-            goldenFruit = null;
-        let score = 0,
-            gameInterval = null,
-            isPlaying = false;
+        let snake = [], dir = { x: 1, y: 0 };
+        // IMPROVED: Input Queue to prevent U-turn bugs
+        let inputQueue = []; 
+        let currentWord = '', currentWordObj = null, letterIdx = 0;
+        let levelData = [], levelIdx = 0, wordIdx = 0;
+        let letters = [], goldenFruit = null;
+        let score = 0, gameInterval = null, isPlaying = false, isPaused = false;
         let difficulty = 'easy';
-        let isHeadEaten = false; // Flag for eating animation
-        let isBotActive = false; // Bot Mode Flag
-        let goldenFruitDespawnTimer = null; // Timer for golden fruit despawn
-        let goldenFruitSpawnScheduler = null; // Timer for scheduling next spawn
-        let lastPressedCtrl = null; // Global to track the last pressed button for bot visualization
+        let isHeadEaten = false; 
+        let isBotActive = false; 
+        let goldenFruitDespawnTimer = null; 
+        let goldenFruitSpawnScheduler = null; 
+        let lastPressedCtrl = null; 
+        
+        // Speed Settings
+        const SPEEDS = { 'easy': 280, 'medium': 220, 'hard': 160 };
 
-
-        // --- DOM ---
+        // --- DOM ELEMENTS ---
         const els = {
             screens: document.querySelectorAll('.screen'),
             board: document.getElementById('game-board'),
@@ -730,186 +582,84 @@
             modalMsg: document.getElementById('modal-msg'),
             modalBtn: document.getElementById('modal-btn'),
             modalBackBtn: document.getElementById('modal-back-btn'),
+            modalResumeBtn: document.getElementById('modal-resume-btn'),
             summaryList: document.getElementById('summary-list'),
             btnNextLevel: document.getElementById('btn-next-level'),
             gameTitle: document.getElementById('game-title'),
-            gameBody: document.getElementById('game-body')
+            gameBody: document.getElementById('game-body'),
+            pauseBtn: document.getElementById('btn-pause'),
+            pauseIndicator: document.getElementById('pause-indicator')
         };
 
-        // --- BOT MODE LOGIC ---
+        // --- BOT LOGIC ---
         function toggleBotMode() {
             isBotActive = !isBotActive;
             if (isBotActive) {
                 els.gameBody.classList.add('bot-active');
-                console.log("Bot Mode ACTIVATED!");
+                if(isPaused) togglePause(); // Resume if paused
             } else {
                 els.gameBody.classList.remove('bot-active');
                 if (lastPressedCtrl) {
                     lastPressedCtrl.classList.remove('pressed-sim');
                     lastPressedCtrl = null;
                 }
-                console.log("Bot Mode DEACTIVATED!");
             }
         }
 
-        /**
-         * Simple BFS (Breadth-First Search) to find the shortest path to a target.
-         */
         function findShortestPath(start, target, occupied) {
             if (!target) return null;
-
-            const queue = [{
-                pos: start,
-                path: []
-            }];
+            const queue = [{ pos: start, path: [] }];
             const visited = new Set([`${start.x},${start.y}`]);
-            const directions = [{
-                x: 0,
-                y: -1
-            }, {
-                x: 0,
-                y: 1
-            }, {
-                x: -1,
-                y: 0
-            }, {
-                x: 1,
-                y: 0
-            }];
+            const directions = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }];
 
             while (queue.length > 0) {
-                const {
-                    pos,
-                    path
-                } = queue.shift();
-
-                for (const dir of directions) {
-                    const nextX = pos.x + dir.x;
-                    const nextY = pos.y + dir.y;
+                const { pos, path } = queue.shift();
+                for (const d of directions) {
+                    const nextX = pos.x + d.x, nextY = pos.y + d.y;
                     const nextPosKey = `${nextX},${nextY}`;
-
                     if (nextX < 0 || nextX >= GRID || nextY < 0 || nextY >= GRID) continue;
-
-                    if (nextX === target.x && nextY === target.y) {
-                        if (path.length === 0) return dir;
-                        return path[0];
-                    }
-
+                    if (nextX === target.x && nextY === target.y) return path.length === 0 ? d : path[0];
                     if (!visited.has(nextPosKey) && !occupied.has(nextPosKey)) {
                         visited.add(nextPosKey);
-                        const nextStepDir = path.length === 0 ? dir : path[0];
-                        queue.push({
-                            pos: {
-                                x: nextX,
-                                y: nextY
-                            },
-                            path: [nextStepDir]
-                        });
+                        const nextStepDir = path.length === 0 ? d : path[0];
+                        queue.push({ pos: { x: nextX, y: nextY }, path: [nextStepDir] });
                     }
                 }
             }
-            return null; 
+            return null;
         }
 
         function botMove() {
             const head = snake[0];
             const targetChar = currentWord[letterIdx];
-
             const occupied = new Set();
-            // Add Snake Body
-            for (let i = 1; i < snake.length; i++) {
-                occupied.add(`${snake[i].x},${snake[i].y}`);
-            }
-            // Add Wrong Letter Pieces as obstacles
-            letters.forEach(l => {
-                if (l.char !== targetChar) {
-                    occupied.add(`${l.x},${l.y}`);
-                }
-            });
+            for (let i = 1; i < snake.length; i++) occupied.add(`${snake[i].x},${snake[i].y}`);
+            letters.forEach(l => { if (l.char !== targetChar) occupied.add(`${l.x},${l.y}`); });
 
-            let target = null;
-            if (goldenFruit) {
-                target = goldenFruit; // Primary target: Golden Fruit
-            } else {
-                const targetLetterPiece = letters.find(l => l.char === targetChar);
-                if (targetLetterPiece) {
-                    target = targetLetterPiece; // Secondary target: Correct Letter
-                }
-            }
-
-            let newDir = null;
-            if (target) {
-                newDir = findShortestPath(head, target, occupied);
-            }
+            let target = goldenFruit ? goldenFruit : letters.find(l => l.char === targetChar);
+            let newDir = target ? findShortestPath(head, target, occupied) : null;
 
             if (newDir) {
-                if (!(dir.x === -newDir.x && dir.y === -newDir.y)) {
-                    nextDir = newDir;
-                }
+                handleInput(newDir); // Use standardized input handler
                 return;
             }
 
-            // Fallback: Move safely
-            const safeDirections = [{
-                x: 0,
-                y: -1
-            }, {
-                x: 0,
-                y: 1
-            }, {
-                x: -1,
-                y: 0
-            }, {
-                x: 1,
-                y: 0
-            }]
+            // Fallback: Safety Move
+            const safeDirections = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }]
                 .filter(d => {
-                    const nextX = head.x + d.x;
-                    const nextY = head.y + d.y;
+                    const nextX = head.x + d.x, nextY = head.y + d.y;
                     const isOpposite = dir.x === -d.x && dir.y === -d.y;
                     const isCollision = nextX < 0 || nextX >= GRID || nextY < 0 || nextY >= GRID || occupied.has(`${nextX},${nextY}`);
-                    
                     const lIdx = letters.findIndex(l => l.x === head.x + d.x && l.y === head.y + d.y && l.char === targetChar);
                     const willEat = (lIdx !== -1) || (goldenFruit && head.x + d.x === goldenFruit.x && head.y + d.y === goldenFruit.y);
                     const tail = snake[snake.length - 1];
-                    const isTail = !willEat && nextX === tail.x && nextY === tail.y;
-
-                    return !isOpposite && (!isCollision || isTail);
+                    return !isOpposite && (!isCollision || (!willEat && nextX === tail.x && nextY === tail.y));
                 });
 
-            if (safeDirections.length > 0) {
-                nextDir = safeDirections[0];
-            } else {
-                nextDir = {
-                    x: -dir.x,
-                    y: -dir.y
-                };
-            }
+            if (safeDirections.length > 0) handleInput(safeDirections[0]);
         }
 
-        // Simulate control button press
-        function simulateControlPress(newDir) {
-            if (lastPressedCtrl) {
-                lastPressedCtrl.classList.remove('pressed-sim');
-                lastPressedCtrl = null;
-            }
-
-            let ctrlId;
-            if (newDir.y === -1) ctrlId = 'ctrl-up';
-            else if (newDir.y === 1) ctrlId = 'ctrl-down';
-            else if (newDir.x === -1) ctrlId = 'ctrl-left';
-            else if (newDir.x === 1) ctrlId = 'ctrl-right';
-
-            if (ctrlId) {
-                lastPressedCtrl = document.getElementById(ctrlId);
-                if (lastPressedCtrl) {
-                    lastPressedCtrl.classList.add('pressed-sim');
-                }
-            }
-        }
-
-
-        // --- LOGIC ---
+        // --- CORE LOGIC ---
         function showScreen(id) {
             els.screens.forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'flex';
@@ -919,12 +669,7 @@
             difficulty = diff;
             els.subLevelArea.classList.remove('hidden');
             els.subLevelBtns.innerHTML = '';
-            const colors = {
-                easy: 'var(--color-easy)',
-                medium: 'var(--color-medium)',
-                hard: 'var(--color-hard)'
-            };
-
+            const colors = { easy: 'var(--color-easy)', medium: 'var(--color-medium)', hard: 'var(--color-hard)' };
             for (let i = 0; i < 10; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'btn-3d';
@@ -937,20 +682,41 @@
         }
 
         function backToMain() {
-            if (gameInterval) clearInterval(gameInterval);
+            clearInterval(gameInterval);
             isPlaying = false;
+            isPaused = false;
+            clearTimers();
+            showScreen('start-screen');
+            els.subLevelArea.classList.add('hidden');
+            els.overlay.classList.add('hidden');
+            els.pauseBtn.classList.add('hidden');
+        }
+
+        function togglePause() {
+            if (!isPlaying) return;
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                clearInterval(gameInterval);
+                els.overlay.classList.remove('hidden');
+                els.modalTitle.textContent = "PAUSED";
+                els.modalMsg.textContent = "เกมหยุดชั่วคราว";
+                els.modalBtn.classList.add('hidden');
+                els.modalBackBtn.classList.remove('hidden');
+                els.modalResumeBtn.classList.remove('hidden');
+                els.pauseIndicator.style.display = 'block';
+            } else {
+                els.overlay.classList.add('hidden');
+                els.pauseIndicator.style.display = 'none';
+                gameInterval = setInterval(update, SPEEDS[difficulty]);
+            }
+        }
+
+        function clearTimers() {
             if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
             if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
             goldenFruitDespawnTimer = null;
             goldenFruitSpawnScheduler = null;
-
-            if (lastPressedCtrl) {
-                lastPressedCtrl.classList.remove('pressed-sim');
-                lastPressedCtrl = null;
-            }
-            showScreen('start-screen');
-            els.subLevelArea.classList.add('hidden');
-            els.overlay.classList.add('hidden');
         }
 
         function startLevel(idx) {
@@ -963,70 +729,41 @@
         }
 
         function prepareWord() {
-            if (wordIdx >= levelData.length) {
-                endLevel();
-                return;
-            }
+            if (wordIdx >= levelData.length) return endLevel();
             currentWordObj = levelData[wordIdx];
             currentWord = currentWordObj.w;
             letterIdx = 0;
             isHeadEaten = false;
 
-            // Show Overlay
             showScreen('game-screen');
+            els.pauseBtn.classList.remove('hidden');
             els.overlay.classList.remove('hidden');
             els.modalTitle.textContent = `คำที่ ${wordIdx + 1}/${levelData.length}`;
             els.modalMsg.innerHTML = `สะกดคำว่า: <strong style="font-size:1.5rem; color:var(--color-primary);">${currentWord}</strong><br>(${currentWordObj.t})`;
             els.modalBtn.textContent = "เริ่มเกม";
+            els.modalBtn.classList.remove('hidden');
             els.modalBackBtn.classList.add('hidden');
+            els.modalResumeBtn.classList.add('hidden');
             els.modalBtn.onclick = initGame;
-
             drawHUD();
-            drawBoard(); // Clear board visually
+            drawBoard();
         }
 
         function initGame() {
             els.overlay.classList.add('hidden');
-
-            if (lastPressedCtrl) {
-                lastPressedCtrl.classList.remove('pressed-sim');
-                lastPressedCtrl = null;
-            }
-
-            // Spawn Logic 
-            snake = [{
-                x: 5,
-                y: 7
-            }, {
-                x: 4,
-                y: 7
-            }, {
-                x: 3,
-                y: 7
-            }];
-            dir = {
-                x: 1,
-                y: 0
-            }; 
-            nextDir = {
-                x: 1,
-                y: 0
-            };
-
+            snake = [{ x: 5, y: 7 }, { x: 4, y: 7 }, { x: 3, y: 7 }];
+            dir = { x: 1, y: 0 };
+            inputQueue = []; // Clear input queue
+            
             spawnLetters();
             goldenFruit = null;
-            
-            if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
-            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
-            goldenFruitDespawnTimer = null;
-            goldenFruitSpawnScheduler = null;
+            clearTimers();
 
-            if (gameInterval) clearInterval(gameInterval);
             isPlaying = true;
-            // ความเร็วคงที่ 250 ms
-            gameInterval = setInterval(update, 250);
+            isPaused = false;
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(update, SPEEDS[difficulty]); // Dynamic Speed
 
-            // NEW: Schedule the FIRST golden fruit after 5 seconds
             scheduleNextGoldenFruit();
         }
 
@@ -1034,208 +771,162 @@
             letters = [];
             const occupied = new Set(snake.map(s => `${s.x},${s.y}`));
             occupied.add(`${snake[0].x + 1},${snake[0].y}`);
+            
+            // Safety counter to prevent infinite loop
+            let attempts = 0;
 
             currentWord.split('').forEach(char => {
                 let pos;
                 do {
-                    pos = {
-                        x: Math.floor(Math.random() * GRID),
-                        y: Math.floor(Math.random() * GRID)
-                    };
-                } while (occupied.has(`${pos.x},${pos.y}`));
-                occupied.add(`${pos.x},${pos.y}`);
-                letters.push({
-                    x: pos.x,
-                    y: pos.y,
-                    char: char
-                });
+                    pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+                    attempts++;
+                } while (occupied.has(`${pos.x},${pos.y}`) && attempts < 100);
+                
+                if (attempts < 100) {
+                    occupied.add(`${pos.x},${pos.y}`);
+                    letters.push({ x: pos.x, y: pos.y, char: char });
+                }
             });
         }
-        
-        /**
-         * Schedules the next attempt to spawn a golden fruit after a 5-second rest period.
-         */
-        function scheduleNextGoldenFruit() {
-            if (!isPlaying) return;
-            // Clear any pending schedule
-            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
-            // 5 seconds delay (rest period) before calling spawnGoldenFruit again
-            goldenFruitSpawnScheduler = setTimeout(spawnGoldenFruit, 5000); 
-        }
 
+        function scheduleNextGoldenFruit() {
+            if (!isPlaying || isPaused) return;
+            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
+            goldenFruitSpawnScheduler = setTimeout(spawnGoldenFruit, 5000);
+        }
 
         function spawnGoldenFruit() {
-            if (!isPlaying) return;
-            // Clear any lingering despawn timer before spawning
+            if (!isPlaying || isPaused) return;
             if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
-            goldenFruit = null; // Clear current fruit first
+            goldenFruit = null;
 
             const occupied = new Set([...snake.map(s => `${s.x},${s.y}`), ...letters.map(l => `${l.x},${l.y}`)]);
-            let pos;
+            let pos, attempts = 0;
             do {
-                pos = {
-                    x: Math.floor(Math.random() * GRID),
-                    y: Math.floor(Math.random() * GRID)
-                };
-            } while (occupied.has(`${pos.x},${pos.y}`));
+                pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+                attempts++;
+            } while (occupied.has(`${pos.x},${pos.y}`) && attempts < 100);
 
-            goldenFruit = pos;
-            drawBoard(); // Draw the new fruit
-
-            // Set the 5-second DESPAWN timer
-            goldenFruitDespawnTimer = setTimeout(() => {
-                goldenFruit = null;
-                drawBoard(); // Redraw to remove fruit
-                goldenFruitDespawnTimer = null; // Clear the timer ID
-                
-                // If it despawns naturally, schedule the next spawn cycle immediately
-                scheduleNextGoldenFruit(); 
-
-            }, 5000); // FIXED 5 SECONDS appearance time
-        }
-
-        // --- Word Complete Flash Logic ---
-        function startWordCompleteFlash(callback) {
-            const flashDuration = 100; 
-            const cycles = 4; 
-            let count = 0;
-
-            const allSnakeCells = els.board.querySelectorAll('.snake-head, .snake-body, .snake-tail');
-            els.board.querySelector('.snake-head')?.classList.remove('eaten');
-
-            const flashStyle = document.createElement('style');
-            flashStyle.id = 'flash-temp-style';
-            flashStyle.textContent = `
-                .snake-head.flash-active[data-dir="UP"] { transform: rotate(-90deg) scale(1.15); box-shadow: 0 0 15px white, 0 0 10px var(--color-accent); }
-                .snake-head.flash-active[data-dir="DOWN"] { transform: rotate(90deg) scale(1.15); box-shadow: 0 0 15px white, 0 0 10px var(--color-accent); }
-                .snake-head.flash-active[data-dir="LEFT"] { transform: rotate(180deg) scale(1.15); box-shadow: 0 0 15px white, 0 0 10px var(--color-accent); }
-                .snake-head.flash-active[data-dir="RIGHT"] { transform: rotate(0deg) scale(1.15); box-shadow: 0 0 15px white, 0 0 10px var(--color-accent); }
-            `;
-            document.head.appendChild(flashStyle);
-
-            function toggleFlash() {
-                if (count >= cycles) {
-                    allSnakeCells.forEach(cell => cell.classList.remove('flash-active'));
-                    flashStyle.remove();
-                    callback();
-                    return;
-                }
-
-                if (count % 2 === 0) {
-                    allSnakeCells.forEach(cell => cell.classList.add('flash-active'));
-                } else {
-                    allSnakeCells.forEach(cell => cell.classList.remove('flash-active'));
-                }
-
-                count++;
-                setTimeout(toggleFlash, flashDuration);
+            if (attempts < 100) {
+                goldenFruit = pos;
+                drawBoard();
+                goldenFruitDespawnTimer = setTimeout(() => {
+                    goldenFruit = null;
+                    drawBoard();
+                    goldenFruitDespawnTimer = null;
+                    scheduleNextGoldenFruit();
+                }, 5000);
             }
-
-            toggleFlash();
         }
 
         function wordComplete() {
             clearInterval(gameInterval);
             isPlaying = false;
-            
-            // Clear simulated button state
-            if (lastPressedCtrl) {
-                lastPressedCtrl.classList.remove('pressed-sim');
-                lastPressedCtrl = null;
-            }
-            // Clear all golden fruit timers
-            if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
-            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
-            goldenFruitDespawnTimer = null;
-            goldenFruitSpawnScheduler = null;
+            clearTimers();
 
-            // Start flash effect
             setTimeout(() => {
-                startWordCompleteFlash(() => {
-                    audio.playWin();
-                    
-                    // Wait for speech to finish before proceeding to the next word
-                    speak(currentWord.toLowerCase(), () => {
-                        // This callback runs ONLY after TTS finishes
-                        wordIdx++;
-                        prepareWord();
-                    });
-                });
-            }, 50); 
+                const allSnakeCells = els.board.querySelectorAll('.snake-head, .snake-body, .snake-tail');
+                let count = 0;
+                const flash = setInterval(() => {
+                     allSnakeCells.forEach(c => c.classList.toggle('flash-active'));
+                     count++;
+                     if(count >= 6) {
+                         clearInterval(flash);
+                         allSnakeCells.forEach(c => c.classList.remove('flash-active'));
+                         audio.playWin();
+                         speak(currentWord.toLowerCase(), () => {
+                             wordIdx++;
+                             prepareWord();
+                         });
+                     }
+                }, 100);
+            }, 50);
+        }
 
-            return;
+        // --- IMPROVED INPUT HANDLING ---
+        function handleInput(newDir) {
+            // Prevent U-turn immediately logic check (also done in queue processing, but good for feedback)
+            // Push to queue only if queue isn't full (prevent lag feeling)
+            if (inputQueue.length < 2) {
+                // Logic: Don't push duplicates
+                const lastMove = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : dir;
+                if (lastMove.x === -newDir.x && lastMove.y === -newDir.y) return; // Prevent Reverse
+                if (lastMove.x === newDir.x && lastMove.y === newDir.y) return; // Ignore same dir
+                
+                inputQueue.push(newDir);
+                
+                // Visual feedback for bot or touch
+                if (isBotActive || newDir) { 
+                    simulateControlPress(newDir); 
+                }
+            }
+        }
+
+        function simulateControlPress(d) {
+             if (lastPressedCtrl) { lastPressedCtrl.classList.remove('pressed-sim'); lastPressedCtrl = null; }
+             let id;
+             if(d.y === -1) id = 'ctrl-up'; else if(d.y === 1) id = 'ctrl-down';
+             else if(d.x === -1) id = 'ctrl-left'; else if(d.x === 1) id = 'ctrl-right';
+             if(id) {
+                 lastPressedCtrl = document.getElementById(id);
+                 if(lastPressedCtrl) lastPressedCtrl.classList.add('pressed-sim');
+             }
         }
 
         function update() {
-            if (isBotActive) { // Bot plays first
-                botMove();
-            }
+            if (isPaused) return;
+            if (isBotActive) botMove();
 
-            dir = nextDir;
-            
-            if (isBotActive) {
-                simulateControlPress(dir);
+            // PROCESS INPUT QUEUE
+            if (inputQueue.length > 0) {
+                const nextMove = inputQueue.shift();
+                // Double check U-turn prevention with actual current dir
+                if (!(dir.x === -nextMove.x && dir.y === -nextMove.y)) {
+                    dir = nextMove;
+                }
             }
 
             isHeadEaten = false;
-            const head = {
-                x: snake[0].x + dir.x,
-                y: snake[0].y + dir.y
-            };
+            const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
 
-            // Wall Collision
+            // Collisions
             if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return gameOver();
-            // Self Collision
             if (snake.slice(1, snake.length - 1).some(s => s.x === head.x && s.y === head.y)) return gameOver();
 
             snake.unshift(head);
 
-            // Check Letter Eat
+            // Eat Logic
             const targetChar = currentWord[letterIdx];
             const lIdx = letters.findIndex(l => l.x === head.x && l.y === head.y);
-
             let ate = false;
+
             if (lIdx !== -1) {
                 if (letters[lIdx].char === targetChar) {
-                    // Correct Letter
                     audio.playEat();
                     letters.splice(lIdx, 1);
                     letterIdx++;
                     score += 10;
                     ate = true;
-                    isHeadEaten = true; 
-
-                    drawHUD(); 
-
+                    isHeadEaten = true;
                     if (letterIdx >= currentWord.length) {
-                        drawBoard(isHeadEaten); // Draw final eating state
+                        drawHUD();
+                        drawBoard(true);
                         wordComplete();
                         return;
                     }
                 } else {
-                    // Wrong Letter
                     audio.playWrong();
                     gameOver(`เก็บผิด! ต้องเก็บ <strong>${targetChar}</strong>`);
                     return;
                 }
             }
 
-            // Check Golden Fruit
             if (goldenFruit && head.x === goldenFruit.x && head.y === goldenFruit.y) {
                 audio.playBonus();
                 score += 50;
                 goldenFruit = null;
-
-                // Clear the despawn timer as the fruit was eaten
-                if (goldenFruitDespawnTimer) {
-                    clearTimeout(goldenFruitDespawnTimer);
-                    goldenFruitDespawnTimer = null;
-                }
-                
-                // Schedule the next spawn after the 5-second delay
-                scheduleNextGoldenFruit(); 
-
-                // Grow extra segment
+                if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
+                scheduleNextGoldenFruit();
                 ate = true;
                 isHeadEaten = true;
             }
@@ -1243,38 +934,29 @@
             if (!ate) snake.pop();
 
             drawHUD();
-            drawBoard(isHeadEaten); 
+            drawBoard(isHeadEaten);
         }
 
         function gameOver(msg = "ชนแล้ว!") {
             clearInterval(gameInterval);
             isPlaying = false;
             audio.playGameOver();
-
-            // Clear all golden fruit timers
-            if (goldenFruitDespawnTimer) clearTimeout(goldenFruitDespawnTimer);
-            if (goldenFruitSpawnScheduler) clearTimeout(goldenFruitSpawnScheduler);
-            goldenFruitDespawnTimer = null;
-            goldenFruitSpawnScheduler = null;
-            
-            // Clear simulated button state
-            if (lastPressedCtrl) {
-                lastPressedCtrl.classList.remove('pressed-sim');
-                lastPressedCtrl = null;
-            }
+            clearTimers();
 
             els.overlay.classList.remove('hidden');
             els.modalTitle.textContent = "Game Over";
             els.modalMsg.innerHTML = msg;
             els.modalBtn.textContent = "ลองใหม่";
+            els.modalBtn.classList.remove('hidden');
             els.modalBackBtn.classList.remove('hidden');
+            els.modalResumeBtn.classList.add('hidden');
             els.modalBtn.onclick = initGame;
         }
 
         function endLevel() {
             showScreen('summary-screen');
             els.summaryList.innerHTML = levelData.map(d => `<li>✅ <strong>${d.w}</strong> - ${d.t}</li>`).join('');
-
+            els.pauseBtn.classList.add('hidden');
             if (levelIdx < 9) {
                 els.btnNextLevel.style.display = 'block';
                 els.btnNextLevel.onclick = () => startLevel(levelIdx + 1);
@@ -1287,48 +969,30 @@
         function drawHUD() {
             els.score.textContent = score;
             els.target.textContent = currentWord[letterIdx] || '✅';
-
-            // Display collected letters clearly
-            const wordDisplayHTML = currentWord.split('').map((c, i) => {
-                if (i < letterIdx) {
-                    return `<span class="collected-char">${c}</span>`;
-                } else if (i === letterIdx) {
-                    return `<span class="target-char">${c}</span>`;
-                } else {
-                    return `_`;
-                }
+            els.wordProgress.innerHTML = currentWord.split('').map((c, i) => {
+                if (i < letterIdx) return `<span class="collected-char">${c}</span>`;
+                else if (i === letterIdx) return `<span class="target-char">${c}</span>`;
+                return `_`;
             }).join(' ');
-
-            els.wordProgress.innerHTML = wordDisplayHTML;
         }
 
         function drawBoard(isEating = false) {
-            els.board.innerHTML = '';
-
-            // Determine current direction string for CSS
+            els.board.innerHTML = '<div id="pause-indicator" style="display:'+(isPaused?'block':'none')+'">PAUSED</div>';
             const currentDirString = dir.x === 1 ? 'RIGHT' : dir.x === -1 ? 'LEFT' : dir.y === -1 ? 'UP' : 'DOWN';
 
-            // Draw Snake
             snake.forEach((s, i) => {
                 const el = document.createElement('div');
                 el.style.gridColumnStart = s.x + 1;
                 el.style.gridRowStart = s.y + 1;
-
                 if (i === 0) {
-                    // Head: Apply eating class and direction for rotation
                     el.className = `cell snake-head${isEating ? ' eaten' : ''}`;
                     el.setAttribute('data-dir', currentDirString);
-                } else if (i === snake.length - 1) {
-                    // Tail
-                    el.className = 'cell snake-tail';
                 } else {
-                    // Body
-                    el.className = 'cell snake-body';
+                    el.className = i === snake.length - 1 ? 'cell snake-tail' : 'cell snake-body';
                 }
                 els.board.appendChild(el);
             });
 
-            // Draw Letters
             letters.forEach(l => {
                 const el = document.createElement('div');
                 el.style.gridColumnStart = l.x + 1;
@@ -1337,7 +1001,7 @@
                 el.textContent = l.char;
                 els.board.appendChild(el);
             });
-            // Draw Golden Fruit
+
             if (goldenFruit) {
                 const el = document.createElement('div');
                 el.style.gridColumnStart = goldenFruit.x + 1;
@@ -1347,62 +1011,54 @@
             }
         }
 
-        // --- INPUT ---
+        // --- CONTROLS ---
+        // Keyboard
         document.addEventListener('keydown', e => {
-            if (!isPlaying || isBotActive) return; // Ignore input if bot is active
+            if (!isPlaying || isBotActive || isPaused) return;
             switch (e.key) {
-                case 'ArrowUp':
-                    if (dir.y !== 1) nextDir = {
-                        x: 0,
-                        y: -1
-                    };
-                    break;
-                case 'ArrowDown':
-                    if (dir.y !== -1) nextDir = {
-                        x: 0,
-                        y: 1
-                    };
-                    break;
-                case 'ArrowLeft':
-                    if (dir.x !== 1) nextDir = {
-                        x: -1,
-                        y: 0
-                    };
-                    break;
-                case 'ArrowRight':
-                    if (dir.x !== -1) nextDir = {
-                        x: 1,
-                        y: 0
-                    };
-                    break;
+                case 'ArrowUp': handleInput({ x: 0, y: -1 }); break;
+                case 'ArrowDown': handleInput({ x: 0, y: 1 }); break;
+                case 'ArrowLeft': handleInput({ x: -1, y: 0 }); break;
+                case 'ArrowRight': handleInput({ x: 1, y: 0 }); break;
             }
         });
 
+        // On-screen Buttons
         ['up', 'down', 'left', 'right'].forEach(d => {
-            document.getElementById(`ctrl-${d}`).addEventListener('click', () => {
-                if (!isPlaying || isBotActive) return; // Ignore input if bot is active
-                if (d === 'up' && dir.y !== 1) nextDir = {
-                    x: 0,
-                    y: -1
-                };
-                if (d === 'down' && dir.y !== -1) nextDir = {
-                    x: 0,
-                    y: 1
-                };
-                if (d === 'left' && dir.x !== 1) nextDir = {
-                    x: -1,
-                    y: 0
-                };
-                if (d === 'right' && dir.x !== -1) nextDir = {
-                    x: 1,
-                    y: 0
-                };
+            document.getElementById(`ctrl-${d}`).addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent double fire on some touch devices
+                if (!isPlaying || isBotActive || isPaused) return;
+                const map = { 'up': { x: 0, y: -1 }, 'down': { x: 0, y: 1 }, 'left': { x: -1, y: 0 }, 'right': { x: 1, y: 0 } };
+                handleInput(map[d]);
             });
         });
 
-        // Double-click/tap event to toggle bot mode
+        // Swipe Controls
+        let touchStartX = 0, touchStartY = 0;
+        els.board.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, {passive: false});
+
+        els.board.addEventListener('touchend', e => {
+            if (!isPlaying || isBotActive || isPaused) return;
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (Math.abs(dx) > 30) { // Threshold
+                    handleInput(dx > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 });
+                }
+            } else {
+                if (Math.abs(dy) > 30) {
+                    handleInput(dy > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 });
+                }
+            }
+        }, {passive: false});
+
         els.gameTitle.addEventListener('dblclick', toggleBotMode);
     </script>
 </body>
-
 </html>
